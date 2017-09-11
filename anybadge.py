@@ -6,6 +6,15 @@ A Python module for generating badges for your projects, with a focus on
 simplicity and flexibility.
 """
 import os
+import re
+
+# Package information
+version = __version__ = "0.1.0.dev0"
+__version_info__ = tuple(re.split('[.-]', __version__))
+__title__ = "anybadge"
+__summary__ = "A simple, flexible badge generator."
+__uri__ = "https://github.com/jongracecox/anybadge"
+
 
 # Set some defaults
 DEFAULT_FONT = 'DejaVu Sans,Verdana,Geneva,sans-serif'
@@ -453,7 +462,7 @@ def main():
         # Write badge SVG to file
         badge.write_badge(args.file, overwrite=args.overwrite)
     else:
-        print badge.badge_svg_text
+        print(badge.badge_svg_text)
 
 if __name__ == '__main__':
     main()
