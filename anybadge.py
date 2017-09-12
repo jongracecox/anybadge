@@ -9,7 +9,7 @@ import os
 import re
 
 # Package information
-version = __version__ = "0.1.0.dev0"
+version = __version__ = "0.1.0.dev1"
 __version_info__ = tuple(re.split('[.-]', __version__))
 __title__ = "anybadge"
 __summary__ = "A simple, flexible badge generator."
