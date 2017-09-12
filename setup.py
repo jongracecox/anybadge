@@ -9,7 +9,6 @@ def get_version():
         file_text = file_handle.read()
     version_match = re.search(r'.* __version__ = [\'"]([^\'"]*)[\'"]', file_text)
     if version_match:
-        print version_match.group(1)
         return version_match.group(1)
     raise RuntimeError("Unable to identify version string.")
 
@@ -28,5 +27,8 @@ setup(
         'bdist_wheel': {'universal': True}
     },
     platform=['any'],
-    url='https://github.com/jongracecox/anybadge'
+    url='https://github.com/jongracecox/anybadge',
+    entry_points = {
+        'console_scripts': ['anybadge=anybadge:main'],
+    }
 )
