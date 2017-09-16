@@ -19,6 +19,11 @@ generation tools just provide the ability to specify the color of badge.
 it also allows you to specify a set of thresholds that can be used to
 select a color based on the badge value.
 
+``anybadge`` may be useful for companies developing internally, or any time
+making calls to external badge services is not possible, or undesirable.
+In this situation using ``anybadge`` will be easier than running your own
+internal badge service.
+
 The package can be imported into your python code, or run direct from the
 command line.
 
