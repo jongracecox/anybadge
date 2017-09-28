@@ -35,7 +35,7 @@ Command line
 As an example, if you want to produce a pylint badge, you may run ``anybadge``
 from the command line like this::
 
-	anybadge.py -l pylint -v 2.22 -f pylint.svg 2=red 4=orange 6=yellow 8=green 10=brightgreen
+	anybadge -l pylint -v 2.22 -f pylint.svg 2=red 4=orange 8=yellow 10=green
 
 In this example the label is set to "pylint", the value "2.22", and an
 output file called "pylint.svg".  The thresholds are provided in pairs
@@ -48,12 +48,11 @@ Here is the same example implemented in Python code::
 
 	import anybadge
 
-	# Define thresholds: <2 = red, <4=orange <6=yello <8=green <10=brightgreen
+	# Define thresholds: <2=red, <4=orange <8=yellow <10=green
 	thresholds = {thresholds={2: 'red',
 				  4: 'orange',
 				  6: 'yellow',
-				  8: 'green',
-				  10: 'brightgreen'})
+				  10: 'green',})
 
 	badge = anybadge.Badge('pylint', 2.22, thresholds=thresholds)
 
@@ -94,7 +93,7 @@ These are the command line options::
 
 	positional arguments:
 	  args                  Pairs of <upper>=<color>. For example 2=red 4=orange
-				6=yellow 8=good 10=brightgreen. Read this as "Less
+				8=yellow 10=green. Read this as "Less
 				than 2 = red, less than 4 = orange...".
 
 	optional arguments:
@@ -135,12 +134,12 @@ thresholds.
 Pylint::
 
 	anybadge.py --value=2.22 --file=pylint.svg pylint
-	anybadge.py --label=pylint --value=2.22 --file=pylint.svg 2=red 4=orange 6=yellow 8=green 10=brightgreen
+	anybadge.py --label=pylint --value=2.22 --file=pylint.svg 2=red 4=orange 8=yellow 10=green
 
 Coverage::
 
 	anybadge.py --value=65 --file=coverage.svg coverage
-	anybadge.py --label=coverage --value=65 --suffix='%%' --file=coverage.svg 50=red 60=orange 75=yellow 90=green 100=brightgreen
+	anybadge.py --label=coverage --value=65 --suffix='%%' --file=coverage.svg 50=red 60=orange 80=yellow 100=green
 
 CI Pipeline::
 
@@ -191,9 +190,8 @@ Here is the output of ``help(anybadge)``::
 	     |      2.32 is < 4, so 2.32 yields orange
 	     |      >>> badge = Badge('pylint', 2.32, thresholds={2: 'red',
 	     |      ...                                           4: 'orange',
-	     |      ...                                           6: 'yellow',
-	     |      ...                                           8: 'green',
-	     |      ...                                           10: 'brightgreen'})
+	     |      ...                                           8: 'yellow',
+	     |      ...                                           10: 'green'})
 	     |      >>> badge.badge_color
 	     |      'orange'
 	     |  
@@ -201,27 +199,25 @@ Here is the output of ``help(anybadge)``::
 	     |      6 is < 8, so 6 yields green
 	     |      >>> badge = Badge('pylint', 6, thresholds={2: 'red',
 	     |      ...                                        4: 'orange',
-	     |      ...                                        6: 'yellow',
-	     |      ...                                        8: 'green',
-	     |      ...                                        10: 'brightgreen'})
+	     |      ...                                        8: 'yellow',
+	     |      ...                                        10: 'green'})
 	     |      >>> badge.badge_color
 	     |      'green'
 	     |  
 	     |      11 is not <10, but use_max_when_value_exceeds defaults to
-	     |      True, so 11 yields brightgreen
+	     |      True, so 11 yields green
 	     |      >>> badge = Badge('pylint', 11, thresholds={2: 'red',
 	     |      ...                                         4: 'orange',
-	     |      ...                                         6: 'yellow',
-	     |      ...                                         8: 'green',
-	     |      ...                                         10: 'brightgreen'})
+	     |      ...                                         8: 'yellow',
+	     |      ...                                         10: 'green'})
 	     |      >>> badge.badge_color
-	     |      'brightgreen'
+	     |      'green'
 	     |  
 	     |      11 is not <10, and use_max_when_value_exceeds is set to
 	     |      False, so 11 yields the default color '#a4a61d'
 	     |      >>> badge = Badge('pylint', 11, use_max_when_value_exceeds=False,
-	     |      ...               thresholds={2: 'red', 4: 'orange', 6: 'yellow',
-	     |      ...                           8: 'green', 10: 'brightgreen'})
+	     |      ...               thresholds={2: 'red', 4: 'orange', 8: 'yellow',
+	     |      ...                           10: 'green'})
 	     |      >>> badge.badge_color
 	     |      '#a4a61d'
 	     |  
@@ -320,7 +316,7 @@ Here is the output of ``help(anybadge)``::
 
 	DATA
 	    BADGE_TEMPLATES = {'coverage': {'label': 'coverage', 'suffix': '%', 't...
-	    COLORS = {'brightgreen': '#4c1', 'green': '#97CA00', 'lightgrey': '#9f...
+	    COLORS = {'green': '#97CA00', 'lightgrey': '#9f...
 	    DEFAULT_COLOR = '#a4a61d'
 	    DEFAULT_FONT = 'DejaVu Sans,Verdana,Geneva,sans-serif'
 	    DEFAULT_FONT_SIZE = 11

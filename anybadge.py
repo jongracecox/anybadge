@@ -9,7 +9,7 @@ import os
 import re
 
 # Package information
-version = __version__ = "0.1.0.dev1"
+version = __version__ = "0.2.0.dev1"
 __version_info__ = tuple(re.split('[.-]', __version__))
 __title__ = "anybadge"
 __summary__ = "A simple, flexible badge generator."
@@ -33,7 +33,6 @@ FONT_WIDTHS = {
 # Create a dictionary of colors to make selections
 # easier.
 COLORS = {
-    'brightgreen': '#4c1',
     'green': '#97CA00',
     'yellowgreen': '#a4a61d',
     'yellow': '#dfb317',
@@ -70,11 +69,11 @@ TEMPLATE_SVG = """<?xml version="1.0" encoding="UTF-8"?>
 # from having to provide thresholds and labels each time.
 BADGE_TEMPLATES = {
     'pylint': {
-        'threshold': '2=red 4=orange 6=yellow 8=green 10=brightgreen',
+        'threshold': '2=red 4=orange 8=yellow 10=green',
         'label': 'pylint'
     },
     'coverage': {
-        'threshold': '50=red 60=orange 75=yellow 90=green 100=brightgreen',
+        'threshold': '50=red 60=orange 80=yellow 100=green',
         'label': 'coverage',
         'suffix': '%'
     }
@@ -107,37 +106,34 @@ class Badge(object):
         2.32 is < 4, so 2.32 yields orange
         >>> badge = Badge('pylint', 2.32, thresholds={2: 'red',
         ...                                           4: 'orange',
-        ...                                           6: 'yellow',
-        ...                                           8: 'green',
-        ...                                           10: 'brightgreen'})
+        ...                                           8: 'yellow',
+        ...                                           10: 'green'})
         >>> badge.badge_color
         'orange'
 
-        6 is not <6
-        6 is < 8, so 6 yields green
+        8 is not <8
+        8 is <4, so 8 yields orange
         >>> badge = Badge('pylint', 6, thresholds={2: 'red',
         ...                                        4: 'orange',
-        ...                                        6: 'yellow',
-        ...                                        8: 'green',
-        ...                                        10: 'brightgreen'})
+        ...                                        8: 'yellow',
+        ...                                        10: 'green'})
         >>> badge.badge_color
         'green'
 
-        11 is not <10, but use_max_when_value_exceeds defaults to
-        True, so 11 yields brightgreen
+        10 is not <8, but use_max_when_value_exceeds defaults to
+        True, so 10 yields green
         >>> badge = Badge('pylint', 11, thresholds={2: 'red',
         ...                                         4: 'orange',
-        ...                                         6: 'yellow',
-        ...                                         8: 'green',
-        ...                                         10: 'brightgreen'})
+        ...                                         8: 'yellow',
+        ...                                         10: 'green'})
         >>> badge.badge_color
-        'brightgreen'
+        'green'
 
         11 is not <10, and use_max_when_value_exceeds is set to
         False, so 11 yields the default color '#a4a61d'
         >>> badge = Badge('pylint', 11, use_max_when_value_exceeds=False,
-        ...               thresholds={2: 'red', 4: 'orange', 6: 'yellow',
-        ...                           8: 'green', 10: 'brightgreen'})
+        ...               thresholds={2: 'red', 4: 'orange', 8: 'yellow',
+        ...                           10: 'green'})
         >>> badge.badge_color
         '#a4a61d'
     """
@@ -376,13 +372,13 @@ examples:
         anybadge.py --value=2.22 --file=pylint.svg pylint
 
         anybadge.py --label=pylint --value=2.22 --file=pylint.svg \\
-          2=red 4=orange 6=yellow 8=green 10=brightgreen
+          2=red 4=orange 8=yellow 10=green
 
     Coverage
         anybadge.py --value=65 --file=coverage.svg coverage
 
         anybadge.py --label=coverage --value=65 --suffix='%%' --file=coverage.svg \\
-          50=red 60=orange 75=yellow 90=green 100=brightgreen
+          50=red 60=orange 80=yellow 100=green
 
     CI Pipeline
         anybadge.py --label=pipeline --value=passing --file=pipeline.svg \\
@@ -419,7 +415,7 @@ examples:
     parser.add_argument('-o', '--overwrite', action='store_true',
                         help='Overwrite output file if it already exists.')
     parser.add_argument('args', nargs=argparse.REMAINDER, help='Pairs of <upper>=<color>. '
-                        'For example 2=red 4=orange 6=yellow 8=good 10=brightgreen. '
+                        'For example 2=red 4=orange 6=yellow 8=good. '
                         'Read this as "Less than 2 = red, less than 4 = orange...".')
     return parser.parse_args()
 
