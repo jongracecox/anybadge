@@ -9,7 +9,7 @@ import os
 import re
 
 # Package information
-version = __version__ = "0.2.0.dev1"
+version = __version__ = "0.1.0.dev2"
 __version_info__ = tuple(re.split('[.-]', __version__))
 __title__ = "anybadge"
 __summary__ = "A simple, flexible badge generator."
@@ -21,6 +21,7 @@ DEFAULT_FONT = 'DejaVu Sans,Verdana,Geneva,sans-serif'
 DEFAULT_FONT_SIZE = 11
 NUM_PADDING_CHARS = 0.5
 DEFAULT_COLOR = '#a4a61d'
+DEFAULT_TEXT_COLOR = '#fff'
 
 # Dictionary for looking up approx pixel widths of
 # supported fonts and font sizes.
@@ -57,9 +58,11 @@ TEMPLATE_SVG = """<?xml version="1.0" encoding="UTF-8"?>
         <path fill="{{ color }}" d="M{{ color split x }} 0h{{ value width }}v20H{{ color split x }}z"/>
         <path fill="url(#b)" d="M0 0h{{ badge width }}v20H0z"/>
     </g>
-    <g fill="#fff" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">
+    <g fill="{{ label text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">
         <text x="{{ label anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ label }}</text>
         <text x="{{ label anchor }}" y="14">{{ label }}</text>
+    </g>
+    <g fill="{{ value text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">
         <text x="{{ value anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ value }}</text>
         <text x="{{ value anchor }}" y="14">{{ value }}</text>
     </g>
@@ -141,7 +144,7 @@ class Badge(object):
     def __init__(self, label, value, font_name=DEFAULT_FONT, font_size=DEFAULT_FONT_SIZE,
                  num_padding_chars=NUM_PADDING_CHARS, template=TEMPLATE_SVG,
                  value_prefix='', value_suffix='', thresholds=None, default_color=DEFAULT_COLOR,
-                 use_max_when_value_exceeds=True, value_format=None):
+                 use_max_when_value_exceeds=True, value_format=None, text_color=DEFAULT_TEXT_COLOR):
         """Constructor for Badge class."""
         self.label = label
         self.value = value
@@ -156,6 +159,14 @@ class Badge(object):
         self.template = template
         self.thresholds = thresholds
         self.default_color = default_color
+
+        # text_color can be passed as a single value or a pair of comma delimited values
+        text_colors = text_color.split(',')
+        self.label_text_color = text_colors[0]
+        self.value_text_color = text_colors[0]
+        if len(text_colors) > 1:
+            self.value_text_color = text_colors[1]
+
         self.use_max_when_value_exceeds = use_max_when_value_exceeds
 
     @property
@@ -263,6 +274,8 @@ class Badge(object):
             .replace('{{ value anchor }}', str(self.value_anchor)) \
             .replace('{{ value anchor shadow }}', str(self.value_anchor_shadow)) \
             .replace('{{ color }}', self.badge_color_code) \
+            .replace('{{ label text color }}', self.label_text_color) \
+            .replace('{{ value text color }}', self.value_text_color) \
             .replace('{{ color split x }}', str(self.color_split_position)) \
             .replace('{{ value width }}', str(self.badge_width - self.color_split_position))
 
@@ -414,6 +427,10 @@ examples:
     parser.add_argument('-f', '--file', type=str, help='Output file location.')
     parser.add_argument('-o', '--overwrite', action='store_true',
                         help='Overwrite output file if it already exists.')
+    parser.add_argument('-r', '--text-color', type=str, help='Text color. Single value affects both label'
+                                                             'and value colors.  A comma separated pair '
+                                                             'affects label and value text respectively.',
+                        default=DEFAULT_TEXT_COLOR)
     parser.add_argument('args', nargs=argparse.REMAINDER, help='Pairs of <upper>=<color>. '
                         'For example 2=red 4=orange 6=yellow 8=good. '
                         'Read this as "Less than 2 = red, less than 4 = orange...".')
@@ -452,7 +469,7 @@ def main():
                   default_color=args.color, num_padding_chars=args.padding, font_name=args.font,
                   font_size=args.font_size, template=args.template,
                   use_max_when_value_exceeds=args.use_max, thresholds=threshold_dict,
-                  value_format=args.value_format)
+                  value_format=args.value_format, text_color=args.text_color)
 
     if args.file:
         # Write badge SVG to file
