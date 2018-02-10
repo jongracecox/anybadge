@@ -37,7 +37,7 @@ anybadge -l pylint -v 2.22 -f pylint.svg 2=red 4=orange 8=yellow 10=green
 
 This would result in a badge like this:
 
-![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pylint.svg)
+![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pylint.svg)
 
 In this example the label is set to "pylint", the value "2.22", and an
 output file called "pylint.svg".  The thresholds are provided in pairs
@@ -112,31 +112,31 @@ anybadge --value=2.22 --file=pylint.svg pylint
 ```
 anybadge --value=2.22 --file=pylint.svg pylint
 ```
-![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pylint.svg) 
+![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pylint.svg) 
 
 #### Pylint using arguments
 ```
 anybadge -l pylint -v 2.22 -f pylint.svg 2=red 4=orange 8=yellow 10=green
 ```
-![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pylint.svg) 
+![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pylint.svg) 
 
 #### Coverage using template
 ```
 anybadge --value=65 --file=coverage.svg coverage
 ``` 
-![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/coverage.svg)
+![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/coverage.svg)
 
 #### Pipeline, using labeled colors
 ```
 anybadge --label=pipeline --value=passing --file=pipeline.svg passing=green failing=red
 ```
-![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pipeline.svg)
+![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline.svg)
 
 #### Badge with fixed color
 ```
 anybadge --label=awesomeness --value="110%" --file=awesomeness.svg --color=#97CA00
 ```
-![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/awesomeness.svg)
+![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/awesomeness.svg)
 
 ### Options
 
