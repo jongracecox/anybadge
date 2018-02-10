@@ -1,12 +1,10 @@
-anybadge
-========
+# anybadge
 
 Python project for generating badges for your projects
 
 [![build status](https://api.travis-ci.org/jongracecox/anybadge.svg?branch=master)](https://travis-ci.org/jongracecox/anybadge)
 
-Overview
-========
+## Overview
 
 `anybadge` can be used to add badge generation to your Python projects,
 and also provides a command line interface.
@@ -26,11 +24,10 @@ internal badge service.
 The package can be imported into your python code, or run direct from the
 command line.
 
-Basic usage
-===========
+## Basic usage
 
-Command line
-------------
+### Command line
+
 As an example, if you want to produce a pylint badge, you may run `anybadge`
 from the command line like this:
 
@@ -47,10 +44,8 @@ output file called "pylint.svg".  The thresholds are provided in pairs
 of `<value>=color`  Values can be integer or floats for ranges, and
 string values are also supported.
 
+### Python
 
-
-Python
-------
 Here is the same example implemented in Python code:
 
 ```python
@@ -67,8 +62,7 @@ badge = anybadge.Badge('pylint', 2.22, thresholds=thresholds)
 badge.write_badge('pylint.svg')
 ```
 
-Installation
-============
+## Installation
 
 You can install the latest release of `anybadge` using `pip`:
 
@@ -79,25 +73,24 @@ pip install anybadge
 This will install the Python package, and also make `anybadge` available
 as a command line utility.
 
-Getting help
-============
+## Getting help
+
 To get help from the command line utility, just run:
 
 ```bash
 anybadge --help
 ```
 
-Command line usage
-==================
+## Command line usage
 
-Output
-------
+### Output
+
 Running the utility with the `--file` option will result in the .svg image being
 written to file.  Without the `--file` option the `.svg` file content will be
 written to stdout, so can be redirected to a file.
 
-Thresholds
-----------
+### Thresholds
+
 Some thresholds have been built in to save time.  To use these thresholds you
 can simply specify the template name instead of threshold value/color pairs.
 
@@ -111,8 +104,7 @@ For example:
 anybadge --value=2.22 --file=pylint.svg pylint
 ```
 
-Examples
---------
+### Examples
 
 | Example | Badge |
 | ------- | ----- |
@@ -120,10 +112,10 @@ Examples
 | `anybadge -l pylint -v 2.22 -f pylint.svg 2=red 4=orange 8=yellow 10=green` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pylint.svg) 
 | `anybadge --value=65 --file=coverage.svg coverage` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/coverage.svg)
 | `anybadge --label=pipeline --value=passing --file=pipeline.svg passing=green failing=red` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pipeline.svg)
-| `anybadge.py --label=awesomeness --value="110%" --file=awesomeness.svg --color=#97CA00` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/awesomeness.svg)
+| `anybadge --label=awesomeness --value="110%" --file=awesomeness.svg --color=#97CA00` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/awesomeness.svg)
 
-Options
--------
+### Options
+
 These are the command line options:
 
 ```
