@@ -108,13 +108,35 @@ anybadge --value=2.22 --file=pylint.svg pylint
 
 ### Examples
 
-| Example | Badge |
-| ------- | ----- |
-| `anybadge --value=2.22 --file=pylint.svg pylint` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pylint.svg) 
-| `anybadge -l pylint -v 2.22 -f pylint.svg 2=red 4=orange 8=yellow 10=green` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pylint.svg) 
-| `anybadge --value=65 --file=coverage.svg coverage` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/coverage.svg)
-| `anybadge --label=pipeline --value=passing --file=pipeline.svg passing=green failing=red` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pipeline.svg)
-| `anybadge --label=awesomeness --value="110%" --file=awesomeness.svg --color=#97CA00` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/awesomeness.svg)
+#### Pylint using template
+```
+anybadge --value=2.22 --file=pylint.svg pylint
+```
+![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pylint.svg) 
+
+#### Pylint using arguments
+```
+anybadge -l pylint -v 2.22 -f pylint.svg 2=red 4=orange 8=yellow 10=green
+```
+![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pylint.svg) 
+
+#### Coverage using template
+```
+anybadge --value=65 --file=coverage.svg coverage
+``` 
+![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/coverage.svg)
+
+#### Pipeline, using labeled colors
+```
+anybadge --label=pipeline --value=passing --file=pipeline.svg passing=green failing=red
+```
+![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pipeline.svg)
+
+#### Badge with fixed color
+```
+anybadge --label=awesomeness --value="110%" --file=awesomeness.svg --color=#97CA00
+```
+![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/awesomeness.svg)
 
 ### Options
 
