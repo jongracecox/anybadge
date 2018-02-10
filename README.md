@@ -101,10 +101,26 @@ Thresholds
 Some thresholds have been built in to save time.  To use these thresholds you
 can simply specify the template name instead of threshold value/color pairs.
 
+```
+anybadge --value=<VALUE> --file=<FILE> <TEMPLATE-NAME>
+```
+
+For example:
+
+```bash
+anybadge --value=2.22 --file=pylint.svg pylint
+```
+
+Examples
+--------
+
 | Example | Badge |
 | ------- | ----- |
-| `anybadge --value=2.22 --file=pylint.svg pylint`   | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pylint.svg) 
+| `anybadge --value=2.22 --file=pylint.svg pylint` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pylint.svg) 
+| `anybadge -l pylint -v 2.22 -f pylint.svg 2=red 4=orange 8=yellow 10=green` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pylint.svg) 
 | `anybadge --value=65 --file=coverage.svg coverage` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/coverage.svg)
+| `anybadge --label=pipeline --value=passing --file=pipeline.svg passing=green failing=red` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/pipeline.svg)
+| `anybadge.py --label=awesomeness --value="110%" --file=awesomeness.svg --color=#97CA00` | ![pylint](https://github.com/jongracecox/anybadge/blob/master/examples/awesomeness.svg)
 
 Options
 -------
