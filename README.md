@@ -64,9 +64,11 @@ badge.write_badge('pylint.svg')
 
 ## Installation
 
+`anybadge` is available in PyPi at https://pypi.python.org/pypi/anybadge
+
 You can install the latest release of `anybadge` using `pip`:
 
-```
+```bash
 pip install anybadge
 ```
 
