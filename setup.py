@@ -1,10 +1,12 @@
 #!/usr/bin/python
 from setuptools import setup
 from mister_bump import bump
+from m2r import parse_from_file
 
 setup(
     name='anybadge',
     description='Simple, flexible badge generator for project badges.',
+    long_description=parse_from_file('README.md'),
     version=bump(),
     author='Jon Grace-Cox',
     author_email='jongracecox@gmail.com',
