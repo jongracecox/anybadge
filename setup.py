@@ -1,24 +1,14 @@
 #!/usr/bin/python
-
-import sys
-import re
 from setuptools import setup
-
-def get_version():
-    with open("anybadge.py", "r") as file_handle:
-        file_text = file_handle.read()
-    version_match = re.search(r'.* __version__ = [\'"]([^\'"]*)[\'"]', file_text)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to identify version string.")
+from mister_bump import bump
 
 setup(
     name='anybadge',
     description='Simple, flexible badge generator for project badges.',
-    version=get_version(),
+    version=bump(),
     author='Jon Grace-Cox',
     author_email='jongracecox@gmail.com',
-    py_modules = ['anybadge'],
+    py_modules=['anybadge'],
     setup_requires=['setuptools', 'wheel'],
     tests_require=[],
     install_requires=[],
@@ -28,7 +18,7 @@ setup(
     },
     platform=['any'],
     url='https://github.com/jongracecox/anybadge',
-    entry_points = {
+    entry_points={
         'console_scripts': ['anybadge=anybadge:main'],
     }
 )
