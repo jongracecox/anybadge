@@ -23,7 +23,7 @@ setup(
     version=bump(),
     author='Jon Grace-Cox',
     author_email='jongracecox@gmail.com',
-    py_modules=['anybadge'],
+    py_modules=['anybadge', 'anybadge_server'],
     setup_requires=['setuptools', 'wheel'],
     tests_require=[],
     install_requires=[],
@@ -33,6 +33,7 @@ setup(
     },
     url='https://github.com/jongracecox/anybadge',
     entry_points={
-        'console_scripts': ['anybadge=anybadge:main'],
+        'console_scripts': ['anybadge=anybadge:main',
+                            'anybadge-server=anybadge_server:main'],
     }
 )
