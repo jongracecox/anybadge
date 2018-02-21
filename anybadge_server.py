@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_SERVER_PORT = 8000
 DEFAULT_SERVER_LISTEN_ADDRESS = 'localhost'
+DEFAULT_LOGGING_LEVEL = logging.INFO
 
 SERVER_PORT = DEFAULT_SERVER_PORT
 SERVER_LISTEN_ADDRESS = DEFAULT_SERVER_LISTEN_ADDRESS
@@ -121,19 +122,39 @@ def parse_args():
     parser.add_argument('-l', '--listen-address', type=str, default=DEFAULT_SERVER_LISTEN_ADDRESS,
                         help="Server listen address.  Default is %s.  This can also be set via an environment "
                              "variable called ``ANYBADGE_LISTEN_ADDRESS``." % DEFAULT_SERVER_LISTEN_ADDRESS)
+    parser.add_argument('-d', '--debug', action='store_true', help='Enable debug logging.')
     return parser.parse_args()
 
 
-if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)-15s %(levelname)s:%(filename)s(%(lineno)d):%(funcName)s: %(message)s',
-                        level=logging.DEBUG)
-    logger.info('Starting up anybadge server.')
+def main():
+    """Run server."""
 
+    global DEFAULT_SERVER_PORT, DEFAULT_SERVER_LISTEN_ADDRESS, DEFAULT_LOGGING_LEVEL
+
+    # Check for environment variables
     if 'ANYBADGE_PORT' in environ:
         DEFAULT_SERVER_PORT = environ['ANYBADGE_PORT']
 
     if 'ANYBADGE_LISTEN_ADDRESS' in environ:
         DEFAULT_SERVER_LISTEN_ADDRESS = environ['ANYBADGE_LISTEN_ADDRESS']
 
+    if 'ANYBADGE_LOG_LEVEL' in environ:
+        DEFAULT_LOGGING_LEVEL = logging.getLevelName(environ['ANYBADGE_LOG_LEVEL'])
+
+    # Parse command line args
     args = parse_args()
+
+    # Set logging level
+    logging_level = DEFAULT_LOGGING_LEVEL
+    if args.debug:
+        logging_level = logging.DEBUG
+
+    logging.basicConfig(format='%(asctime)-15s %(levelname)s:%(filename)s(%(lineno)d):%(funcName)s: %(message)s',
+                        level=logging_level)
+    logger.info('Starting up anybadge server.')
+
     run(listen_address=args.listen_address, port=args.port)
+
+
+if __name__ == '__main__':
+    main()
