@@ -20,7 +20,7 @@ __uri__ = "https://github.com/jongracecox/anybadge"
 DEFAULT_FONT = 'DejaVu Sans,Verdana,Geneva,sans-serif'
 DEFAULT_FONT_SIZE = 11
 NUM_PADDING_CHARS = 0.5
-DEFAULT_COLOR = '#a4a61d'
+DEFAULT_COLOR = '#4c1'
 DEFAULT_TEXT_COLOR = '#fff'
 
 # Dictionary for looking up approx pixel widths of
@@ -34,7 +34,7 @@ FONT_WIDTHS = {
 # Create a dictionary of colors to make selections
 # easier.
 COLORS = {
-    'green': '#97CA00',
+    'green': '#4c1',
     'yellowgreen': '#a4a61d',
     'yellow': '#dfb317',
     'orange': '#fe7d37',
@@ -116,7 +116,7 @@ class Badge(object):
 
         8 is not <8
         8 is <4, so 8 yields orange
-        >>> badge = Badge('pylint', 6, thresholds={2: 'red',
+        >>> badge = Badge('pylint', 8, thresholds={2: 'red',
         ...                                        4: 'orange',
         ...                                        8: 'yellow',
         ...                                        10: 'green'})
@@ -133,12 +133,12 @@ class Badge(object):
         'green'
 
         11 is not <10, and use_max_when_value_exceeds is set to
-        False, so 11 yields the default color '#a4a61d'
+        False, so 11 yields the default color '#4c1'
         >>> badge = Badge('pylint', 11, use_max_when_value_exceeds=False,
         ...               thresholds={2: 'red', 4: 'orange', 8: 'yellow',
         ...                           10: 'green'})
         >>> badge.badge_color
-        '#a4a61d'
+        '#4c1'
     """
 
     def __init__(self, label, value, font_name=DEFAULT_FONT, font_size=DEFAULT_FONT_SIZE,
