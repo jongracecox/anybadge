@@ -40,7 +40,7 @@ setup(
     py_modules=['anybadge', 'anybadge_server'],
     setup_requires=['setuptools', 'wheel'],
     tests_require=[],
-    install_requires=get_requirements(),
+    install_requires=[],  # get_requirements(),
     data_files=[],
     options={
         'bdist_wheel': {'universal': True}
