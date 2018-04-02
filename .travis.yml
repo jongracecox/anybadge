@@ -3,8 +3,9 @@ python:
 - '2.7'
 - '3.5'
 - '3.6'
-install:
-- pip install -U setuptools pip -r build-requirements.txt
+# This must be done in setup.py otherwise this module is useless!
+# install:
+# - pip install -U setuptools pip -r build-requirements.txt
 script:
 - python ./test.py
 deploy:

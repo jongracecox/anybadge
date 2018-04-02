@@ -1,4 +1,4 @@
-mister-bump>=1.0.0
-m2r
 restructuredtext_lint
+m2r
+mister-bump>=1.0.0
 pygments

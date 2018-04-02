@@ -105,3 +105,6 @@ ENV/
 
 .DS_Store
 demo.svg
+
+# VSCode
+.vscode/
