@@ -9,7 +9,7 @@ def get_requirements():
 # Install the required packages to run setup.
 print("Installing prerequisite packages (this might take a while)...")
 for requirement in get_requirements():
-    pip.main(['install', requirement])
+    pip.main(['install', '--no-deps', requirement])
 
 # Now we're in business
 
@@ -40,7 +40,7 @@ setup(
     py_modules=['anybadge', 'anybadge_server'],
     setup_requires=['setuptools', 'wheel'],
     tests_require=[],
-    install_requires=[],  # get_requirements(),
+    install_requires=get_requirements(),
     data_files=[],
     options={
         'bdist_wheel': {'universal': True}
