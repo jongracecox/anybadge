@@ -7,6 +7,8 @@ simplicity and flexibility.
 """
 import os
 import re
+from PIL import ImageFont
+import matplotlib.font_manager as font_manager
 
 # Package information
 version = __version__ = "0.1.0.dev2"
@@ -22,14 +24,6 @@ DEFAULT_FONT_SIZE = 11
 NUM_PADDING_CHARS = 0.5
 DEFAULT_COLOR = '#4c1'
 DEFAULT_TEXT_COLOR = '#fff'
-
-# Dictionary for looking up approx pixel widths of
-# supported fonts and font sizes.
-FONT_WIDTHS = {
-    'DejaVu Sans,Verdana,Geneva,sans-serif': {
-        11: 7
-    }
-}
 
 # Create a dictionary of colors to make selections
 # easier.
@@ -219,7 +213,7 @@ class Badge(object):
     def color_split_position(self):
         """The SVG x position where the color split should occur."""
         return self.get_text_width(' ') + self.label_width + \
-            int(float(self.font_width) * float(self.num_padding_chars))
+            int(float(self.get_text_width(' ')) * float(self.num_padding_chars))
 
     @property
     def label_anchor(self):
@@ -298,7 +292,9 @@ class Badge(object):
         >>> badge.get_text_width('pylint')
         42
         """
-        return len(text) * self.get_font_width(self.font_name, self.font_size)
+        font = ImageFont.truetype(font_manager.findfont(self.font_name), self.font_size)
+        size = font.getsize(text)
+        return size[0] #len(text) * self.get_font_width(self.font_name, self.font_size)
 
     @property
     def badge_color(self):
@@ -413,8 +409,7 @@ examples:
                                                           'either side of the badge text.',
                         default=NUM_PADDING_CHARS)
     parser.add_argument('-n', '--font', type=str,
-                        help='Font name.  Supported fonts: '
-                             ','.join(['"%s"' % x for x in FONT_WIDTHS.keys()]),
+                        help='Font name.',
                         default=DEFAULT_FONT)
     parser.add_argument('-z', '--font-size', type=int, help='Font size.',
                         default=DEFAULT_FONT_SIZE)
