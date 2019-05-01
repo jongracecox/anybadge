@@ -294,7 +294,7 @@ class Badge(object):
         """
         font = ImageFont.truetype(font_manager.findfont(self.font_name), self.font_size)
         size = font.getsize(text)
-        return size[0] #len(text) * self.get_font_width(self.font_name, self.font_size)
+        return size[0]
 
     @property
     def badge_color(self):
