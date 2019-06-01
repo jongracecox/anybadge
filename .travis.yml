@@ -8,6 +8,8 @@ install:
 - pip install -U setuptools pip -r build-requirements.txt
 script:
 - pytest --doctest-modules --cov=anybadge anybadge.py tests
+before_deploy:
+- sed -i "s/^version = .*/version = __version__ = \"$TRAVIS_TAG\"/" anybadge.py
 deploy:
 - provider: pypi
   user: jongracecox
@@ -17,12 +19,4 @@ deploy:
   on:
     tags: true
     all_branches: true
-    python: '3.7'
-- provider: pypi
-  user: jongracecox
-  password:
-    secure: "TwKVv2wGesF3zHMtSzC/whgtBfHOG03wYS8bUOeeH4x8g5wQIu9SVyrYSffYE3FxapHbMCzmx7A3IgP4Ma6v4Ik6HqJY7a5DY/na0bcuI40IyCM2J0S0Hbq4E7WXaCCe6t7C5KE7NO3QzIcZboSZBWb78mcKLB2XbuIWMPCXqayGhqh8hynQmhwQ4C5b+jpBXlLtm6+AFH7eJOSdl8iO39RU5TL6FrOjgmks/KvTO0yHaXxmBoRcVudZsv9sAGsUx/UtRA65FPViIgu/dEV8cNtz7HOtL4v9x1mkvsiHF7OJiB1KCzSdUSCI83JSjdh44jjlNx0x2SnPbbwmCR7hi53xszMLbAHqY27hK1O4ntR1Iaui8HhBx8inxwS5z271xEQ9HZ8W9veRaxXxGkzj3LKGzjYflK1UN/ZK2syy5+cF4AEUpqEuQYi2waGhMxxWRo5KA05RLXetvsJYFEHUlATq9aXjMv29yH77KzySgpZe/Emd+Hb7r/7TKDeWXRaWDtUa+lc7G5oHLn6Kmm0iM1lerFKalEO9eoZwO2m1+O47CJ5yTKw1mNsC5Dj6EhG1QeonJWPS5z32vjNvnzRm2psbInt00SE2ClPxY5ASQOdcCMkq4ELGUHVssOGlniVYILs+tiwzrDTaXcckf8lvVvx6CiXfmFY+JYK9q3HYEuE="
-  distributions: sdist bdist_wheel
-  on:
-    branch: master
     python: '3.7'

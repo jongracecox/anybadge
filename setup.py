@@ -1,6 +1,7 @@
 #!/usr/bin/python
+import os
+import re
 from setuptools import setup
-from mister_bump import bump
 from m2r import parse_from_file
 import restructuredtext_lint
 
@@ -16,11 +17,17 @@ if errors:
     raise ValueError('README.md contains errors: ',
                      ', '.join([e.message for e in errors]))
 
+# Attempt to get version number from TravisCI environment variable
+version = os.environ.get('TRAVIS_TAG', default='0.0.0')
+
+# Remove leading 'v'
+version = re.sub('^v', '', version)
+
 setup(
     name='anybadge',
     description='Simple, flexible badge generator for project badges.',
     long_description=rst_readme,
-    version=bump(),
+    version=version,
     author='Jon Grace-Cox',
     author_email='jongracecox@gmail.com',
     py_modules=['anybadge', 'anybadge_server'],
