@@ -3,10 +3,11 @@ python:
 - '2.7'
 - '3.5'
 - '3.6'
+- '3.7'
 install:
 - pip install -U setuptools pip -r build-requirements.txt
 script:
-- python ./test.py
+- pytest --doctest-modules --cov=anybadge anybadge.py tests
 deploy:
 - provider: pypi
   user: jongracecox
@@ -16,7 +17,7 @@ deploy:
   on:
     tags: true
     all_branches: true
-    python: '3.6'
+    python: '3.7'
 - provider: pypi
   user: jongracecox
   password:
@@ -24,4 +25,4 @@ deploy:
   distributions: sdist bdist_wheel
   on:
     branch: master
-    python: '3.6'
+    python: '3.7'
