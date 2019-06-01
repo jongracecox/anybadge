@@ -8,8 +8,9 @@ simplicity and flexibility.
 import os
 import re
 
+
 # Package information
-version = __version__ = "0.1.0.dev2"
+version = __version__ = "0.0.0"
 __version_info__ = tuple(re.split('[.-]', __version__))
 __title__ = "anybadge"
 __summary__ = "A simple, flexible badge generator."
@@ -27,7 +28,7 @@ DEFAULT_TEXT_COLOR = '#fff'
 # supported fonts and font sizes.
 FONT_WIDTHS = {
     'DejaVu Sans,Verdana,Geneva,sans-serif': {
-        11: 7
+        11: 10
     }
 }
 
@@ -171,7 +172,10 @@ class Badge(object):
 
     @property
     def value_is_float(self):
-        """Identify whether the value text is a float."""
+        """Identify whether the value text is a float.
+
+        Returns: bool
+        """
         try:
             _ = float(self.value)
         except ValueError:
@@ -181,7 +185,10 @@ class Badge(object):
 
     @property
     def value_is_int(self):
-        """Identify whether the value text is an int."""
+        """Identify whether the value text is an int.
+
+        Returns: bool
+        """
         try:
             a = float(self.value)
             b = int(a)
@@ -192,7 +199,10 @@ class Badge(object):
 
     @property
     def value_type(self):
-        """The Python type associated with the value."""
+        """The Python type associated with the value.
+
+        Returns: type
+        """
         if self.value_is_float:
             return float
         elif self.value_is_int:
@@ -202,60 +212,96 @@ class Badge(object):
 
     @property
     def label_width(self):
-        """The SVG width of the label text."""
-        return self.get_text_width(self.label)
+        """The SVG width of the label text.
+
+        Returns: int
+        """
+        return int(self.get_text_width(self.label) + (2.0 * self.num_padding_chars * self.font_width))
 
     @property
     def value_width(self):
-        """The SVG width of the value text."""
-        return self.get_text_width(str(self.value_text))
+        """The SVG width of the value text.
+
+        Returns: int
+        """
+        return int(self.get_text_width(str(self.value_text)) + (self.num_padding_chars * self.font_width))
 
     @property
     def font_width(self):
-        """Return the badge font width."""
-        return self.get_font_width(font_name=self.font_name, font_size=self.font_size)
+        """Return the width multiplier for a font.
+
+        Returns:
+            int: Maximum pixel width of badges selected font.
+
+        Example:
+
+            >>> Badge(label='x', value='1').font_width
+            10
+        """
+        return FONT_WIDTHS[self.font_name][self.font_size]
 
     @property
     def color_split_position(self):
-        """The SVG x position where the color split should occur."""
-        return self.get_text_width(' ') + self.label_width + \
-            int(float(self.font_width) * float(self.num_padding_chars))
+        """The SVG x position where the color split should occur.
+
+        Returns: int
+        """
+        return int(self.font_width + self.label_width +
+                   float(self.font_width) * float(self.num_padding_chars))
 
     @property
     def label_anchor(self):
-        """The SVG x position of the middle anchor for the label text."""
+        """The SVG x position of the middle anchor for the label text.
+
+        Returns: float
+        """
         return self.color_split_position / 2
 
     @property
     def value_anchor(self):
-        """The SVG x position of the middle anchor for the value text."""
+        """The SVG x position of the middle anchor for the value text.
+
+        Returns: float
+        """
         return self.color_split_position + ((self.badge_width - self.color_split_position) / 2)
 
     @property
     def label_anchor_shadow(self):
-        """The SVG x position of the label shadow anchor."""
+        """The SVG x position of the label shadow anchor.
+
+        Returns: float
+        """
         return self.label_anchor + 1
 
     @property
     def value_anchor_shadow(self):
-        """The SVG x position of the value shadow anchor."""
+        """The SVG x position of the value shadow anchor.
+
+        Returns: float
+        """
         return self.value_anchor + 1
 
     @property
     def badge_width(self):
         """The total width of badge.
 
-        >>> badge = Badge('pylint', '5', font_name='DejaVu Sans,Verdana,Geneva,sans-serif',
-        ...               font_size=11)
-        >>> badge.badge_width
-        91
+        Returns: int
+
+        Examples:
+
+            >>> badge = Badge('pylint', '5')
+            >>> badge.badge_width
+            103
         """
-        return self.get_text_width('   ' + ' ' * int(float(self.num_padding_chars) * 2.0)) \
-            + self.label_width + self.value_width
+        padding = int(self.font_width * (self.num_padding_chars + 3))
+        return padding + self.label_width + self.value_width
 
     @property
     def badge_svg_text(self):
-        """The badge SVG text."""
+        """The badge SVG text.
+
+        Returns: str
+        """
 
         # Identify whether template is a file or the actual template text
         if len(self.template.split('\n')) == 1:
@@ -279,30 +325,29 @@ class Badge(object):
             .replace('{{ color split x }}', str(self.color_split_position)) \
             .replace('{{ value width }}', str(self.badge_width - self.color_split_position))
 
-    @staticmethod
-    def get_font_width(font_name, font_size):
-        """Return the width multiplier for a font.
-
-        >>> Badge.get_font_width('DejaVu Sans,Verdana,Geneva,sans-serif', 11)
-        7
-        """
-        return FONT_WIDTHS[font_name][font_size]
-
     def get_text_width(self, text):
         """Return the width of text.
+
+        Args:
+            text(str): Text to get the pixel width of.
+
+        Returns:
+            int: Pixel width of the given text based on the badges selected font.
 
         This implementation assumes a fixed font of:
 
         font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11"
         >>> badge = Badge('x', 1, font_name='DejaVu Sans,Verdana,Geneva,sans-serif', font_size=11)
         >>> badge.get_text_width('pylint')
-        42
+        34
         """
-        return len(text) * self.get_font_width(self.font_name, self.font_size)
+        return _get_approx_string_width(text, self.font_width)
 
     @property
     def badge_color(self):
-        """Find the badge color based on the thresholds."""
+        """Badge color based on the configured thresholds.
+
+        Returns: str"""
         # If no thresholds were passed then return the default color
         if not self.thresholds:
             return self.default_color
@@ -331,7 +376,10 @@ class Badge(object):
 
     @property
     def badge_color_code(self):
-        """Return the color code for the badge."""
+        """Return the color code for the badge.
+
+        Returns: str
+        """
         color = self.badge_color
         if color[0] == '#':
             return color
@@ -355,6 +403,109 @@ class Badge(object):
 
         with open(path, mode='w') as file_handle:
             file_handle.write(self.badge_svg_text)
+
+
+# Based on the following SO answer: https://stackoverflow.com/a/16008023/6252525
+def _get_approx_string_width(text, font_width, fixed_width=False):
+    """
+    Get the approximate width of a string using a specific average font width.
+
+    Args:
+        text(str): Text string to calculate width of.
+        font_width(int): Average width of font characters.
+        fixed_width(bool): Indicates that the font is fixed width.
+
+    Returns:
+        int: Width of string in pixels.
+
+    Examples:
+
+        Call the function with a string and the maximum character width of the font you are using:
+
+            >>> int(_get_approx_string_width('hello', 10))
+            29
+
+        This example shows the comparison of simplistic calculation based on a fixed width.
+        Given a test string and a fixed font width of 10, we can calculate the width
+        by multiplying the length and the font character with:
+
+            >>> test_string = 'GOOGLE|ijkl'
+            >>> _get_approx_string_width(test_string, 10, fixed_width=True)
+            110
+
+        Since some characters in the string are thinner than others we expect that the
+        apporximate text width will be narrower than the fixed width calculation:
+
+            >>> _get_approx_string_width(test_string, 10)
+            77
+
+    """
+    if fixed_width:
+        return len(text) * font_width
+
+    size = 0.0
+
+    # A dictionary containing percentages that relate to how wide
+    # each character will be represented in a variable width font.
+    # These percentages can be calculated using the ``_get_character_percentage_dict`` function.
+    char_width_percentages = {
+        "lij|' ": 40.0,
+        '![]fI.,:;/\\t': 50.0,
+        '`-(){}r"': 60.0,
+        '*^zcsJkvxy': 70.0,
+        'aebdhnopqug#$L+<>=?_~FZT0123456789': 70.0,
+        'BSPEAKVXY&UwNRCHD': 70.0,
+        'QGOMm%W@': 100.0
+    }
+
+    for s in text:
+        percentage = 100.0
+        for k in char_width_percentages.keys():
+            if s in k:
+                percentage = char_width_percentages[k]
+                break
+        size += (percentage / 100.0) * float(font_width)
+
+    return int(size)
+
+
+def _get_character_percentage_dict(font_path, font_size):
+    """Get the dictionary used to estimate variable width font text lengths.
+
+    Args:
+        font_path(str): Path to valid font file.
+        font_size(int): Font size to use.
+
+    Returns: dict
+
+    This function can be used to calculate the dictionary used in the
+    ``get_approx_string_width`` function.
+
+    Examples:
+        >>> _get_character_percentage_dict('/Library/Fonts/Verdana.ttf', 9)  # doctest: +ELLIPSIS
+        {"lij|' ": 40, '![]fI.,:;/\\\\t': 50, '`-(){}r"': 60, '*^zcsJkvxy': 70, ...
+    """
+    from PIL import ImageFont
+
+    # List of groups in size order, smallest to largest
+    char_width_groups = [
+        "lij|' ",
+        '![]fI.,:;/\\t',
+        '`-(){}r"',
+        '*^zcsJkvxy',
+        'aebdhnopqug#$L+<>=?_~FZT' + digits,
+        'BSPEAKVXY&UwNRCHD',
+        'QGOMm%W@',
+        ]
+
+    def get_largest_in_group(group):
+        """Get the widest character from the group."""
+        return max([ImageFont.truetype(font_path, font_size).getsize(c)[0] for c in group])
+
+    largest = char_width_groups[-1]
+    font_width = get_largest_in_group(largest)
+    return {group: int((get_largest_in_group(group) / font_width) * 100)
+            for group in char_width_groups}
 
 
 def parse_args():
@@ -476,6 +627,7 @@ def main():
         badge.write_badge(args.file, overwrite=args.overwrite)
     else:
         print(badge.badge_svg_text)
+
 
 if __name__ == '__main__':
     main()

@@ -25,7 +25,7 @@ setup(
     author_email='jongracecox@gmail.com',
     py_modules=['anybadge', 'anybadge_server'],
     setup_requires=['setuptools', 'wheel'],
-    tests_require=[],
+    tests_require=['unittest'],
     install_requires=[],
     data_files=[],
     options={
