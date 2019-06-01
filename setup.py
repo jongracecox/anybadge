@@ -42,5 +42,8 @@ setup(
     entry_points={
         'console_scripts': ['anybadge=anybadge:main',
                             'anybadge-server=anybadge_server:main'],
-    }
+    },
+    classifiers=[
+        'License :: OSI Approved :: MIT License'
+    ]
 )
