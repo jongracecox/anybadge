@@ -2,6 +2,7 @@
 
 Python project for generating badges for your projects
 
+[![pypi package](https://badge.fury.io/py/anybadge.svg)](https://pypi.org/project/anybadge)
 [![build status](https://api.travis-ci.org/jongracecox/anybadge.svg?branch=master)](https://travis-ci.org/jongracecox/anybadge)
 
 ## Overview
