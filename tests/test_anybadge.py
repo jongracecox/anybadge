@@ -84,3 +84,22 @@ class TestAnybadge(TestCase):
         badge.write_badge('test_badge_7.svg', overwrite=True)
 
         self.assertLessEqual(badge.badge_width, 76)
+
+    def test_badge_with_thresholds(self):
+        """Test generating a badge using thresholds."""
+        thresholds = {
+            2: 'red', 4: 'orange', 6: 'green', 8: 'brightgreen'
+        }
+
+        badge = Badge('test', '2.22', value_suffix='%',
+                      thresholds=thresholds)
+
+        badge.write_badge('test_badge_8.svg')
+
+    def test_badge_with_text_color(self):
+        """Test generating a badge with alternate text_color."""
+
+        badge = Badge('test', '2.22', value_suffix='%',
+                      text_color='#010101,#101010')
+
+        badge.write_badge('test_badge_9.svg')
