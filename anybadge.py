@@ -468,44 +468,48 @@ def _get_approx_string_width(text, font_width, fixed_width=False):
 
     return int(size)
 
-
-def _get_character_percentage_dict(font_path, font_size):
-    """Get the dictionary used to estimate variable width font text lengths.
-
-    Args:
-        font_path(str): Path to valid font file.
-        font_size(int): Font size to use.
-
-    Returns: dict
-
-    This function can be used to calculate the dictionary used in the
-    ``get_approx_string_width`` function.
-
-    Examples:
-        >>> _get_character_percentage_dict('/Library/Fonts/Verdana.ttf', 9)  # doctest: +ELLIPSIS
-        {"lij|' ": 40, '![]fI.,:;/\\\\t': 50, '`-(){}r"': 60, '*^zcsJkvxy': 70, ...
-    """
-    from PIL import ImageFont
-
-    # List of groups in size order, smallest to largest
-    char_width_groups = [
-        "lij|' ",
-        '![]fI.,:;/\\t',
-        '`-(){}r"',
-        '*^zcsJkvxy',
-        'aebdhnopqug#$L+<>=?_~FZT' + digits,
-        'BSPEAKVXY&UwNRCHD',
-        'QGOMm%W@',
-        ]
-
-    def get_largest_in_group(group):
-        """Get the widest character from the group."""
-        return max([ImageFont.truetype(font_path, font_size).getsize(c)[0] for c in group])
-
-    largest = char_width_groups[-1]
-    font_width = get_largest_in_group(largest)
-    return {group: int((get_largest_in_group(group) / font_width) * 100)
-            for group in char_width_groups}
+# This is a helper function that can be used to generate alternate dictionaries
+# for the _get_approx_string_width function.  The function is not needed for
+# normal operation of this package, and since it depends on the PIL package,
+# which is not included in the dependencies the function will remain commented out.
+#
+# def _get_character_percentage_dict(font_path, font_size):
+#     """Get the dictionary used to estimate variable width font text lengths.
+#
+#     Args:
+#         font_path(str): Path to valid font file.
+#         font_size(int): Font size to use.
+#
+#     Returns: dict
+#
+#     This function can be used to calculate the dictionary used in the
+#     ``get_approx_string_width`` function.
+#
+#     Examples:
+#         >>> _get_character_percentage_dict('/Library/Fonts/Verdana.ttf', 9)  # doctest: +ELLIPSIS
+#         {"lij|' ": 40, '![]fI.,:;/\\\\t': 50, '`-(){}r"': 60, '*^zcsJkvxy': 70, ...
+#     """
+#     from PIL import ImageFont
+#
+#     # List of groups in size order, smallest to largest
+#     char_width_groups = [
+#         "lij|' ",
+#         '![]fI.,:;/\\t',
+#         '`-(){}r"',
+#         '*^zcsJkvxy',
+#         'aebdhnopqug#$L+<>=?_~FZT' + digits,
+#         'BSPEAKVXY&UwNRCHD',
+#         'QGOMm%W@',
+#         ]
+#
+#     def get_largest_in_group(group):
+#         """Get the widest character from the group."""
+#         return max([ImageFont.truetype(font_path, font_size).getsize(c)[0] for c in group])
+#
+#     largest = char_width_groups[-1]
+#     font_width = get_largest_in_group(largest)
+#     return {group: int((get_largest_in_group(group) / font_width) * 100)
+#             for group in char_width_groups}
 
 
 def parse_args():
