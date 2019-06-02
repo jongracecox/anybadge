@@ -103,3 +103,20 @@ class TestAnybadge(TestCase):
                       text_color='#010101,#101010')
 
         badge.write_badge('test_badge_9.svg', overwrite=True)
+
+    def test_multiple_badges_in_one_session(self):
+
+        badges = [
+            Badge('something', value='100', value_suffix='%', num_padding_chars=0),
+            Badge('coverage', value='1234567890'),
+        ]
+
+        self.assertNotEqual(badges[0].badge_width, badges[1].badge_width)
+
+    def test_multiple_badges_get_different_mask_id(self):
+        badges = [
+            Badge('something', value='100', value_suffix='%', num_padding_chars=0),
+            Badge('coverage', value='1234567890'),
+        ]
+
+        self.assertNotEqual(badges[0].mask_id, badges[1].mask_id)

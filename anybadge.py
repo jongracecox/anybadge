@@ -23,6 +23,7 @@ DEFAULT_FONT_SIZE = 11
 NUM_PADDING_CHARS = 0.5
 DEFAULT_COLOR = '#4c1'
 DEFAULT_TEXT_COLOR = '#fff'
+MASK_ID_PREFIX = 'anybadge_'
 
 # Dictionary for looking up approx pixel widths of
 # supported fonts and font sizes.
@@ -51,10 +52,10 @@ TEMPLATE_SVG = """<?xml version="1.0" encoding="UTF-8"?>
         <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
         <stop offset="1" stop-opacity=".1"/>
     </linearGradient>
-    <mask id="a">
+    <mask id="{{ mask id }}">
         <rect width="{{ badge width }}" height="20" rx="3" fill="#fff"/>
     </mask>
-    <g mask="url(#a)">
+    <g mask="url(#{{ mask id }})">
         <path fill="#555" d="M0 0h{{ color split x }}v20H0z"/>
         <path fill="{{ color }}" d="M{{ color split x }} 0h{{ value width }}v20H{{ color split x }}z"/>
         <path fill="url(#b)" d="M0 0h{{ badge width }}v20H0z"/>
@@ -207,6 +208,7 @@ class Badge(object):
             self.value_text_color = text_colors[1]
 
         self.use_max_when_value_exceeds = use_max_when_value_exceeds
+        self.mask_id = self.__class__._get_next_mask_id()
 
     def __repr__(self):
         """Return a representation of the Badge object instance.
@@ -258,6 +260,19 @@ class Badge(object):
             repr(self.value),
             optional_args
         )
+
+    @classmethod
+    def _get_next_mask_id(cls):
+        """Return a new mask ID from a singleton sequence maintained on the class.
+
+        Returns: str
+        """
+        if not hasattr(cls, 'mask_id'):
+            cls.mask_id = 0
+
+        cls.mask_id += 1
+
+        return MASK_ID_PREFIX + str(cls.mask_id)
 
     @property
     def value_is_float(self):
@@ -412,7 +427,8 @@ class Badge(object):
             .replace('{{ label text color }}', self.label_text_color) \
             .replace('{{ value text color }}', self.value_text_color) \
             .replace('{{ color split x }}', str(self.color_split_position)) \
-            .replace('{{ value width }}', str(self.badge_width - self.color_split_position))
+            .replace('{{ value width }}', str(self.badge_width - self.color_split_position))\
+            .replace('{{ mask id }}', self.mask_id)
 
     def __str__(self):
         """Return string representation of badge.
