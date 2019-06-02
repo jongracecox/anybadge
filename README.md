@@ -25,6 +25,11 @@ internal badge service.
 The package can be imported into your python code, or run direct from the
 command line.
 
+## Demo
+
+You can find a [repl.it demo here](https://repl.it/@JonGrace_Cox/anybadge-demo).
+This will allow you to see what the package can do and play with it to test outputs.
+
 ## Basic usage
 
 ### Command line
