@@ -88,6 +88,25 @@ class Badge(object):
     """
     Badge class used to generate badges.
 
+    Args:
+        label(str): Badge label text.
+        value(str): Badge value text.
+        font_name(str, optional): Name of font to use.
+        font_size(int, optional): Font size.
+        num_padding_chars(float): Number of padding characters to use to give extra
+            space around text.
+        template(str, optional): String containing the SVG template.  This should be valid SVG
+            file content with place holders for variables to be populated during rendering.
+        value_prefix(str, optional): Prefix to be placed before value.
+        value_suffix(str, optional): Suffix to be placed after value.
+        thresholds(dict, optional): A dictionary containing thresholds used to select badge
+            color based on the badge value.
+        default_color(str, optional): Badge color as a name or as an HTML color code.
+        use_max_when_value_exceeds(bool, optional): Choose whether to use the maximum threshold
+            value when the badge value exceeds the top threshold.  Default is True.
+        value_format(str, optional) String with formatting to be used to format the value text.
+        text_color(str, optional): Text color as a name or as an HTML color code.
+
     Examples:
 
         Create a simple green badge:
@@ -142,17 +161,35 @@ class Badge(object):
         '#4c1'
     """
 
-    def __init__(self, label, value, font_name=DEFAULT_FONT, font_size=DEFAULT_FONT_SIZE,
-                 num_padding_chars=NUM_PADDING_CHARS, template=TEMPLATE_SVG,
-                 value_prefix='', value_suffix='', thresholds=None, default_color=DEFAULT_COLOR,
-                 use_max_when_value_exceeds=True, value_format=None, text_color=DEFAULT_TEXT_COLOR):
+    def __init__(self, label, value, font_name=None, font_size=None,
+                 num_padding_chars=None, template=None,
+                 value_prefix='', value_suffix='', thresholds=None, default_color=None,
+                 use_max_when_value_exceeds=True, value_format=None, text_color=None):
         """Constructor for Badge class."""
+
+        # Set defaults if values were not passed
+        if not font_name:
+            font_name = DEFAULT_FONT
+        if not font_size:
+            font_size = DEFAULT_FONT_SIZE
+        if num_padding_chars is None:
+            num_padding_chars = NUM_PADDING_CHARS
+        if not template:
+            template = TEMPLATE_SVG
+        if not default_color:
+            default_color = DEFAULT_COLOR
+        if not text_color:
+            text_color = DEFAULT_TEXT_COLOR
+
         self.label = label
         self.value = value
+        self.value_format = value_format
         if value_format:
             value_text = str(value_format % self.value_type(value))
         else:
             value_text = str(self.value_type(value))
+        self.value_prefix = value_prefix
+        self.value_suffix = value_suffix
         self.value_text = value_prefix + value_text + value_suffix
         self.font_name = font_name
         self.font_size = font_size
@@ -162,6 +199,7 @@ class Badge(object):
         self.default_color = default_color
 
         # text_color can be passed as a single value or a pair of comma delimited values
+        self.text_color = text_color
         text_colors = text_color.split(',')
         self.label_text_color = text_colors[0]
         self.value_text_color = text_colors[0]
@@ -169,6 +207,57 @@ class Badge(object):
             self.value_text_color = text_colors[1]
 
         self.use_max_when_value_exceeds = use_max_when_value_exceeds
+
+    def __repr__(self):
+        """Return a representation of the Badge object instance.
+
+        The output of the __repr__ function could be used to recreate the current object.
+
+        Examples:
+
+            >>> badge = Badge('example', '123.456')
+            >>> repr(badge)
+            "Badge('example', '123.456')"
+
+            >>> badge = Badge('example', '123.456', value_suffix='TB')
+            >>> repr(badge)
+            "Badge('example', '123.456', value_suffix='TB')"
+
+            >>> badge = Badge('example', '123.456', text_color='#111111', value_suffix='TB')
+            >>> repr(badge)
+            "Badge('example', '123.456', value_suffix='TB', text_color='#111111')"
+
+        """
+        optional_args = ""
+        if self.font_name != DEFAULT_FONT:
+            optional_args += ", font_name=%s" % repr(self.font_name)
+        if self.font_size != DEFAULT_FONT_SIZE:
+            optional_args += ", font_size=%s" % repr(self.font_size)
+        if self.num_padding_chars != NUM_PADDING_CHARS:
+            optional_args += ", num_padding_chars=%s" % repr(self.num_padding_chars)
+        if self.template != TEMPLATE_SVG:
+            optional_args += ", template=%s" % repr(self.template)
+        if self.value_prefix != '':
+            optional_args += ", value_prefix=%s" % repr(self.value_prefix)
+        if self.value_suffix != '':
+            optional_args += ", value_suffix=%s" % repr(self.value_suffix)
+        if self.thresholds:
+            optional_args += ", thresholds=%s" % repr(self.thresholds)
+        if self.default_color != DEFAULT_COLOR:
+            optional_args += ", default_color=%s" % repr(self.default_color)
+        if not self.use_max_when_value_exceeds:
+            optional_args += ", use_max_when_value_exceeds=%s" % repr(self.use_max_when_value_exceeds)
+        if self.value_format:
+            optional_args += ", value_format=%s" % repr(self.value_format)
+        if self.text_color != DEFAULT_TEXT_COLOR:
+            optional_args += ", text_color=%s" % repr(self.text_color)
+
+        return "%s(%s, %s%s)" % (
+            self.__class__.__name__,
+            repr(self.label),
+            repr(self.value),
+            optional_args
+        )
 
     @property
     def value_is_float(self):
@@ -324,6 +413,21 @@ class Badge(object):
             .replace('{{ value text color }}', self.value_text_color) \
             .replace('{{ color split x }}', str(self.color_split_position)) \
             .replace('{{ value width }}', str(self.badge_width - self.color_split_position))
+
+    def __str__(self):
+        """Return string representation of badge.
+
+        This will return the badge SVG text.
+
+        Returns: str
+
+        Examples:
+
+            >>> print(Badge('example', '123'))  # doctest: +ELLIPSIS
+            <?xml version="1.0" encoding="UTF-8"?>
+            ...
+        """
+        return self.badge_svg_text
 
     def get_text_width(self, text):
         """Return the width of text.

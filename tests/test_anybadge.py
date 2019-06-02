@@ -94,7 +94,7 @@ class TestAnybadge(TestCase):
         badge = Badge('test', '2.22', value_suffix='%',
                       thresholds=thresholds)
 
-        badge.write_badge('test_badge_8.svg')
+        badge.write_badge('test_badge_8.svg', overwrite=True)
 
     def test_badge_with_text_color(self):
         """Test generating a badge with alternate text_color."""
@@ -102,4 +102,4 @@ class TestAnybadge(TestCase):
         badge = Badge('test', '2.22', value_suffix='%',
                       text_color='#010101,#101010')
 
-        badge.write_badge('test_badge_9.svg')
+        badge.write_badge('test_badge_9.svg', overwrite=True)
