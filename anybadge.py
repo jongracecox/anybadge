@@ -20,7 +20,7 @@ __uri__ = "https://github.com/jongracecox/anybadge"
 # Set some defaults
 DEFAULT_FONT = 'DejaVu Sans,Verdana,Geneva,sans-serif'
 DEFAULT_FONT_SIZE = 11
-NUM_PADDING_CHARS = 0.5
+NUM_PADDING_CHARS = 0
 DEFAULT_COLOR = '#4c1'
 DEFAULT_TEXT_COLOR = '#fff'
 MASK_ID_PREFIX = 'anybadge_'
@@ -94,7 +94,7 @@ class Badge(object):
         value(str): Badge value text.
         font_name(str, optional): Name of font to use.
         font_size(int, optional): Font size.
-        num_padding_chars(float): Number of padding characters to use to give extra
+        num_padding_chars(float, optional): Number of padding characters to use to give extra
             space around text.
         template(str, optional): String containing the SVG template.  This should be valid SVG
             file content with place holders for variables to be populated during rendering.
