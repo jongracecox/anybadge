@@ -280,6 +280,13 @@ class Badge(object):
 
         Returns: bool
         """
+
+        # If the value is an int then it should not be considered a float.
+        # We need to check this first before we check whether it is a float because the
+        # float check also returns True for an int string.
+        if self.value_is_int:
+            return False
+
         try:
             _ = float(self.value)
         except ValueError:
