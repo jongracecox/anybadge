@@ -402,7 +402,7 @@ class Badge(object):
 
             >>> badge = Badge('pylint', '5')
             >>> badge.badge_width
-            65
+            53
         """
         padding_char_width = self.get_text_width(' ')
         padding = int(padding_char_width * (self.num_padding_chars + 3))
