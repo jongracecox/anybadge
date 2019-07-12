@@ -114,3 +114,5 @@ demo.svg
 
 # html coverage report
 htmlcov/
+
+**/*.svg

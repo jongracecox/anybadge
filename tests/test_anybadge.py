@@ -120,3 +120,15 @@ class TestAnybadge(TestCase):
         ]
 
         self.assertNotEqual(badges[0].mask_id, badges[1].mask_id)
+
+    def test_integer_value_is_handled_as_integer(self):
+        badge = Badge('test', value='1234')
+
+        self.assertTrue(badge.value_is_int)
+        self.assertFalse(badge.value_is_float)
+
+    def test_integer_value_is_handled_as_float(self):
+        badge = Badge('test', value='1234.1')
+
+        self.assertFalse(badge.value_is_int)
+        self.assertTrue(badge.value_is_float)
