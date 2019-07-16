@@ -127,8 +127,22 @@ class TestAnybadge(TestCase):
         self.assertTrue(badge.value_is_int)
         self.assertFalse(badge.value_is_float)
 
-    def test_integer_value_is_handled_as_float(self):
+    def test_float_value_is_handled_as_float(self):
         badge = Badge('test', value='1234.1')
 
         self.assertFalse(badge.value_is_int)
         self.assertTrue(badge.value_is_float)
+
+    def test_float_value_with_zero_decimal(self):
+        badge = Badge('test', value='10.00')
+
+        self.assertFalse(badge.value_is_int)
+        self.assertTrue(badge.value_is_float)
+        badge.write_badge('test_badge_10.svg', overwrite=True)
+
+    def test_float_value_with_non_zero_decimal(self):
+        badge = Badge('test', value='10.01')
+
+        self.assertFalse(badge.value_is_int)
+        self.assertTrue(badge.value_is_float)
+        badge.write_badge('test_badge_11.svg', overwrite=True)
