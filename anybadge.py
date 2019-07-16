@@ -302,7 +302,7 @@ class Badge(object):
         """
         try:
             a = float(self.value)
-            b = int(a)
+            b = int(self.value)
         except ValueError:
             return False
         else:
