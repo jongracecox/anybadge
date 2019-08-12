@@ -116,6 +116,59 @@ For example:
 anybadge --value=2.22 --file=pylint.svg pylint
 ```
 
+### Colors
+
+Anybadge comes with some pre-defined colors, which can be referred to by name.  It also
+supports the use of custom colors by using the hex representation of the color.  Both color
+types can be used in the `default_color`, `text_color` and `thresholds` attributes.
+
+Here is a Python example showing use of a named color and a custom color.
+
+```python
+import anybadge
+
+badge = anybadge.Badge(label='custom color', value='teal', default_color='teal', num_padding_chars=1)
+badge = anybadge.Badge(label='custom color', value='teal', default_color='#008080', num_padding_chars=1)
+```
+
+Available named colors are:
+
+| Color Name | Hex Code | Example |
+| ---------- | -------- | ------- |
+| aqua | #00FFFF | ![](examples/color_aqua.svg) |
+| black | #000000 | ![](examples/color_black.svg) |
+| blue | #0000FF | ![](examples/color_blue.svg) |
+| brightred | #FF0000 | ![](examples/color_brightred.svg) |
+| brightyellow | #FFFF00 | ![](examples/color_brightyellow.svg) |
+| fuchsia | #FF00FF | ![](examples/color_fuchsia.svg) |
+| gray | #808080 | ![](examples/color_gray.svg) |
+| green | #4C1 | ![](examples/color_green.svg) |
+| lightgrey | #9F9F9F | ![](examples/color_lightgrey.svg) |
+| lime | #00FF00 | ![](examples/color_lime.svg) |
+| maroon | #800000 | ![](examples/color_maroon.svg) |
+| navy | #000080 | ![](examples/color_navy.svg) |
+| olive | #808000 | ![](examples/color_olive.svg) |
+| orange | #FE7D37 | ![](examples/color_orange.svg) |
+| purple | #800080 | ![](examples/color_purple.svg) |
+| red | #E05D44 | ![](examples/color_red.svg) |
+| silver | #C0C0C0 | ![](examples/color_silver.svg) |
+| teal | #008080 | ![](examples/color_teal.svg) |
+| white | #FFFFFF | ![](examples/color_white.svg) |
+| yellow | #DFB317 | ![](examples/color_yellow.svg) |
+| yellowgreen | #A4A61D | ![](examples/color_yellowgreen.svg) |
+
+This table was generated with the following code:
+
+```python
+print("""| Color Name | Hex Code | Example |
+| ---------- | -------- | ------- |""")
+for color, hex in sorted(anybadge.COLORS.items()):
+    file = 'examples/color_' + color + '.svg'
+    anybadge.Badge(label='Color', value=color, default_color=color).write_badge(file, overwrite=True)
+    print("| {color} | {hex} | ![]({file}) |".format(color=color, hex=hex.upper(), file=file))
+    
+```
+
 ### Examples
 
 #### Pylint using template
