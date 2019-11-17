@@ -106,7 +106,7 @@ written to stdout, so can be redirected to a file.
 Some thresholds have been built in to save time.  To use these thresholds you
 can simply specify the template name instead of threshold value/color pairs.
 
-```
+```bash
 anybadge --value=<VALUE> --file=<FILE> <TEMPLATE-NAME>
 ```
 
@@ -172,31 +172,31 @@ for color, hex in sorted(anybadge.COLORS.items()):
 ### Examples
 
 #### Pylint using template
-```
+```bash
 anybadge --value=2.22 --file=pylint.svg pylint
 ```
 ![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pylint.svg) 
 
 #### Pylint using arguments
-```
+```bash
 anybadge -l pylint -v 2.22 -f pylint.svg 2=red 4=orange 8=yellow 10=green
 ```
 ![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pylint.svg) 
 
 #### Coverage using template
-```
+```bash
 anybadge --value=65 --file=coverage.svg coverage
 ``` 
 ![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/coverage.svg)
 
 #### Pipeline, using labeled colors
-```
+```bash
 anybadge --label=pipeline --value=passing --file=pipeline.svg passing=green failing=red
 ```
 ![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline.svg)
 
 #### Badge with fixed color
-```
+```bash
 anybadge --label=awesomeness --value="110%" --file=awesomeness.svg --color=#97CA00
 ```
 ![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/awesomeness.svg)
