@@ -21,6 +21,7 @@ __uri__ = "https://github.com/jongracecox/anybadge"
 DEFAULT_FONT = 'DejaVu Sans,Verdana,Geneva,sans-serif'
 DEFAULT_FONT_SIZE = 11
 NUM_PADDING_CHARS = 0
+NUM_VALUE_PADDING_CHARS = 0
 DEFAULT_COLOR = '#4c1'
 DEFAULT_TEXT_COLOR = '#fff'
 MASK_ID_PREFIX = 'anybadge_'
@@ -111,6 +112,8 @@ class Badge(object):
         font_size(int, optional): Font size.
         num_padding_chars(float, optional): Number of padding characters to use to give extra
             space around text.
+        num_value_padding_chars(float, optional): Number of padding characters to use to give extra
+            space around value.
         template(str, optional): String containing the SVG template.  This should be valid SVG
             file content with place holders for variables to be populated during rendering.
         value_prefix(str, optional): Prefix to be placed before value.
@@ -178,7 +181,7 @@ class Badge(object):
     """
 
     def __init__(self, label, value, font_name=None, font_size=None,
-                 num_padding_chars=None, template=None,
+                 num_padding_chars=None, num_value_padding_chars=None, template=None,
                  value_prefix='', value_suffix='', thresholds=None, default_color=None,
                  use_max_when_value_exceeds=True, value_format=None, text_color=None):
         """Constructor for Badge class."""
@@ -190,6 +193,8 @@ class Badge(object):
             font_size = DEFAULT_FONT_SIZE
         if num_padding_chars is None:
             num_padding_chars = NUM_PADDING_CHARS
+        if num_value_padding_chars is None:
+            num_value_padding_chars = NUM_VALUE_PADDING_CHARS
         if not template:
             template = TEMPLATE_SVG
         if not default_color:
@@ -210,6 +215,7 @@ class Badge(object):
         self.font_name = font_name
         self.font_size = font_size
         self.num_padding_chars = num_padding_chars
+        self.num_value_padding_chars = num_value_padding_chars
         self.template = template
         self.thresholds = thresholds
         self.default_color = default_color
@@ -252,6 +258,8 @@ class Badge(object):
             optional_args += ", font_size=%s" % repr(self.font_size)
         if self.num_padding_chars != NUM_PADDING_CHARS:
             optional_args += ", num_padding_chars=%s" % repr(self.num_padding_chars)
+        if self.num_value_padding_chars != NUM_VALUE_PADDING_CHARS:
+            optional_args += ", num_value_padding_chars=%s" % repr(self.num_value_padding_chars)
         if self.template != TEMPLATE_SVG:
             optional_args += ", template=%s" % repr(self.template)
         if self.value_prefix != '':
@@ -350,7 +358,7 @@ class Badge(object):
 
         Returns: int
         """
-        return int(self.get_text_width(str(self.value_text)) + (self.num_padding_chars * self.font_width))
+        return int(self.get_text_width(str(self.value_text)) + (2.0 * self.font_width * self.num_value_padding_chars) + (self.num_padding_chars * self.font_width))
 
     @property
     def font_width(self):
@@ -710,6 +718,9 @@ examples:
     parser.add_argument('-d', '--padding', type=int, help='Number of characters to pad on '
                                                           'either side of the badge text.',
                         default=NUM_PADDING_CHARS)
+    parser.add_argument('--value-padding', type=int, help='Number of characters to pad on '
+                                                          'either side of the badge value.',
+                        default=NUM_VALUE_PADDING_CHARS)
     parser.add_argument('-n', '--font', type=str,
                         help='Font name.  Supported fonts: '
                              ','.join(['"%s"' % x for x in FONT_WIDTHS.keys()]),
@@ -764,7 +775,8 @@ def main():
 
     # Create badge object
     badge = Badge(label, args.value, value_prefix=args.prefix, value_suffix=suffix,
-                  default_color=args.color, num_padding_chars=args.padding, font_name=args.font,
+                  default_color=args.color, num_padding_chars=args.padding,
+                  num_value_padding_chars=args.value_padding, font_name=args.font,
                   font_size=args.font_size, template=args.template,
                   use_max_when_value_exceeds=args.use_max, thresholds=threshold_dict,
                   value_format=args.value_format, text_color=args.text_color)
