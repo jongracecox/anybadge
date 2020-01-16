@@ -276,6 +276,15 @@ class Badge(object):
             optional_args
         )
 
+    def _repr_svg_(self):
+        """Return SVG representation when used inside Jupyter notebook cells.
+        
+        This will render the SVG immediately inside a notebook cell when creating
+        a Badge instance without assigning it to an identifier.
+        """
+        return self.badge_svg_text
+    
+    
     @classmethod
     def _get_next_mask_id(cls):
         """Return a new mask ID from a singleton sequence maintained on the class.
