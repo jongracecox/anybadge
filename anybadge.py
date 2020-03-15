@@ -790,6 +790,11 @@ examples:
 
 def main(args):
     """Generate a badge based on command line arguments."""
+
+    # Args may be sent from command line of as args directly.
+    if not args:
+        args = sys.argv[1:]
+
     # Parse command line arguments
     args = parse_args(args)
 
@@ -830,4 +835,4 @@ def main(args):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main()
