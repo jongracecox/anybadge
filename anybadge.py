@@ -5,9 +5,11 @@ anybadge
 A Python module for generating badges for your projects, with a focus on
 simplicity and flexibility.
 """
+import sys
 import os
 import re
-
+import argparse
+import textwrap
 
 # Package information
 version = __version__ = "0.0.0"
@@ -20,7 +22,7 @@ __uri__ = "https://github.com/jongracecox/anybadge"
 # Set some defaults
 DEFAULT_FONT = 'DejaVu Sans,Verdana,Geneva,sans-serif'
 DEFAULT_FONT_SIZE = 11
-NUM_PADDING_CHARS = 0
+NUM_PADDING_CHARS = 0.5
 DEFAULT_COLOR = '#4c1'
 DEFAULT_TEXT_COLOR = '#fff'
 MASK_ID_PREFIX = 'anybadge_'
@@ -29,8 +31,13 @@ MASK_ID_PREFIX = 'anybadge_'
 # supported fonts and font sizes.
 FONT_WIDTHS = {
     'DejaVu Sans,Verdana,Geneva,sans-serif': {
-        11: 10
-    }
+        10: 9,
+        11: 10,
+        12: 11,
+    },
+    'Arial, Helvetica, sans-serif': {
+        11: 8,
+    },
 }
 
 # Create a dictionary of colors to make selections
@@ -111,6 +118,10 @@ class Badge(object):
         font_size(int, optional): Font size.
         num_padding_chars(float, optional): Number of padding characters to use to give extra
             space around text.
+        num_label_padding_chars(float, optional): Number of padding characters to use to give extra
+            space around label text.
+        num_value_padding_chars(float, optional): Number of padding characters to use to give extra
+            space around value text.
         template(str, optional): String containing the SVG template.  This should be valid SVG
             file content with place holders for variables to be populated during rendering.
         value_prefix(str, optional): Prefix to be placed before value.
@@ -178,18 +189,26 @@ class Badge(object):
     """
 
     def __init__(self, label, value, font_name=None, font_size=None,
-                 num_padding_chars=None, template=None,
+                 num_padding_chars=None, num_label_padding_chars=None,
+                 num_value_padding_chars=None, template=None,
                  value_prefix='', value_suffix='', thresholds=None, default_color=None,
                  use_max_when_value_exceeds=True, value_format=None, text_color=None):
         """Constructor for Badge class."""
-
         # Set defaults if values were not passed
         if not font_name:
             font_name = DEFAULT_FONT
         if not font_size:
             font_size = DEFAULT_FONT_SIZE
-        if num_padding_chars is None:
-            num_padding_chars = NUM_PADDING_CHARS
+        if num_label_padding_chars is None:
+            if num_padding_chars is None:
+                num_label_padding_chars = NUM_PADDING_CHARS
+            else:
+                num_label_padding_chars = num_padding_chars
+        if num_value_padding_chars is None:
+            if num_padding_chars is None:
+                num_value_padding_chars = NUM_PADDING_CHARS
+            else:
+                num_value_padding_chars = num_padding_chars
         if not template:
             template = TEMPLATE_SVG
         if not default_color:
@@ -207,9 +226,13 @@ class Badge(object):
         self.value_prefix = value_prefix
         self.value_suffix = value_suffix
         self.value_text = value_prefix + value_text + value_suffix
+
+        if font_name not in FONT_WIDTHS:
+            raise ValueError('Font name "%s" not found. Available fonts: %s' % (font_name, ', '.join(FONT_WIDTHS.keys())))
         self.font_name = font_name
         self.font_size = font_size
-        self.num_padding_chars = num_padding_chars
+        self.num_label_padding_chars = num_label_padding_chars
+        self.num_value_padding_chars = num_value_padding_chars
         self.template = template
         self.thresholds = thresholds
         self.default_color = default_color
@@ -244,14 +267,34 @@ class Badge(object):
             >>> repr(badge)
             "Badge('example', '123.456', value_suffix='TB', text_color='#111111')"
 
+            >>> badge = Badge('example', '123', num_padding_chars=5)
+            >>> repr(badge)
+            "Badge('example', '123', num_padding_chars=5)"
+
+            >>> badge = Badge('example', '123', num_label_padding_chars=5)
+            >>> repr(badge)
+            "Badge('example', '123', num_label_padding_chars=5)"
+
+            >>> badge = Badge('example', '123', num_label_padding_chars=5, num_value_padding_chars=6,
+            ...               template='template.svg', value_prefix='$', thresholds={10: 'green', 30: 'red'},
+            ...               default_color='red', use_max_when_value_exceeds=False, value_format="%s m/s")
+            >>> repr(badge)
+            "Badge('example', '123', num_label_padding_chars=5, num_value_padding_chars=6, template='template.svg', value_prefix='$', thresholds={10: 'green', 30: 'red'}, default_color='red', use_max_when_value_exceeds=False, value_format='%s m/s')"
+
         """
         optional_args = ""
         if self.font_name != DEFAULT_FONT:
             optional_args += ", font_name=%s" % repr(self.font_name)
         if self.font_size != DEFAULT_FONT_SIZE:
             optional_args += ", font_size=%s" % repr(self.font_size)
-        if self.num_padding_chars != NUM_PADDING_CHARS:
-            optional_args += ", num_padding_chars=%s" % repr(self.num_padding_chars)
+        if self.num_label_padding_chars == self.num_value_padding_chars:
+            if self.num_label_padding_chars != NUM_PADDING_CHARS:
+                optional_args += ", num_padding_chars=%s" % repr(self.num_label_padding_chars)
+        else:
+            if self.num_label_padding_chars != NUM_PADDING_CHARS:
+                optional_args += ", num_label_padding_chars=%s" % repr(self.num_label_padding_chars)
+            if self.num_value_padding_chars != NUM_PADDING_CHARS:
+                optional_args += ", num_value_padding_chars=%s" % repr(self.num_value_padding_chars)
         if self.template != TEMPLATE_SVG:
             optional_args += ", template=%s" % repr(self.template)
         if self.value_prefix != '':
@@ -351,7 +394,7 @@ class Badge(object):
 
         Returns: int
         """
-        return int(self.get_text_width(self.label) + (2.0 * self.num_padding_chars * self.font_width))
+        return int(self.get_text_width(str(self.label)) + (2.0 * self.num_label_padding_chars * self.font_width))
 
     @property
     def value_width(self):
@@ -359,7 +402,7 @@ class Badge(object):
 
         Returns: int
         """
-        return int(self.get_text_width(str(self.value_text)) + (self.num_padding_chars * self.font_width))
+        return int(self.get_text_width(str(self.value_text)) + (2.0 * self.num_value_padding_chars * self.font_width))
 
     @property
     def font_width(self):
@@ -381,8 +424,7 @@ class Badge(object):
 
         Returns: int
         """
-        return int(self.font_width + self.label_width +
-                   float(self.font_width) * float(self.num_padding_chars))
+        return self.badge_width - self.value_width
 
     @property
     def label_anchor(self):
@@ -426,11 +468,9 @@ class Badge(object):
 
             >>> badge = Badge('pylint', '5')
             >>> badge.badge_width
-            53
+            61
         """
-        padding_char_width = self.get_text_width(' ')
-        padding = int(padding_char_width * (self.num_padding_chars + 3))
-        return padding + self.label_width + self.value_width
+        return self.label_width + self.value_width
 
     @property
     def badge_svg_text(self):
@@ -459,7 +499,7 @@ class Badge(object):
             .replace('{{ label text color }}', self.label_text_color) \
             .replace('{{ value text color }}', self.value_text_color) \
             .replace('{{ color split x }}', str(self.color_split_position)) \
-            .replace('{{ value width }}', str(self.badge_width - self.color_split_position))\
+            .replace('{{ value width }}', str(self.value_width))\
             .replace('{{ mask id }}', self.mask_id)
 
     def __str__(self):
@@ -531,18 +571,24 @@ class Badge(object):
         """Return the color code for the badge.
 
         Returns: str
+
+        Raises: ValueError when an invalid badge color is set.
         """
         color = self.badge_color
         if color[0] == '#':
             return color
-        return COLORS[color]
+
+        try:
+            return COLORS[color]
+        except KeyError:
+            raise ValueError('Invalid color code "%s".  Valid color codes are: %s', (color, ", ".join(COLORS.keys())))
 
     def write_badge(self, file_path, overwrite=False):
         """Write badge to file."""
 
         # Validate path (part 1)
         if file_path.endswith('/'):
-            raise Exception('File location may not be a directory.')
+            raise ValueError('File location may not be a directory.')
 
         # Get absolute filepath
         path = os.path.abspath(file_path)
@@ -551,7 +597,7 @@ class Badge(object):
 
         # Validate path (part 2)
         if not overwrite and os.path.exists(path):
-            raise Exception('File "{}" already exists.'.format(path))
+            raise RuntimeError('File "{}" already exists.'.format(path))
 
         with open(path, mode='w') as file_handle:
             file_handle.write(self.badge_svg_text)
@@ -664,10 +710,8 @@ def _get_approx_string_width(text, font_width, fixed_width=False):
 #             for group in char_width_groups}
 
 
-def parse_args():
+def parse_args(args):
     """Parse the command line arguments."""
-    import argparse
-    import textwrap
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=textwrap.dedent('''\
 Command line utility to generate .svg badges.
@@ -741,13 +785,13 @@ examples:
     parser.add_argument('args', nargs=argparse.REMAINDER, help='Pairs of <upper>=<color>. '
                         'For example 2=red 4=orange 6=yellow 8=good. '
                         'Read this as "Less than 2 = red, less than 4 = orange...".')
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
-def main():
+def main(args):
     """Generate a badge based on command line arguments."""
     # Parse command line arguments
-    args = parse_args()
+    args = parse_args(args)
 
     label = args.label
     threshold_text = args.args
@@ -786,4 +830,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

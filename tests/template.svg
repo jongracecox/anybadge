@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="{{ badge width }}" height="20">
+    <linearGradient id="b" x2="0" y2="100%">
+        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+        <stop offset="1" stop-opacity=".1"/>
+    </linearGradient>
+    <mask id="{{ mask id }}">
+        <rect width="{{ badge width }}" height="20" rx="3" fill="#fff"/>
+    </mask>
+    <g mask="url(#{{ mask id }})">
+        <path fill="#555" d="M0 0h{{ color split x }}v20H0z"/>
+        <path fill="{{ color }}" d="M{{ color split x }} 0h{{ value width }}v20H{{ color split x }}z"/>
+        <path fill="url(#b)" d="M0 0h{{ badge width }}v20H0z"/>
+    </g>
+    <g fill="{{ label text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">
+        <text x="{{ label anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ label }}</text>
+        <text x="{{ label anchor }}" y="14">{{ label }}</text>
+    </g>
+    <g fill="{{ value text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">
+        <text x="{{ value anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ value }}</text>
+        <text x="{{ value anchor }}" y="14">{{ value }}</text>
+    </g>
+</svg>

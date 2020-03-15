@@ -163,10 +163,10 @@ This table was generated with the following code:
 print("""| Color Name | Hex Code | Example |
 | ---------- | -------- | ------- |""")
 for color, hex in sorted(anybadge.COLORS.items()):
-    file = 'https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_' + color + '.svg'
+    file = 'examples/color_' + color + '.svg'
+    url = 'https://cdn.rawgit.com/jongracecox/anybadge/master/' + file
     anybadge.Badge(label='Color', value=color, default_color=color).write_badge(file, overwrite=True)
-    print("| {color} | {hex} | ![]({file}) |".format(color=color, hex=hex.upper(), file=file))
-    
+    print("| {color} | {hex} | ![]({url}) |".format(color=color, hex=hex.upper(), url=url))
 ```
 
 ### Examples

@@ -8,7 +8,7 @@ python:
 install:
 - pip install -U setuptools pip -r build-requirements.txt
 script:
-- pytest --doctest-modules --cov=anybadge anybadge.py tests
+- pytest --doctest-modules --cov=anybadge --cov-report html:htmlcov anybadge.py tests
 before_deploy:
 - sed -i "s/^version = .*/version = __version__ = \"$TRAVIS_TAG\"/" anybadge.py
 deploy:
