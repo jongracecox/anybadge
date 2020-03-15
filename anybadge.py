@@ -763,6 +763,10 @@ examples:
     parser.add_argument('-d', '--padding', type=int, help='Number of characters to pad on '
                                                           'either side of the badge text.',
                         default=NUM_PADDING_CHARS)
+    parser.add_argument('-lp', '--label-padding', type=int, help='Number of characters to pad on '
+                                                                 'either side of the badge label.', default=None)
+    parser.add_argument('-vp', '--value-padding', type=int, help='Number of characters to pad on '
+                                                                 'either side of the badge value.', default=None)
     parser.add_argument('-n', '--font', type=str,
                         help='Font name.  Supported fonts: '
                              ','.join(['"%s"' % x for x in FONT_WIDTHS.keys()]),
@@ -788,7 +792,7 @@ examples:
     return parser.parse_args(args)
 
 
-def main(args):
+def main(args=None):
     """Generate a badge based on command line arguments."""
 
     # Args may be sent from command line of as args directly.
@@ -822,8 +826,9 @@ def main(args):
 
     # Create badge object
     badge = Badge(label, args.value, value_prefix=args.prefix, value_suffix=suffix,
-                  default_color=args.color, num_padding_chars=args.padding, font_name=args.font,
-                  font_size=args.font_size, template=args.template,
+                  default_color=args.color, num_padding_chars=args.padding,
+                  num_label_padding_chars=args.label_padding, num_value_padding_chars=args.value_padding,
+                  font_name=args.font, font_size=args.font_size, template=args.template,
                   use_max_when_value_exceeds=args.use_max, thresholds=threshold_dict,
                   value_format=args.value_format, text_color=args.text_color)
 

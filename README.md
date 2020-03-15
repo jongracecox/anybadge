@@ -206,44 +206,50 @@ anybadge --label=awesomeness --value="110%" --file=awesomeness.svg --color=#97CA
 These are the command line options:
 
 ```
- positional arguments:
-   args                  Pairs of <upper>=<color>. For example 2=red 4=orange
-                         6=yellow 8=good. Read this as "Less than 2 = red, less
-                         than 4 = orange...".
+positional arguments:
+  args                  Pairs of <upper>=<color>. For example 2=red 4=orange
+                        6=yellow 8=good. Read this as "Less than 2 = red, less
+                        than 4 = orange...".
 
- optional arguments:
-   -h, --help            show this help message and exit
-   -l LABEL, --label LABEL
-                         The badge label.
-   -v VALUE, --value VALUE
-                         The badge value.
-   -m VALUE_FORMAT, --value-format VALUE_FORMAT
-                         Formatting string for value (e.g. "%.2f" for 2dp
-                         floats)
-   -c COLOR, --color COLOR
-                         For fixed color badges use --colorto specify the badge
-                         color.
-   -p PREFIX, --prefix PREFIX
-                         Optional prefix for value.
-   -s SUFFIX, --suffix SUFFIX
-                         Optional suffix for value.
-   -d PADDING, --padding PADDING
-                         Number of characters to pad on either side of the
-                         badge text.
-   -n FONT, --font FONT  "DejaVu Sans,Verdana,Geneva,sans-serif"
-   -z FONT_SIZE, --font-size FONT_SIZE
-                         Font size.
-   -t TEMPLATE, --template TEMPLATE
-                         Location of alternative template .svg file.
-   -u, --use-max         Use the maximum threshold color when the value exceeds
-                         the maximum threshold.
-   -f FILE, --file FILE  Output file location.
-   -o, --overwrite       Overwrite output file if it already exists.
-   -r TEXT_COLOR, --text-color TEXT_COLOR
-                         Text color. Single value affects both labeland value
-                         colors. A comma separated pair affects label and value
-                                 text respectively.
-
+optional arguments:
+  -h, --help            show this help message and exit
+  -l LABEL, --label LABEL
+                        The badge label.
+  -v VALUE, --value VALUE
+                        The badge value.
+  -m VALUE_FORMAT, --value-format VALUE_FORMAT
+                        Formatting string for value (e.g. "%.2f" for 2dp
+                        floats)
+  -c COLOR, --color COLOR
+                        For fixed color badges use --colorto specify the badge
+                        color.
+  -p PREFIX, --prefix PREFIX
+                        Optional prefix for value.
+  -s SUFFIX, --suffix SUFFIX
+                        Optional suffix for value.
+  -d PADDING, --padding PADDING
+                        Number of characters to pad on either side of the
+                        badge text.
+  -lp LABEL_PADDING, --label-padding LABEL_PADDING
+                        Number of characters to pad on either side of the
+                        badge label.
+  -vp VALUE_PADDING, --value-padding VALUE_PADDING
+                        Number of characters to pad on either side of the
+                        badge value.
+  -n FONT, --font FONT  "DejaVu Sans,Verdana,Geneva,sans-serif"Font name.
+                        Supported fonts: ,"Arial, Helvetica, sans-serif"
+  -z FONT_SIZE, --font-size FONT_SIZE
+                        Font size.
+  -t TEMPLATE, --template TEMPLATE
+                        Location of alternative template .svg file.
+  -u, --use-max         Use the maximum threshold color when the value exceeds
+                        the maximum threshold.
+  -f FILE, --file FILE  Output file location.
+  -o, --overwrite       Overwrite output file if it already exists.
+  -r TEXT_COLOR, --text-color TEXT_COLOR
+                        Text color. Single value affects both labeland value
+                        colors. A comma separated pair affects label and value
+                        text respectively.
 Examples
 --------
 
