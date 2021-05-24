@@ -169,6 +169,30 @@ for color, hex in sorted(anybadge.COLORS.items()):
     print("| {color} | {hex} | ![]({url}) |".format(color=color, hex=hex.upper(), url=url))
 ```
 
+### Semantic version support
+
+Anybadge supports semantic versions for value and threshold keys. This supports color-coded
+badges based on version numbering. Here are some examples:
+
+```python
+badge = Badge(
+    label='Version', 
+    value='3.0.0', 
+    thresholds={'3.0.0': 'red', '3.2.0': 'orange', '999.0.0': 'green'}, 
+    semver=True
+)
+```
+
+In the above example the thresholds equate to the following:
+
+* If value is < 3.0.0 then badge will be red.
+* If value is < 3.2.0 then badge will be orange.
+* If value is < 999.0.0 then badge will be green.
+
+Each threshold entry is used to define the upper bounds of the threshold. If you don't know the
+upper bound for your version number threshold you will need to provide an extreme upper bound - 
+in this example it is `999.0.0`.
+
 ### Examples
 
 #### Pylint using template
@@ -200,6 +224,11 @@ anybadge --label=pipeline --value=passing --file=pipeline.svg passing=green fail
 anybadge --label=awesomeness --value="110%" --file=awesomeness.svg --color=#97CA00
 ```
 ![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/awesomeness.svg)
+
+#### Thresholds based on semantic versions
+```bash
+anybadge --label=Version --value=2.4.5 --file=version.svg 1.0.0=red 2.4.6=orange 2.9.1=yellow 999.0.0=green
+```
 
 ### Options
 
