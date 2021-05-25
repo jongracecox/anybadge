@@ -242,7 +242,7 @@ class TestAnybadge(TestCase):
 
     def test_str_value_with_threshold_and_default(self):
         badge = Badge('label', value='fred', thresholds={'pass': 'green', 'fail': 'red'}, default_color='orange')
-        self.assertTrue('orange', badge.badge_color)
+        self.assertEqual('orange', badge.badge_color)
 
     def test_invalid_color(self):
         with self.assertRaises(ValueError):
@@ -287,3 +287,34 @@ class TestAnybadge(TestCase):
     def test_main_missing_value(self):
         with self.assertRaisesRegexp(ValueError, r'Label has not been set\.  Please use --label argument\.'):
             main(['--value', '123', '--file', 'test_badge_main.svg', '--overwrite'])
+
+    def test_version_comparison(self):
+        # Define thresholds: <3.0.0=red, <3.2.0=orange <999.0.0=green
+        badge = Badge('Version', value='1.0.0', thresholds={'3.0.0': 'red', '3.2.0': 'orange', '999.0.0': 'green'}, semver=True)
+        self.assertEqual('red', badge.badge_color)
+
+        # Define thresholds: <3.0.0=red, <3.2.0=orange <999.0.0=green
+        badge = Badge('Version', value='3.0.0', thresholds={'3.0.0': 'red', '3.2.0': 'orange', '999.0.0': 'green'}, semver=True)
+        self.assertEqual('orange', badge.badge_color)
+
+        # Define thresholds: <3.0.0=red, <3.2.0=orange <999.0.0=green
+        badge = Badge('Version', value='3.1.0', thresholds={'3.0.0': 'red', '3.2.0': 'orange', '999.0.0': 'green'}, semver=True)
+        self.assertEqual('orange', badge.badge_color)
+
+        # Define thresholds: <3.0.0=red, <3.2.0=orange <999.0.0=green
+        badge = Badge('Version', value='3.2.0', thresholds={'3.0.0': 'red', '3.2.0': 'orange', '999.0.0': 'green'}, semver=True)
+        self.assertEqual('green', badge.badge_color)
+
+        badge = Badge('Version', value='3.2.1', thresholds={'3.0.0': 'red', '3.2.0': 'orange', '999.0.0': 'green'}, semver=True)
+        self.assertEqual('green', badge.badge_color)
+
+        # Define thresholds: <3.0.0=red, <3.2.0=orange <999.0.0=green
+        badge = Badge('Version', value='10.20.30', thresholds={'3.0.0': 'red', '3.2.0': 'orange', '999.0.0': 'green'}, semver=True)
+        self.assertEqual('green', badge.badge_color)
+
+        # Define thresholds: <3.0.0=red, <13.2.0=orange <999.0.0=green
+        badge = Badge('Version', value='14.0.0', thresholds={'3.0.0': 'red', '13.2.0': 'orange', '999.0.0': 'green'}, semver=True)
+        self.assertEqual('green', badge.badge_color)
+
+        badge = Badge('Version', value='12.0.0', thresholds={'3.0.0': 'red', '13.2.0': 'orange', '999.0.0': 'green'}, semver=True)
+        self.assertEqual('orange', badge.badge_color)

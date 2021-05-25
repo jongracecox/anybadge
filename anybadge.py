@@ -10,6 +10,15 @@ import os
 import re
 import argparse
 import textwrap
+from collections import OrderedDict
+
+# Try and obtain packaging package to support version comparison.
+try:
+    from distutils.version import LooseVersion
+    VERSION_COMPARISON_SUPPORTED = True
+except ImportError:
+    VERSION_COMPARISON_SUPPORTED = False
+
 
 # Package information
 version = __version__ = "0.0.0"
@@ -133,6 +142,7 @@ class Badge(object):
             value when the badge value exceeds the top threshold.  Default is True.
         value_format(str, optional) String with formatting to be used to format the value text.
         text_color(str, optional): Text color as a name or as an HTML color code.
+        semver(bool, optional): Used to indicate that the value is a semantic version number.
 
     Examples:
 
@@ -192,7 +202,8 @@ class Badge(object):
                  num_padding_chars=None, num_label_padding_chars=None,
                  num_value_padding_chars=None, template=None,
                  value_prefix='', value_suffix='', thresholds=None, default_color=None,
-                 use_max_when_value_exceeds=True, value_format=None, text_color=None):
+                 use_max_when_value_exceeds=True, value_format=None, text_color=None,
+                 semver=False):
         """Constructor for Badge class."""
         # Set defaults if values were not passed
         if not font_name:
@@ -218,6 +229,11 @@ class Badge(object):
 
         self.label = label
         self.value = value
+
+        self.value_is_version = semver
+        if self.value_is_version and not VERSION_COMPARISON_SUPPORTED:
+            raise RuntimeError("Version comparison is not supported.")
+
         self.value_format = value_format
         if value_format:
             value_text = str(value_format % self.value_type(value))
@@ -342,6 +358,27 @@ class Badge(object):
         return MASK_ID_PREFIX + str(cls.mask_id)
 
     @property
+    def semver_version(self):
+        """The semantic version represented by the value string.
+
+        Returns: LooseVersion
+        """
+        return LooseVersion(self.value)
+
+    @property
+    def semver_thresholds(self):
+        """Thresholds as a dict using LooseVersion as keys."""
+        # LooseVersion is not a hashable type, so can't be used to create an
+        # ordered dict directly. First we need to create an ordered list of keys
+        ordered_keys = sorted(self.thresholds.keys(), key=LooseVersion)
+        return OrderedDict((key, self.thresholds[key]) for key in ordered_keys)
+
+    @property
+    def float_thresholds(self):
+        """Thresholds as a dict using floats as keys."""
+        return {float(k): v for k, v in self.thresholds.items()}
+
+    @property
     def value_is_float(self):
         """Identify whether the value text is a float.
 
@@ -381,6 +418,8 @@ class Badge(object):
 
         Returns: type
         """
+        if self.value_is_version:
+            return LooseVersion
         if self.value_is_float:
             return float
         elif self.value_is_int:
@@ -550,14 +589,23 @@ class Badge(object):
             else:
                 return self.default_color
 
+        # Set value and thresholds based on the value type. This will result in either
+        # value and thresholds as floats or value and thresholds as semantic versions.
+        if self.value_type == LooseVersion:
+            value = self.semver_version
+            thresholds = self.semver_thresholds
+        else:
+            value = float(self.value)
+            thresholds = self.float_thresholds
+
         # Convert the threshold dictionary into a sorted list of lists
-        threshold_list = [[self.value_type(i[0]), i[1]] for i in self.thresholds.items()]
+        threshold_list = [[self.value_type(i[0]), i[1]] for i in thresholds.items()]
         threshold_list.sort(key=lambda x: x[0])
 
         color = None
 
         for threshold, color in threshold_list:
-            if float(self.value) < float(threshold):
+            if value < threshold:
                 return color
 
         # If we drop out the top of the range then return the last max color
@@ -786,6 +834,8 @@ examples:
                                                              'and value colors.  A comma separated pair '
                                                              'affects label and value text respectively.',
                         default=DEFAULT_TEXT_COLOR)
+    parser.add_argument('-e', '--semver', action='store_true', default=False,
+                        help='Treat value and thresholds as semantic versions.')
     parser.add_argument('args', nargs=argparse.REMAINDER, help='Pairs of <upper>=<color>. '
                         'For example 2=red 4=orange 6=yellow 8=good. '
                         'Read this as "Less than 2 = red, less than 4 = orange...".')
@@ -830,7 +880,7 @@ def main(args=None):
                   num_label_padding_chars=args.label_padding, num_value_padding_chars=args.value_padding,
                   font_name=args.font, font_size=args.font_size, template=args.template,
                   use_max_when_value_exceeds=args.use_max, thresholds=threshold_dict,
-                  value_format=args.value_format, text_color=args.text_color)
+                  value_format=args.value_format, text_color=args.text_color, semver=args.semver)
 
     if args.file:
         # Write badge SVG to file
