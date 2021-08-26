@@ -22,7 +22,7 @@ setup(
     author_email='jongracecox@gmail.com',
     py_modules=['anybadge', 'anybadge_server'],
     setup_requires=['setuptools', 'wheel'],
-    tests_require=['unittest'],
+    tests_require=[],
     install_requires=['packaging'],
     data_files=[],
     options={
