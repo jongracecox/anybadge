@@ -5,6 +5,10 @@ from anybadge import Badge, parse_args, main
 class TestAnybadge(TestCase):
     """Test case class for anybadge package."""
 
+    def setUp(self):
+        if not hasattr(self, 'assertRaisesRegex'):
+            self.assertRaisesRegex = self.assertRaisesRegexp
+    
     def test_badge_equal_label_value_width(self):
         """Test that label and value widths are equal when text is the same."""
         badge = Badge(label='a', value='a', num_padding_chars=0)
@@ -251,10 +255,10 @@ class TestAnybadge(TestCase):
 
     def test_invalid_write_path(self):
         badge = Badge('label', 'value')
-        with self.assertRaisesRegexp(ValueError, r'File location may not be a directory\.'):
+        with self.assertRaisesRegex(ValueError, r'File location may not be a directory\.'):
             badge.write_badge('tests/')
 
-        with self.assertRaisesRegexp(RuntimeError, r'File ".*tests\/exists\.svg" already exists\.'):
+        with self.assertRaisesRegex(RuntimeError, r'File ".*tests\/exists\.svg" already exists\.'):
             badge.write_badge('tests/exists')
             badge.write_badge('tests/exists')
 
@@ -285,7 +289,7 @@ class TestAnybadge(TestCase):
             'coverage'])
 
     def test_main_missing_value(self):
-        with self.assertRaisesRegexp(ValueError, r'Label has not been set\.  Please use --label argument\.'):
+        with self.assertRaisesRegex(ValueError, r'Label has not been set\.  Please use --label argument\.'):
             main(['--value', '123', '--file', 'test_badge_main.svg', '--overwrite'])
 
     def test_version_comparison(self):
