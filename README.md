@@ -252,7 +252,7 @@ optional arguments:
                         Formatting string for value (e.g. "%.2f" for 2dp
                         floats)
   -c COLOR, --color COLOR
-                        For fixed color badges use --colorto specify the badge
+                        For fixed color badges use --color specify the badge
                         color.
   -p PREFIX, --prefix PREFIX
                         Optional prefix for value.
