@@ -535,7 +535,7 @@ class Badge(object):
 
         Returns: float
         """
-        return self.color_split_position + ((self.badge_width - self.color_split_position) / 2) - 1
+        return self.color_split_position + ((self.badge_width - self.color_split_position) / 2)
 
     @property
     def label_anchor_shadow(self):
