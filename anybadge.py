@@ -577,7 +577,7 @@ class Badge(object):
 
             >>> badge = Badge('pylint', '5')
             >>> badge.arc_start
-            58
+            51
         """
         return self.badge_width - 10
 
