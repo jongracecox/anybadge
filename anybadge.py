@@ -101,6 +101,31 @@ TEMPLATE_SVG = """<?xml version="1.0" encoding="UTF-8"?>
     </g>
 </svg>"""
 
+# Template SVG for GitLab Scoped label and value badges with placeholders for
+# various items that will be added during final creation.
+TEMPLATE_GITLAB_SCOPED_SVG = """<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="{{ badge width }}" height="20">
+    <linearGradient id="b" x2="0" y2="100%">
+        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+        <stop offset="1" stop-opacity=".1"/>
+    </linearGradient>
+    <mask id="{{ mask id }}">
+        <rect width="{{ badge width }}" height="20" rx="10" fill="#fff"/>
+    </mask>
+    <g mask="url(#{{ mask id }})">
+        <path fill="{{ color }}" d="M0 0h{{ badge width }}v20H0z"/>
+        <path fill="#262626" d="M{{ color split x }} 2h{{ value box width }}v16H{{ color split x }}z"/>
+        <path fill="#262626" d="M{{ arc start }},18 a1,1 0 0,0 0,-16"/>
+        <path fill="url(#b)" d="M0 0h{{ badge width }}v20H0z"/>
+    </g>
+    <g fill="{{ label text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">
+        <text x="{{ label anchor }}" y="14">{{ label }}</text>
+    </g>
+    <g fill="{{ value text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">
+        <text x="{{ value anchor }}" y="14">{{ value }}</text>
+    </g>
+</svg>"""
+
 # Define some templates that can be used for common badge types, saving
 # from having to provide thresholds and labels each time.
 BADGE_TEMPLATES = {
@@ -133,6 +158,8 @@ class Badge(object):
             space around value text.
         template(str, optional): String containing the SVG template.  This should be valid SVG
             file content with place holders for variables to be populated during rendering.
+        style(str, optional): Style of badge to create. This will make anybadge render a badge in a
+            different style. Valid values are "gitlab-scoped", "default". Default is "default".
         value_prefix(str, optional): Prefix to be placed before value.
         value_suffix(str, optional): Suffix to be placed after value.
         thresholds(dict, optional): A dictionary containing thresholds used to select badge
@@ -200,7 +227,7 @@ class Badge(object):
 
     def __init__(self, label, value, font_name=None, font_size=None,
                  num_padding_chars=None, num_label_padding_chars=None,
-                 num_value_padding_chars=None, template=None,
+                 num_value_padding_chars=None, template=None, style=None,
                  value_prefix='', value_suffix='', thresholds=None, default_color=None,
                  use_max_when_value_exceeds=True, value_format=None, text_color=None,
                  semver=False):
@@ -222,6 +249,8 @@ class Badge(object):
                 num_value_padding_chars = num_padding_chars
         if not template:
             template = TEMPLATE_SVG
+        if style not in ['gitlab-scoped']:
+            style = "default"
         if not default_color:
             default_color = DEFAULT_COLOR
         if not text_color:
@@ -250,6 +279,7 @@ class Badge(object):
         self.num_label_padding_chars = num_label_padding_chars
         self.num_value_padding_chars = num_value_padding_chars
         self.template = template
+        self.style = style
         self.thresholds = thresholds
         self.default_color = default_color
 
@@ -313,6 +343,8 @@ class Badge(object):
                 optional_args += ", num_value_padding_chars=%s" % repr(self.num_value_padding_chars)
         if self.template != TEMPLATE_SVG:
             optional_args += ", template=%s" % repr(self.template)
+        if self.style != 'default':
+            optional_args += ", style=%s" % repr(self.style)
         if self.value_prefix != '':
             optional_args += ", value_prefix=%s" % repr(self.value_prefix)
         if self.value_suffix != '':
@@ -337,13 +369,13 @@ class Badge(object):
 
     def _repr_svg_(self):
         """Return SVG representation when used inside Jupyter notebook cells.
-        
+
         This will render the SVG immediately inside a notebook cell when creating
         a Badge instance without assigning it to an identifier.
         """
         return self.badge_svg_text
-    
-    
+
+
     @classmethod
     def _get_next_mask_id(cls):
         """Return a new mask ID from a singleton sequence maintained on the class.
@@ -356,6 +388,22 @@ class Badge(object):
         cls.mask_id += 1
 
         return MASK_ID_PREFIX + str(cls.mask_id)
+
+    def _get_svg_template(self):
+        """Return the correct SVG template to render, based on the style and template
+        that have been set
+
+        Returns: str
+        """
+        if self.style == "gitlab-scoped":
+            return TEMPLATE_GITLAB_SCOPED_SVG
+
+        # Identify whether template is a file or the actual template text
+        if len(self.template.split('\n')) == 1:
+            with open(self.template, mode='r') as file_handle:
+                return file_handle.read()
+        else:
+            return self.template
 
     @property
     def semver_version(self):
@@ -444,6 +492,14 @@ class Badge(object):
         return int(self.get_text_width(str(self.value_text)) + (2.0 * self.num_value_padding_chars * self.font_width))
 
     @property
+    def value_box_width(self):
+        """The SVG width of the value text box.
+
+        Returns: int
+        """
+        return self.value_width - 9
+
+    @property
     def font_width(self):
         """Return the width multiplier for a font.
 
@@ -512,18 +568,27 @@ class Badge(object):
         return self.label_width + self.value_width
 
     @property
+    def arc_start(self):
+        """The position where the arc on the gitlab-scoped should start.
+
+        Returns: int
+
+        Examples:
+
+            >>> badge = Badge('pylint', '5')
+            >>> badge.arc_start
+            51
+        """
+        return self.badge_width - 10
+
+    @property
     def badge_svg_text(self):
         """The badge SVG text.
 
         Returns: str
         """
 
-        # Identify whether template is a file or the actual template text
-        if len(self.template.split('\n')) == 1:
-            with open(self.template, mode='r') as file_handle:
-                badge_text = file_handle.read()
-        else:
-            badge_text = self.template
+        badge_text = self._get_svg_template()
 
         return badge_text.replace('{{ badge width }}', str(self.badge_width)) \
             .replace('{{ font name }}', self.font_name) \
@@ -538,8 +603,10 @@ class Badge(object):
             .replace('{{ label text color }}', self.label_text_color) \
             .replace('{{ value text color }}', self.value_text_color) \
             .replace('{{ color split x }}', str(self.color_split_position)) \
-            .replace('{{ value width }}', str(self.value_width))\
-            .replace('{{ mask id }}', self.mask_id)
+            .replace('{{ value width }}', str(self.value_width)) \
+            .replace('{{ mask id }}', self.mask_id) \
+            .replace('{{ value box width }}', str(self.value_box_width)) \
+            .replace('{{ arc start }}', str(self.arc_start))
 
     def __str__(self):
         """Return string representation of badge.
@@ -824,6 +891,9 @@ examples:
     parser.add_argument('-t', '--template', type=str, help='Location of alternative '
                                                            'template .svg file.',
                         default=TEMPLATE_SVG)
+    parser.add_argument('-st', '--style', type=str, help='Alternative style of badge to create. Valid '
+                                                         'values are "gitlab-scoped", "default". This '
+                                                         'overrides any templates passed using --template.')
     parser.add_argument('-u', '--use-max', action='store_true',
                         help='Use the maximum threshold color when the value exceeds the '
                              'maximum threshold.')
@@ -878,7 +948,7 @@ def main(args=None):
     badge = Badge(label, args.value, value_prefix=args.prefix, value_suffix=suffix,
                   default_color=args.color, num_padding_chars=args.padding,
                   num_label_padding_chars=args.label_padding, num_value_padding_chars=args.value_padding,
-                  font_name=args.font, font_size=args.font_size, template=args.template,
+                  font_name=args.font, font_size=args.font_size, template=args.template, style=args.style,
                   use_max_when_value_exceeds=args.use_max, thresholds=threshold_dict,
                   value_format=args.value_format, text_color=args.text_color, semver=args.semver)
 

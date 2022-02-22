@@ -178,9 +178,9 @@ badges based on version numbering. Here are some examples:
 
 ```python
 badge = Badge(
-    label='Version', 
-    value='3.0.0', 
-    thresholds={'3.0.0': 'red', '3.2.0': 'orange', '999.0.0': 'green'}, 
+    label='Version',
+    value='3.0.0',
+    thresholds={'3.0.0': 'red', '3.2.0': 'orange', '999.0.0': 'green'},
     semver=True
 )
 ```
@@ -192,7 +192,7 @@ In the above example the thresholds equate to the following:
 * If value is < 999.0.0 then badge will be green.
 
 Each threshold entry is used to define the upper bounds of the threshold. If you don't know the
-upper bound for your version number threshold you will need to provide an extreme upper bound - 
+upper bound for your version number threshold you will need to provide an extreme upper bound -
 in this example it is `999.0.0`.
 
 ### Examples
@@ -201,35 +201,64 @@ in this example it is `999.0.0`.
 ```bash
 anybadge --value=2.22 --file=pylint.svg pylint
 ```
-![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pylint.svg) 
+![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pylint.svg)
 
 #### Pylint using arguments
 ```bash
 anybadge -l pylint -v 2.22 -f pylint.svg 2=red 4=orange 8=yellow 10=green
 ```
-![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pylint.svg) 
+![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pylint.svg)
 
 #### Coverage using template
 ```bash
 anybadge --value=65 --file=coverage.svg coverage
-``` 
-![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/coverage.svg)
+```
+![coverage](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/coverage.svg)
 
 #### Pipeline, using labeled colors
 ```bash
 anybadge --label=pipeline --value=passing --file=pipeline.svg passing=green failing=red
 ```
-![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline.svg)
+![pipeline](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline.svg)
 
 #### Badge with fixed color
 ```bash
-anybadge --label=awesomeness --value="110%" --file=awesomeness.svg --color=#97CA00
+anybadge --label=awesomeness --value="110%" --file=awesomeness.svg --color='#97CA00'
 ```
-![pylint](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/awesomeness.svg)
+![awesomeness](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/awesomeness.svg)
+
+#### GitLab Scoped style badge
+```bash
+anybadge --style=gitlab-scoped --label=Project --value=Archimedes --file=gitlab_scoped.svg --color='#c1115d'
+```
+![gitlab_scoped](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/gitlab_scoped.svg)
 
 #### Thresholds based on semantic versions
 ```bash
 anybadge --label=Version --value=2.4.5 --file=version.svg 1.0.0=red 2.4.6=orange 2.9.1=yellow 999.0.0=green
+```
+
+#### Importing in your own app
+```python
+from anybadge import Badge
+
+test1 = Badge(
+    label,
+    value,
+    font_name='DejaVu Sans,Verdana,Geneva,sans-serif',
+    font_size=11,
+    num_padding_chars=0.5,
+    template='<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="{{ badge width }}" height="20">\n    <linearGradient id="b" x2="0" y2="100%">\n        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>\n        <stop offset="1" stop-opacity=".1"/>\n    </linearGradient>\n    <mask id="a">\n        <rect width="{{ badge width }}" height="20" rx="3" fill="#fff"/>\n    </mask>\n    <g mask="url(#a)">\n        <path fill="#555" d="M0 0h{{ color split x }}v20H0z"/>\n        <path fill="{{ color }}" d="M{{ color split x }} 0h{{ value width }}v20H{{ color split x }}z"/>\n        <path fill="url(#b)" d="M0 0h{{ badge width }}v20H0z"/>\n    </g>\n    <g fill="{{ label text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">\n        <text x="{{ label anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ label }}</text>\n        <text x="{{ label anchor }}" y="14">{{ label }}</text>\n    </g>\n    <g fill="{{ value text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">\n        <text x="{{ value anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ value }}</text>\n        <text x="{{ value anchor }}" y="14">{{ value }}</text>\n    </g>\n</svg>',
+    value_prefix='',
+    value_suffix='',
+    thresholds=None,
+    default_color='#4c1',
+    use_max_when_value_exceeds=True,
+    value_format=None,
+    text_color='#fff'
+)
+
+test1.write_badge('test1.svg')
 ```
 
 ### Options
@@ -273,6 +302,10 @@ optional arguments:
                         Font size.
   -t TEMPLATE, --template TEMPLATE
                         Location of alternative template .svg file.
+  -s STYLE, --style STYLE
+                        Alternative style of badge to create. Valid values are
+                        "gitlab-scoped", "default". This overrides any templates
+                        passed using --template.
   -u, --use-max         Use the maximum threshold color when the value exceeds
                         the maximum threshold.
   -f FILE, --file FILE  Output file location.
@@ -281,6 +314,8 @@ optional arguments:
                         Text color. Single value affects both labeland value
                         colors. A comma separated pair affects label and value
                         text respectively.
+```
+
 Examples
 --------
 
@@ -289,22 +324,29 @@ thresholds.
 
 Pylint::
 
+```
 anybadge.py --value=2.22 --file=pylint.svg pylint
 anybadge.py --label=pylint --value=2.22 --file=pylint.svg 2=red 4=orange 8=yellow 10=green
+```
 
 Coverage::
 
+```
 anybadge.py --value=65 --file=coverage.svg coverage
 anybadge.py --label=coverage --value=65 --suffix='%%' --file=coverage.svg 50=red 60=orange 80=yellow 100=green
+```
 
 CI Pipeline::
 
+```
 anybadge.py --label=pipeline --value=passing --file=pipeline.svg passing=green failing=red
+```
 
 Python usage
 ============
 Here is the output of ``help(anybadge)``::
 
+```
 Help on module anybadge:
 
 NAME
@@ -317,30 +359,56 @@ DESCRIPTION
 CLASSES
     builtins.object
         Badge
-    
+
     class Badge(builtins.object)
-     |  Badge(label, value, font_name='DejaVu Sans,Verdana,Geneva,sans-serif', font_size=11, num_padding_chars=0.5, template='<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="{{ badge width }}" height="20">\n    <linearGradient id="b" x2="0" y2="100%">\n        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>\n        <stop offset="1" stop-opacity=".1"/>\n    </linearGradient>\n    <mask id="a">\n        <rect width="{{ badge width }}" height="20" rx="3" fill="#fff"/>\n    </mask>\n    <g mask="url(#a)">\n        <path fill="#555" d="M0 0h{{ color split x }}v20H0z"/>\n        <path fill="{{ color }}" d="M{{ color split x }} 0h{{ value width }}v20H{{ color split x }}z"/>\n        <path fill="url(#b)" d="M0 0h{{ badge width }}v20H0z"/>\n    </g>\n    <g fill="{{ label text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">\n        <text x="{{ label anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ label }}</text>\n        <text x="{{ label anchor }}" y="14">{{ label }}</text>\n    </g>\n    <g fill="{{ value text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">\n        <text x="{{ value anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ value }}</text>\n        <text x="{{ value anchor }}" y="14">{{ value }}</text>\n    </g>\n</svg>', value_prefix='', value_suffix='', thresholds=None, default_color='#4c1', use_max_when_value_exceeds=True, value_format=None, text_color='#fff')
-     |  
+     |  Badge(label, value, font_name=None, font_size=None, num_padding_chars=None, num_label_padding_chars=None, num_value_padding_chars=None, template=None, style=None, value_prefix='', value_suffix='', thresholds=None, default_color=None, use_max_when_value_exceeds=True, value_format=None, text_color=None, semver=False)
+     |
      |  Badge class used to generate badges.
-     |  
+     |
+     |  Args:
+     |      label(str): Badge label text.
+     |      value(str): Badge value text.
+     |      font_name(str, optional): Name of font to use.
+     |      font_size(int, optional): Font size.
+     |      num_padding_chars(float, optional): Number of padding characters to use to give extra
+     |          space around text.
+     |      num_label_padding_chars(float, optional): Number of padding characters to use to give extra
+     |          space around label text.
+     |      num_value_padding_chars(float, optional): Number of padding characters to use to give extra
+     |          space around value text.
+     |      template(str, optional): String containing the SVG template.  This should be valid SVG
+     |          file content with place holders for variables to be populated during rendering.
+     |      style(str, optional): Style of badge to create. This will make anybadge render a badge in a
+     |          different style. Valid values are "gitlab-scoped", "default". Default is "default".
+     |      value_prefix(str, optional): Prefix to be placed before value.
+     |      value_suffix(str, optional): Suffix to be placed after value.
+     |      thresholds(dict, optional): A dictionary containing thresholds used to select badge
+     |          color based on the badge value.
+     |      default_color(str, optional): Badge color as a name or as an HTML color code.
+     |      use_max_when_value_exceeds(bool, optional): Choose whether to use the maximum threshold
+     |          value when the badge value exceeds the top threshold.  Default is True.
+     |      value_format(str, optional) String with formatting to be used to format the value text.
+     |      text_color(str, optional): Text color as a name or as an HTML color code.
+     |      semver(bool, optional): Used to indicate that the value is a semantic version number.
+     |
      |  Examples:
-     |  
+     |
      |      Create a simple green badge:
-     |  
+     |
      |      >>> badge = Badge('label', 123, default_color='green')
-     |  
+     |
      |      Write a badge to file, overwriting any existing file:
-     |  
+     |
      |      >>> badge = Badge('label', 123, default_color='green')
      |      >>> badge.write_badge('demo.svg', overwrite=True)
-     |  
+     |
      |      Here are a number of examples showing thresholds, since there
      |      are certain situations that may not be obvious:
-     |  
+     |
      |      >>> badge = Badge('pipeline', 'passing', thresholds={'passing': 'green', 'failing': 'red'})
      |      >>> badge.badge_color
      |      'green'
-     |  
+     |
      |      2.32 is not <2
      |      2.32 is < 4, so 2.32 yields orange
      |      >>> badge = Badge('pylint', 2.32, thresholds={2: 'red',
@@ -349,7 +417,7 @@ CLASSES
      |      ...                                           10: 'green'})
      |      >>> badge.badge_color
      |      'orange'
-     |  
+     |
      |      8 is not <8
      |      8 is <4, so 8 yields orange
      |      >>> badge = Badge('pylint', 8, thresholds={2: 'red',
@@ -358,7 +426,7 @@ CLASSES
      |      ...                                        10: 'green'})
      |      >>> badge.badge_color
      |      'green'
-     |  
+     |
      |      10 is not <8, but use_max_when_value_exceeds defaults to
      |      True, so 10 yields green
      |      >>> badge = Badge('pylint', 11, thresholds={2: 'red',
@@ -367,7 +435,7 @@ CLASSES
      |      ...                                         10: 'green'})
      |      >>> badge.badge_color
      |      'green'
-     |  
+     |
      |      11 is not <10, and use_max_when_value_exceeds is set to
      |      False, so 11 yields the default color '#4c1'
      |      >>> badge = Badge('pylint', 11, use_max_when_value_exceeds=False,
@@ -375,149 +443,229 @@ CLASSES
      |      ...                           10: 'green'})
      |      >>> badge.badge_color
      |      '#4c1'
-     |  
+     |
      |  Methods defined here:
-     |  
-     |  __init__(self, label, value, font_name='DejaVu Sans,Verdana,Geneva,sans-serif', font_size=11, num_padding_chars=0.5, template='<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="{{ badge width }}" height="20">\n    <linearGradient id="b" x2="0" y2="100%">\n        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>\n        <stop offset="1" stop-opacity=".1"/>\n    </linearGradient>\n    <mask id="a">\n        <rect width="{{ badge width }}" height="20" rx="3" fill="#fff"/>\n    </mask>\n    <g mask="url(#a)">\n        <path fill="#555" d="M0 0h{{ color split x }}v20H0z"/>\n        <path fill="{{ color }}" d="M{{ color split x }} 0h{{ value width }}v20H{{ color split x }}z"/>\n        <path fill="url(#b)" d="M0 0h{{ badge width }}v20H0z"/>\n    </g>\n    <g fill="{{ label text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">\n        <text x="{{ label anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ label }}</text>\n        <text x="{{ label anchor }}" y="14">{{ label }}</text>\n    </g>\n    <g fill="{{ value text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">\n        <text x="{{ value anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ value }}</text>\n        <text x="{{ value anchor }}" y="14">{{ value }}</text>\n    </g>\n</svg>', value_prefix='', value_suffix='', thresholds=None, default_color='#4c1', use_max_when_value_exceeds=True, value_format=None, text_color='#fff')
+     |
+     |  __init__(self, label, value, font_name=None, font_size=None, num_padding_chars=None, num_label_padding_chars=None, num_value_padding_chars=None, template=None, style=None, value_prefix='', value_suffix='', thresholds=None, default_color=None, use_max_when_value_exceeds=True, value_format=None, text_color=None, semver=False)
      |      Constructor for Badge class.
-     |  
+     |
+     |  __repr__(self)
+     |      Return a representation of the Badge object instance.
+     |
+     |      The output of the __repr__ function could be used to recreate the current object.
+     |
+     |      Examples:
+     |
+     |          >>> badge = Badge('example', '123.456')
+     |          >>> repr(badge)
+     |          "Badge('example', '123.456')"
+     |
+     |          >>> badge = Badge('example', '123.456', value_suffix='TB')
+     |          >>> repr(badge)
+     |          "Badge('example', '123.456', value_suffix='TB')"
+     |
+     |          >>> badge = Badge('example', '123.456', text_color='#111111', value_suffix='TB')
+     |          >>> repr(badge)
+     |          "Badge('example', '123.456', value_suffix='TB', text_color='#111111')"
+     |
+     |          >>> badge = Badge('example', '123', num_padding_chars=5)
+     |          >>> repr(badge)
+     |          "Badge('example', '123', num_padding_chars=5)"
+     |
+     |          >>> badge = Badge('example', '123', num_label_padding_chars=5)
+     |          >>> repr(badge)
+     |          "Badge('example', '123', num_label_padding_chars=5)"
+     |
+     |          >>> badge = Badge('example', '123', num_label_padding_chars=5, num_value_padding_chars=6,
+     |          ...               template='template.svg', value_prefix='$', thresholds={10: 'green', 30: 'red'},
+     |          ...               default_color='red', use_max_when_value_exceeds=False, value_format="%s m/s")
+     |          >>> repr(badge)
+     |          "Badge('example', '123', num_label_padding_chars=5, num_value_padding_chars=6, template='template.svg', value_prefix='$', thresholds={10: 'green', 30: 'red'}, default_color='red', use_max_when_value_exceeds=False, value_format='%s m/s')"
+     |
+     |  __str__(self)
+     |      Return string representation of badge.
+     |
+     |      This will return the badge SVG text.
+     |
+     |      Returns: str
+     |
+     |      Examples:
+     |
+     |          >>> print(Badge('example', '123'))  # doctest: +ELLIPSIS
+     |          <?xml version="1.0" encoding="UTF-8"?>
+     |          ...
+     |
      |  get_text_width(self, text)
      |      Return the width of text.
-     |      
+     |
      |      Args:
      |          text(str): Text to get the pixel width of.
-     |      
+     |
      |      Returns:
      |          int: Pixel width of the given text based on the badges selected font.
-     |      
+     |
      |      This implementation assumes a fixed font of:
-     |      
+     |
      |      font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11"
      |      >>> badge = Badge('x', 1, font_name='DejaVu Sans,Verdana,Geneva,sans-serif', font_size=11)
      |      >>> badge.get_text_width('pylint')
      |      34
-     |  
+     |
      |  write_badge(self, file_path, overwrite=False)
      |      Write badge to file.
-     |  
+     |
      |  ----------------------------------------------------------------------
-     |  Data descriptors defined here:
-     |  
-     |  __dict__
-     |      dictionary for instance variables (if defined)
-     |  
-     |  __weakref__
-     |      list of weak references to the object (if defined)
-     |  
+     |  Readonly properties defined here:
+     |
+     |  arc_start
+     |      The position where the arc on the gitlab-scoped should start.
+     |
+     |      Returns: int
+     |
+     |      Examples:
+     |
+     |          >>> badge = Badge('pylint', '5')
+     |          >>> badge.arc_start
+     |          58
+     |
      |  badge_color
      |      Badge color based on the configured thresholds.
-     |      
+     |
      |      Returns: str
-     |  
+     |
      |  badge_color_code
      |      Return the color code for the badge.
-     |      
+     |
      |      Returns: str
-     |  
+     |
+     |      Raises: ValueError when an invalid badge color is set.
+     |
      |  badge_svg_text
      |      The badge SVG text.
-     |      
+     |
      |      Returns: str
-     |  
+     |
      |  badge_width
      |      The total width of badge.
-     |      
+     |
      |      Returns: int
-     |      
+     |
      |      Examples:
-     |      
+     |
      |          >>> badge = Badge('pylint', '5')
      |          >>> badge.badge_width
-     |          103
-     |  
+     |          61
+     |
      |  color_split_position
      |      The SVG x position where the color split should occur.
-     |      
+     |
      |      Returns: int
-     |  
+     |
+     |  float_thresholds
+     |      Thresholds as a dict using floats as keys.
+     |
      |  font_width
      |      Return the width multiplier for a font.
-     |      
+     |
      |      Returns:
      |          int: Maximum pixel width of badges selected font.
-     |      
+     |
      |      Example:
-     |      
+     |
      |          >>> Badge(label='x', value='1').font_width
      |          10
-     |  
+     |
      |  label_anchor
      |      The SVG x position of the middle anchor for the label text.
-     |      
+     |
      |      Returns: float
-     |  
+     |
      |  label_anchor_shadow
      |      The SVG x position of the label shadow anchor.
-     |      
+     |
      |      Returns: float
-     |  
+     |
      |  label_width
      |      The SVG width of the label text.
-     |      
+     |
      |      Returns: int
-     |  
+     |
+     |  semver_thresholds
+     |      Thresholds as a dict using LooseVersion as keys.
+     |
+     |  semver_version
+     |      The semantic version represented by the value string.
+     |
+     |      Returns: LooseVersion
+     |
      |  value_anchor
      |      The SVG x position of the middle anchor for the value text.
-     |      
+     |
      |      Returns: float
-     |  
+     |
      |  value_anchor_shadow
      |      The SVG x position of the value shadow anchor.
-     |      
+     |
      |      Returns: float
-     |  
+     |
+     |  value_box_width
+     |      The SVG width of the value text box.
+     |
+     |      Returns: int
+     |
      |  value_is_float
      |      Identify whether the value text is a float.
-     |      
+     |
      |      Returns: bool
-     |  
+     |
      |  value_is_int
      |      Identify whether the value text is an int.
-     |      
+     |
      |      Returns: bool
-     |  
+     |
      |  value_type
      |      The Python type associated with the value.
-     |      
+     |
      |      Returns: type
-     |  
+     |
      |  value_width
      |      The SVG width of the value text.
-     |      
+     |
      |      Returns: int
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |
+     |  __weakref__
+     |      list of weak references to the object (if defined)
 
 FUNCTIONS
-    main()
+    main(args=None)
         Generate a badge based on command line arguments.
-    
-    parse_args()
+
+    parse_args(args)
         Parse the command line arguments.
 
 DATA
     BADGE_TEMPLATES = {'coverage': {'label': 'coverage', 'suffix': '%', 't...
-    COLORS = {'green': '#4c1', 'lightgrey': '#9f9f9f', 'orange': '#fe7d37'...
+    COLORS = {'aqua': '#00FFFF', 'black': '#000000', 'blue': '#0000FF', 'b...
     DEFAULT_COLOR = '#4c1'
     DEFAULT_FONT = 'DejaVu Sans,Verdana,Geneva,sans-serif'
     DEFAULT_FONT_SIZE = 11
     DEFAULT_TEXT_COLOR = '#fff'
-    FONT_WIDTHS = {'DejaVu Sans,Verdana,Geneva,sans-serif': {11: 10}}
+    FONT_WIDTHS = {'Arial, Helvetica, sans-serif': {11: 8}, 'DejaVu Sans,V...
+    MASK_ID_PREFIX = 'anybadge_'
     NUM_PADDING_CHARS = 0.5
+    TEMPLATE_GITLAB_SCOPED_SVG = '<?xml version="1.0" encoding="UTF-8"?>\n...
     TEMPLATE_SVG = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmln...ho...
+    VERSION_COMPARISON_SUPPORTED = True
     __summary__ = 'A simple, flexible badge generator.'
     __title__ = 'anybadge'
     __uri__ = 'https://github.com/jongracecox/anybadge'
     __version_info__ = ('0', '0', '0')
-    digits = '0123456789'
     version = '0.0.0'
 
 VERSION
