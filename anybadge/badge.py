@@ -1,147 +1,20 @@
-#!/usr/bin/python
-"""
-anybadge
-
-A Python module for generating badges for your projects, with a focus on
-simplicity and flexibility.
-"""
-import sys
 import os
-import re
-import argparse
-import textwrap
 from collections import OrderedDict
 
+from . import config
+from .colors import Color
+from .exceptions import UnknownBadgeTemplate
+
+from .helpers import _get_approx_string_width
+
+
 # Try and obtain packaging package to support version comparison.
-try:
-    from distutils.version import LooseVersion
-    VERSION_COMPARISON_SUPPORTED = True
-except ImportError:
-    VERSION_COMPARISON_SUPPORTED = False
+from .templates import get_template
+
+from packaging.version import Version
 
 
-# Package information
-version = __version__ = "0.0.0"
-__version_info__ = tuple(re.split('[.-]', __version__))
-__title__ = "anybadge"
-__summary__ = "A simple, flexible badge generator."
-__uri__ = "https://github.com/jongracecox/anybadge"
-
-
-# Set some defaults
-DEFAULT_FONT = 'DejaVu Sans,Verdana,Geneva,sans-serif'
-DEFAULT_FONT_SIZE = 11
-NUM_PADDING_CHARS = 0.5
-DEFAULT_COLOR = '#4c1'
-DEFAULT_TEXT_COLOR = '#fff'
-MASK_ID_PREFIX = 'anybadge_'
-
-# Dictionary for looking up approx pixel widths of
-# supported fonts and font sizes.
-FONT_WIDTHS = {
-    'DejaVu Sans,Verdana,Geneva,sans-serif': {
-        10: 9,
-        11: 10,
-        12: 11,
-    },
-    'Arial, Helvetica, sans-serif': {
-        11: 8,
-    },
-}
-
-# Create a dictionary of colors to make selections
-# easier.
-COLORS = {
-    'white': '#FFFFFF',
-    'silver': '#C0C0C0',
-    'gray': '#808080',
-    'black': '#000000',
-    'red': '#e05d44',
-    'brightred': '#FF0000',
-    'maroon': '#800000',
-    'olive': '#808000',
-    'lime': '#00FF00',
-    'brightyellow': '#FFFF00',
-    'yellow': '#dfb317',
-    'green': '#4c1',
-    'yellowgreen': '#a4a61d',
-    'aqua': '#00FFFF',
-    'teal': '#008080',
-    'blue': '#0000FF',
-    'navy': '#000080',
-    'fuchsia': '#FF00FF',
-    'purple': '#800080',
-    'orange': '#fe7d37',
-    'lightgrey': '#9f9f9f',
-}
-
-# Template SVG with placeholders for various items that
-# will be added during final creation.
-TEMPLATE_SVG = """<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="{{ badge width }}" height="20">
-    <linearGradient id="b" x2="0" y2="100%">
-        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
-        <stop offset="1" stop-opacity=".1"/>
-    </linearGradient>
-    <mask id="{{ mask id }}">
-        <rect width="{{ badge width }}" height="20" rx="3" fill="#fff"/>
-    </mask>
-    <g mask="url(#{{ mask id }})">
-        <path fill="#555" d="M0 0h{{ color split x }}v20H0z"/>
-        <path fill="{{ color }}" d="M{{ color split x }} 0h{{ value width }}v20H{{ color split x }}z"/>
-        <path fill="url(#b)" d="M0 0h{{ badge width }}v20H0z"/>
-    </g>
-    <g fill="{{ label text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">
-        <text x="{{ label anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ label }}</text>
-        <text x="{{ label anchor }}" y="14">{{ label }}</text>
-    </g>
-    <g fill="{{ value text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">
-        <text x="{{ value anchor shadow }}" y="15" fill="#010101" fill-opacity=".3">{{ value }}</text>
-        <text x="{{ value anchor }}" y="14">{{ value }}</text>
-    </g>
-</svg>"""
-
-# Template SVG for GitLab Scoped label and value badges with placeholders for
-# various items that will be added during final creation.
-TEMPLATE_GITLAB_SCOPED_SVG = """<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="{{ badge width }}" height="20">
-    <linearGradient id="b" x2="0" y2="100%">
-        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
-        <stop offset="1" stop-opacity=".1"/>
-    </linearGradient>
-    <mask id="{{ mask id }}">
-        <rect width="{{ badge width }}" height="20" rx="10" fill="#fff"/>
-    </mask>
-    <g mask="url(#{{ mask id }})">
-        <path fill="{{ color }}" d="M0 0h{{ badge width }}v20H0z"/>
-        <path fill="#262626" d="M{{ color split x }} 2h{{ value box width }}v16H{{ color split x }}z"/>
-        <path fill="#262626" d="M{{ arc start }},18 a1,1 0 0,0 0,-16"/>
-        <path fill="url(#b)" d="M0 0h{{ badge width }}v20H0z"/>
-    </g>
-    <g fill="{{ label text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">
-        <text x="{{ label anchor }}" y="14">{{ label }}</text>
-    </g>
-    <g fill="{{ value text color }}" text-anchor="middle" font-family="{{ font name }}" font-size="{{ font size }}">
-        <text x="{{ value anchor }}" y="14">{{ value }}</text>
-    </g>
-</svg>"""
-
-# Define some templates that can be used for common badge types, saving
-# from having to provide thresholds and labels each time.
-BADGE_TEMPLATES = {
-    'pylint': {
-        'threshold': '2=red 4=orange 8=yellow 10=green',
-        'label': 'pylint'
-    },
-    'coverage': {
-        'threshold': '50=red 60=orange 80=yellow 100=green',
-        'label': 'coverage',
-        'suffix': '%'
-    }
-}
-
-
-class Badge(object):
+class Badge:
     """
     Badge class used to generate badges.
 
@@ -234,34 +107,32 @@ class Badge(object):
         """Constructor for Badge class."""
         # Set defaults if values were not passed
         if not font_name:
-            font_name = DEFAULT_FONT
+            font_name = config.DEFAULT_FONT
         if not font_size:
-            font_size = DEFAULT_FONT_SIZE
+            font_size = config.DEFAULT_FONT_SIZE
         if num_label_padding_chars is None:
             if num_padding_chars is None:
-                num_label_padding_chars = NUM_PADDING_CHARS
+                num_label_padding_chars = config.NUM_PADDING_CHARS
             else:
                 num_label_padding_chars = num_padding_chars
         if num_value_padding_chars is None:
             if num_padding_chars is None:
-                num_value_padding_chars = NUM_PADDING_CHARS
+                num_value_padding_chars = config.NUM_PADDING_CHARS
             else:
                 num_value_padding_chars = num_padding_chars
         if not template:
-            template = TEMPLATE_SVG
+            template = get_template('default')
         if style not in ['gitlab-scoped']:
             style = "default"
         if not default_color:
-            default_color = DEFAULT_COLOR
+            default_color = config.DEFAULT_COLOR
         if not text_color:
-            text_color = DEFAULT_TEXT_COLOR
+            text_color = config.DEFAULT_TEXT_COLOR
 
         self.label = label
         self.value = value
 
         self.value_is_version = semver
-        if self.value_is_version and not VERSION_COMPARISON_SUPPORTED:
-            raise RuntimeError("Version comparison is not supported.")
 
         self.value_format = value_format
         if value_format:
@@ -272,8 +143,11 @@ class Badge(object):
         self.value_suffix = value_suffix
         self.value_text = value_prefix + value_text + value_suffix
 
-        if font_name not in FONT_WIDTHS:
-            raise ValueError('Font name "%s" not found. Available fonts: %s' % (font_name, ', '.join(FONT_WIDTHS.keys())))
+        if font_name not in config.FONT_WIDTHS:
+            raise ValueError(
+                'Font name "%s" not found. '
+                'Available fonts: %s' % (font_name, ', '.join(config.FONT_WIDTHS.keys()))
+            )
         self.font_name = font_name
         self.font_size = font_size
         self.num_label_padding_chars = num_label_padding_chars
@@ -329,19 +203,19 @@ class Badge(object):
 
         """
         optional_args = ""
-        if self.font_name != DEFAULT_FONT:
+        if self.font_name != config.DEFAULT_FONT:
             optional_args += ", font_name=%s" % repr(self.font_name)
-        if self.font_size != DEFAULT_FONT_SIZE:
+        if self.font_size != config.DEFAULT_FONT_SIZE:
             optional_args += ", font_size=%s" % repr(self.font_size)
         if self.num_label_padding_chars == self.num_value_padding_chars:
-            if self.num_label_padding_chars != NUM_PADDING_CHARS:
+            if self.num_label_padding_chars != config.NUM_PADDING_CHARS:
                 optional_args += ", num_padding_chars=%s" % repr(self.num_label_padding_chars)
         else:
-            if self.num_label_padding_chars != NUM_PADDING_CHARS:
+            if self.num_label_padding_chars != config.NUM_PADDING_CHARS:
                 optional_args += ", num_label_padding_chars=%s" % repr(self.num_label_padding_chars)
-            if self.num_value_padding_chars != NUM_PADDING_CHARS:
+            if self.num_value_padding_chars != config.NUM_PADDING_CHARS:
                 optional_args += ", num_value_padding_chars=%s" % repr(self.num_value_padding_chars)
-        if self.template != TEMPLATE_SVG:
+        if self.template != get_template('default'):
             optional_args += ", template=%s" % repr(self.template)
         if self.style != 'default':
             optional_args += ", style=%s" % repr(self.style)
@@ -351,13 +225,13 @@ class Badge(object):
             optional_args += ", value_suffix=%s" % repr(self.value_suffix)
         if self.thresholds:
             optional_args += ", thresholds=%s" % repr(self.thresholds)
-        if self.default_color != DEFAULT_COLOR:
+        if self.default_color != config.DEFAULT_COLOR:
             optional_args += ", default_color=%s" % repr(self.default_color)
         if not self.use_max_when_value_exceeds:
             optional_args += ", use_max_when_value_exceeds=%s" % repr(self.use_max_when_value_exceeds)
         if self.value_format:
             optional_args += ", value_format=%s" % repr(self.value_format)
-        if self.text_color != DEFAULT_TEXT_COLOR:
+        if self.text_color != config.DEFAULT_TEXT_COLOR:
             optional_args += ", text_color=%s" % repr(self.text_color)
 
         return "%s(%s, %s%s)" % (
@@ -375,7 +249,6 @@ class Badge(object):
         """
         return self.badge_svg_text
 
-
     @classmethod
     def _get_next_mask_id(cls):
         """Return a new mask ID from a singleton sequence maintained on the class.
@@ -387,7 +260,7 @@ class Badge(object):
 
         cls.mask_id += 1
 
-        return MASK_ID_PREFIX + str(cls.mask_id)
+        return config.MASK_ID_PREFIX + str(cls.mask_id)
 
     def _get_svg_template(self):
         """Return the correct SVG template to render, based on the style and template
@@ -396,10 +269,16 @@ class Badge(object):
         Returns: str
         """
         if self.style == "gitlab-scoped":
-            return TEMPLATE_GITLAB_SCOPED_SVG
+            return get_template('gitlab_scoped')
 
         # Identify whether template is a file or the actual template text
+
         if len(self.template.split('\n')) == 1:
+            try:
+                return get_template(self.template)
+            except UnknownBadgeTemplate:
+                pass
+
             with open(self.template, mode='r') as file_handle:
                 return file_handle.read()
         else:
@@ -409,16 +288,16 @@ class Badge(object):
     def semver_version(self):
         """The semantic version represented by the value string.
 
-        Returns: LooseVersion
+        Returns: Version
         """
-        return LooseVersion(self.value)
+        return Version(self.value)
 
     @property
     def semver_thresholds(self):
-        """Thresholds as a dict using LooseVersion as keys."""
-        # LooseVersion is not a hashable type, so can't be used to create an
+        """Thresholds as a dict using Version as keys."""
+        # Version is not a hashable type, so can't be used to create an
         # ordered dict directly. First we need to create an ordered list of keys
-        ordered_keys = sorted(self.thresholds.keys(), key=LooseVersion)
+        ordered_keys = sorted(self.thresholds.keys(), key=Version)
         return OrderedDict((key, self.thresholds[key]) for key in ordered_keys)
 
     @property
@@ -441,7 +320,7 @@ class Badge(object):
 
         try:
             _ = float(self.value)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
         else:
             return True
@@ -455,7 +334,7 @@ class Badge(object):
         try:
             a = float(self.value)
             b = int(self.value)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
         else:
             return a == b
@@ -467,7 +346,7 @@ class Badge(object):
         Returns: type
         """
         if self.value_is_version:
-            return LooseVersion
+            return Version
         if self.value_is_float:
             return float
         elif self.value_is_int:
@@ -511,7 +390,7 @@ class Badge(object):
             >>> Badge(label='x', value='1').font_width
             10
         """
-        return FONT_WIDTHS[self.font_name][self.font_size]
+        return config.FONT_WIDTHS[self.font_name][self.font_size]
 
     @property
     def color_split_position(self):
@@ -658,7 +537,7 @@ class Badge(object):
 
         # Set value and thresholds based on the value type. This will result in either
         # value and thresholds as floats or value and thresholds as semantic versions.
-        if self.value_type == LooseVersion:
+        if self.value_type == Version:
             value = self.semver_version
             thresholds = self.semver_thresholds
         else:
@@ -682,7 +561,7 @@ class Badge(object):
             return self.default_color
 
     @property
-    def badge_color_code(self):
+    def badge_color_code(self) -> str:
         """Return the color code for the badge.
 
         Returns: str
@@ -690,13 +569,36 @@ class Badge(object):
         Raises: ValueError when an invalid badge color is set.
         """
         color = self.badge_color
+
+        if isinstance(color, Color):
+            return color.value
+
         if color[0] == '#':
             return color
 
+        color = color.upper()
+
+        prefixes = ["BRIGHT", "YELLOW", "LIGHT"]
+
         try:
-            return COLORS[color]
+            return Color[color.upper()].value
         except KeyError:
-            raise ValueError('Invalid color code "%s".  Valid color codes are: %s', (color, ", ".join(COLORS.keys())))
+            pass
+
+        # For backward compatibility with old color names (that were lowercase and didn't
+        # contain underscores) we will try to get the same color.
+
+        for prefix in prefixes:
+            if color.startswith(prefix) and color != prefix and '_' not in color:
+                try:
+                    return Color[color.replace(prefix, prefix + '_')].value
+                except KeyError:
+                    pass
+
+        raise ValueError(
+            'Invalid color code "%s". '
+            'Valid color codes are: %s', (color, ", ".join(list(Color.__members__.keys())))
+        )
 
     def write_badge(self, file_path, overwrite=False):
         """Write badge to file."""
@@ -716,248 +618,3 @@ class Badge(object):
 
         with open(path, mode='w') as file_handle:
             file_handle.write(self.badge_svg_text)
-
-
-# Based on the following SO answer: https://stackoverflow.com/a/16008023/6252525
-def _get_approx_string_width(text, font_width, fixed_width=False):
-    """
-    Get the approximate width of a string using a specific average font width.
-
-    Args:
-        text(str): Text string to calculate width of.
-        font_width(int): Average width of font characters.
-        fixed_width(bool): Indicates that the font is fixed width.
-
-    Returns:
-        int: Width of string in pixels.
-
-    Examples:
-
-        Call the function with a string and the maximum character width of the font you are using:
-
-            >>> int(_get_approx_string_width('hello', 10))
-            29
-
-        This example shows the comparison of simplistic calculation based on a fixed width.
-        Given a test string and a fixed font width of 10, we can calculate the width
-        by multiplying the length and the font character with:
-
-            >>> test_string = 'GOOGLE|ijkl'
-            >>> _get_approx_string_width(test_string, 10, fixed_width=True)
-            110
-
-        Since some characters in the string are thinner than others we expect that the
-        apporximate text width will be narrower than the fixed width calculation:
-
-            >>> _get_approx_string_width(test_string, 10)
-            77
-
-    """
-    if fixed_width:
-        return len(text) * font_width
-
-    size = 0.0
-
-    # A dictionary containing percentages that relate to how wide
-    # each character will be represented in a variable width font.
-    # These percentages can be calculated using the ``_get_character_percentage_dict`` function.
-    char_width_percentages = {
-        "lij|' ": 40.0,
-        '![]fI.,:;/\\t': 50.0,
-        '`-(){}r"': 60.0,
-        '*^zcsJkvxy': 70.0,
-        'aebdhnopqug#$L+<>=?_~FZT0123456789': 70.0,
-        'BSPEAKVXY&UwNRCHD': 70.0,
-        'QGOMm%W@': 100.0
-    }
-
-    for s in text:
-        percentage = 100.0
-        for k in char_width_percentages.keys():
-            if s in k:
-                percentage = char_width_percentages[k]
-                break
-        size += (percentage / 100.0) * float(font_width)
-
-    return int(size)
-
-# This is a helper function that can be used to generate alternate dictionaries
-# for the _get_approx_string_width function.  The function is not needed for
-# normal operation of this package, and since it depends on the PIL package,
-# which is not included in the dependencies the function will remain commented out.
-#
-# def _get_character_percentage_dict(font_path, font_size):
-#     """Get the dictionary used to estimate variable width font text lengths.
-#
-#     Args:
-#         font_path(str): Path to valid font file.
-#         font_size(int): Font size to use.
-#
-#     Returns: dict
-#
-#     This function can be used to calculate the dictionary used in the
-#     ``get_approx_string_width`` function.
-#
-#     Examples:
-#         >>> _get_character_percentage_dict('/Library/Fonts/Verdana.ttf', 9)  # doctest: +ELLIPSIS
-#         {"lij|' ": 40, '![]fI.,:;/\\\\t': 50, '`-(){}r"': 60, '*^zcsJkvxy': 70, ...
-#     """
-#     from PIL import ImageFont
-#
-#     # List of groups in size order, smallest to largest
-#     char_width_groups = [
-#         "lij|' ",
-#         '![]fI.,:;/\\t',
-#         '`-(){}r"',
-#         '*^zcsJkvxy',
-#         'aebdhnopqug#$L+<>=?_~FZT' + digits,
-#         'BSPEAKVXY&UwNRCHD',
-#         'QGOMm%W@',
-#         ]
-#
-#     def get_largest_in_group(group):
-#         """Get the widest character from the group."""
-#         return max([ImageFont.truetype(font_path, font_size).getsize(c)[0] for c in group])
-#
-#     largest = char_width_groups[-1]
-#     font_width = get_largest_in_group(largest)
-#     return {group: int((get_largest_in_group(group) / font_width) * 100)
-#             for group in char_width_groups}
-
-
-def parse_args(args):
-    """Parse the command line arguments."""
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description=textwrap.dedent('''\
-Command line utility to generate .svg badges.
-
-This utility can be used to generate .svg badge images, using configurable
-thresholds for coloring.  Values can be passed as string, integer or floating
-point.  The type will be detected automatically.
-
-Running the utility with a --file option will result in the .svg image being
-written to file.  Without the --file option the .svg file content will be
-written to stdout, so can be redirected to a file.
-
-Some thresholds have been built in to save time.  To use these thresholds you
-can simply specify the template name instead of threshold value/color pairs.
-
-examples:
-
-    Here are some usage specific examples that may save time on defining
-    thresholds.
-
-    Pylint
-        anybadge.py --value=2.22 --file=pylint.svg pylint
-
-        anybadge.py --label=pylint --value=2.22 --file=pylint.svg \\
-          2=red 4=orange 8=yellow 10=green
-
-    Coverage
-        anybadge.py --value=65 --file=coverage.svg coverage
-
-        anybadge.py --label=coverage --value=65 --suffix='%%' --file=coverage.svg \\
-          50=red 60=orange 80=yellow 100=green
-
-    CI Pipeline
-        anybadge.py --label=pipeline --value=passing --file=pipeline.svg \\
-          passing=green failing=red
-
-'''))
-    parser.add_argument('-l', '--label', type=str, help='The badge label.')
-    parser.add_argument('-v', '--value', type=str, help='The badge value.', required=True)
-    parser.add_argument('-m', '--value-format', type=str, default=None,
-                        help='Formatting string for value (e.g. "%%.2f" for 2dp floats)')
-    parser.add_argument('-c', '--color', type=str, help='For fixed color badges use --color'
-                                                        'to specify the badge color.',
-                        default=DEFAULT_COLOR)
-    parser.add_argument('-p', '--prefix', type=str, help='Optional prefix for value.',
-                        default='')
-    parser.add_argument('-s', '--suffix', type=str, help='Optional suffix for value.',
-                        default='')
-    parser.add_argument('-d', '--padding', type=int, help='Number of characters to pad on '
-                                                          'either side of the badge text.',
-                        default=NUM_PADDING_CHARS)
-    parser.add_argument('-lp', '--label-padding', type=int, help='Number of characters to pad on '
-                                                                 'either side of the badge label.', default=None)
-    parser.add_argument('-vp', '--value-padding', type=int, help='Number of characters to pad on '
-                                                                 'either side of the badge value.', default=None)
-    parser.add_argument('-n', '--font', type=str,
-                        help='Font name.  Supported fonts: '
-                             ','.join(['"%s"' % x for x in FONT_WIDTHS.keys()]),
-                        default=DEFAULT_FONT)
-    parser.add_argument('-z', '--font-size', type=int, help='Font size.',
-                        default=DEFAULT_FONT_SIZE)
-    parser.add_argument('-t', '--template', type=str, help='Location of alternative '
-                                                           'template .svg file.',
-                        default=TEMPLATE_SVG)
-    parser.add_argument('-st', '--style', type=str, help='Alternative style of badge to create. Valid '
-                                                         'values are "gitlab-scoped", "default". This '
-                                                         'overrides any templates passed using --template.')
-    parser.add_argument('-u', '--use-max', action='store_true',
-                        help='Use the maximum threshold color when the value exceeds the '
-                             'maximum threshold.')
-    parser.add_argument('-f', '--file', type=str, help='Output file location.')
-    parser.add_argument('-o', '--overwrite', action='store_true',
-                        help='Overwrite output file if it already exists.')
-    parser.add_argument('-r', '--text-color', type=str, help='Text color. Single value affects both label'
-                                                             'and value colors.  A comma separated pair '
-                                                             'affects label and value text respectively.',
-                        default=DEFAULT_TEXT_COLOR)
-    parser.add_argument('-e', '--semver', action='store_true', default=False,
-                        help='Treat value and thresholds as semantic versions.')
-    parser.add_argument('args', nargs=argparse.REMAINDER, help='Pairs of <upper>=<color>. '
-                        'For example 2=red 4=orange 6=yellow 8=good. '
-                        'Read this as "Less than 2 = red, less than 4 = orange...".')
-    return parser.parse_args(args)
-
-
-def main(args=None):
-    """Generate a badge based on command line arguments."""
-
-    # Args may be sent from command line of as args directly.
-    if not args:
-        args = sys.argv[1:]
-
-    # Parse command line arguments
-    args = parse_args(args)
-
-    label = args.label
-    threshold_text = args.args
-    suffix = args.suffix
-
-    # Check whether thresholds were sent as one word, and is in the
-    # list of templates.  If so, swap in the template.
-    if len(args.args) == 1 and args.args[0] in BADGE_TEMPLATES:
-        template_name = args.args[0]
-        template_dict = BADGE_TEMPLATES[template_name]
-        threshold_text = template_dict['threshold'].split(' ')
-        if not args.label:
-            label = template_dict['label']
-        if not args.suffix and 'suffix' in template_dict:
-            suffix = template_dict['suffix']
-
-    if not label:
-        raise ValueError('Label has not been set.  Please use --label argument.')
-
-    # Create threshold list from args
-    threshold_list = [x.split('=') for x in threshold_text]
-    threshold_dict = {x[0]: x[1] for x in threshold_list}
-
-    # Create badge object
-    badge = Badge(label, args.value, value_prefix=args.prefix, value_suffix=suffix,
-                  default_color=args.color, num_padding_chars=args.padding,
-                  num_label_padding_chars=args.label_padding, num_value_padding_chars=args.value_padding,
-                  font_name=args.font, font_size=args.font_size, template=args.template, style=args.style,
-                  use_max_when_value_exceeds=args.use_max, thresholds=threshold_dict,
-                  value_format=args.value_format, text_color=args.text_color, semver=args.semver)
-
-    if args.file:
-        # Write badge SVG to file
-        badge.write_badge(args.file, overwrite=args.overwrite)
-    else:
-        print(badge.badge_svg_text)
-
-
-if __name__ == '__main__':
-    main()

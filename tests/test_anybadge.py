@@ -1,5 +1,6 @@
 from unittest import TestCase
-from anybadge import Badge, parse_args, main
+from anybadge import Badge
+from anybadge.cli import main, parse_args
 
 
 class TestAnybadge(TestCase):

@@ -20,18 +20,20 @@ setup(
     version=version,
     author='Jon Grace-Cox',
     author_email='jongracecox@gmail.com',
-    py_modules=['anybadge', 'anybadge_server'],
+    packages=['anybadge'],
+    py_modules=['anybadge_server'],
     setup_requires=['setuptools', 'wheel'],
     tests_require=[],
     install_requires=['packaging'],
-    data_files=[],
+    package_data={'anybadge': ['templates/*.svg']},
     options={
-        'bdist_wheel': {'universal': True}
+        'bdist_wheel': {'universal': False}
     },
+    python_requires='>=3.4',
     url='https://github.com/jongracecox/anybadge',
     entry_points={
-        'console_scripts': ['anybadge=anybadge:main',
-                            'anybadge-server=anybadge_server:main'],
+        'console_scripts': ['anybadge=anybadge.cli:main',
+                            'anybadge-server=anybadge.server.cli:main'],
     },
     classifiers=[
         'License :: OSI Approved :: MIT License'
