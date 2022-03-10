@@ -98,12 +98,26 @@ class Badge:
         '#4c1'
     """
 
-    def __init__(self, label, value, font_name=None, font_size=None,
-                 num_padding_chars=None, num_label_padding_chars=None,
-                 num_value_padding_chars=None, template=None, style=None,
-                 value_prefix='', value_suffix='', thresholds=None, default_color=None,
-                 use_max_when_value_exceeds=True, value_format=None, text_color=None,
-                 semver=False):
+    def __init__(
+        self,
+        label,
+        value,
+        font_name=None,
+        font_size=None,
+        num_padding_chars=None,
+        num_label_padding_chars=None,
+        num_value_padding_chars=None,
+        template=None,
+        style=None,
+        value_prefix="",
+        value_suffix="",
+        thresholds=None,
+        default_color=None,
+        use_max_when_value_exceeds=True,
+        value_format=None,
+        text_color=None,
+        semver=False,
+    ):
         """Constructor for Badge class."""
         # Set defaults if values were not passed
         if not font_name:
@@ -121,8 +135,8 @@ class Badge:
             else:
                 num_value_padding_chars = num_padding_chars
         if not template:
-            template = get_template('default')
-        if style not in ['gitlab-scoped']:
+            template = get_template("default")
+        if style not in ["gitlab-scoped"]:
             style = "default"
         if not default_color:
             default_color = config.DEFAULT_COLOR
@@ -146,7 +160,8 @@ class Badge:
         if font_name not in config.FONT_WIDTHS:
             raise ValueError(
                 'Font name "%s" not found. '
-                'Available fonts: %s' % (font_name, ', '.join(config.FONT_WIDTHS.keys()))
+                "Available fonts: %s"
+                % (font_name, ", ".join(config.FONT_WIDTHS.keys()))
             )
         self.font_name = font_name
         self.font_size = font_size
@@ -159,7 +174,7 @@ class Badge:
 
         # text_color can be passed as a single value or a pair of comma delimited values
         self.text_color = text_color
-        text_colors = text_color.split(',')
+        text_colors = text_color.split(",")
         self.label_text_color = text_colors[0]
         self.value_text_color = text_colors[0]
         if len(text_colors) > 1:
@@ -209,26 +224,34 @@ class Badge:
             optional_args += ", font_size=%s" % repr(self.font_size)
         if self.num_label_padding_chars == self.num_value_padding_chars:
             if self.num_label_padding_chars != config.NUM_PADDING_CHARS:
-                optional_args += ", num_padding_chars=%s" % repr(self.num_label_padding_chars)
+                optional_args += ", num_padding_chars=%s" % repr(
+                    self.num_label_padding_chars
+                )
         else:
             if self.num_label_padding_chars != config.NUM_PADDING_CHARS:
-                optional_args += ", num_label_padding_chars=%s" % repr(self.num_label_padding_chars)
+                optional_args += ", num_label_padding_chars=%s" % repr(
+                    self.num_label_padding_chars
+                )
             if self.num_value_padding_chars != config.NUM_PADDING_CHARS:
-                optional_args += ", num_value_padding_chars=%s" % repr(self.num_value_padding_chars)
-        if self.template != get_template('default'):
+                optional_args += ", num_value_padding_chars=%s" % repr(
+                    self.num_value_padding_chars
+                )
+        if self.template != get_template("default"):
             optional_args += ", template=%s" % repr(self.template)
-        if self.style != 'default':
+        if self.style != "default":
             optional_args += ", style=%s" % repr(self.style)
-        if self.value_prefix != '':
+        if self.value_prefix != "":
             optional_args += ", value_prefix=%s" % repr(self.value_prefix)
-        if self.value_suffix != '':
+        if self.value_suffix != "":
             optional_args += ", value_suffix=%s" % repr(self.value_suffix)
         if self.thresholds:
             optional_args += ", thresholds=%s" % repr(self.thresholds)
         if self.default_color != config.DEFAULT_COLOR:
             optional_args += ", default_color=%s" % repr(self.default_color)
         if not self.use_max_when_value_exceeds:
-            optional_args += ", use_max_when_value_exceeds=%s" % repr(self.use_max_when_value_exceeds)
+            optional_args += ", use_max_when_value_exceeds=%s" % repr(
+                self.use_max_when_value_exceeds
+            )
         if self.value_format:
             optional_args += ", value_format=%s" % repr(self.value_format)
         if self.text_color != config.DEFAULT_TEXT_COLOR:
@@ -238,7 +261,7 @@ class Badge:
             self.__class__.__name__,
             repr(self.label),
             repr(self.value),
-            optional_args
+            optional_args,
         )
 
     def _repr_svg_(self):
@@ -255,7 +278,7 @@ class Badge:
 
         Returns: str
         """
-        if not hasattr(cls, 'mask_id'):
+        if not hasattr(cls, "mask_id"):
             cls.mask_id = 0
 
         cls.mask_id += 1
@@ -269,17 +292,17 @@ class Badge:
         Returns: str
         """
         if self.style == "gitlab-scoped":
-            return get_template('gitlab_scoped')
+            return get_template("gitlab_scoped")
 
         # Identify whether template is a file or the actual template text
 
-        if len(self.template.split('\n')) == 1:
+        if len(self.template.split("\n")) == 1:
             try:
                 return get_template(self.template)
             except UnknownBadgeTemplate:
                 pass
 
-            with open(self.template, mode='r') as file_handle:
+            with open(self.template, mode="r") as file_handle:
                 return file_handle.read()
         else:
             return self.template
@@ -360,7 +383,10 @@ class Badge:
 
         Returns: int
         """
-        return int(self.get_text_width(str(self.label)) + (2.0 * self.num_label_padding_chars * self.font_width))
+        return int(
+            self.get_text_width(str(self.label))
+            + (2.0 * self.num_label_padding_chars * self.font_width)
+        )
 
     @property
     def value_width(self):
@@ -368,7 +394,10 @@ class Badge:
 
         Returns: int
         """
-        return int(self.get_text_width(str(self.value_text)) + (2.0 * self.num_value_padding_chars * self.font_width))
+        return int(
+            self.get_text_width(str(self.value_text))
+            + (2.0 * self.num_value_padding_chars * self.font_width)
+        )
 
     @property
     def value_box_width(self):
@@ -414,7 +443,9 @@ class Badge:
 
         Returns: float
         """
-        return self.color_split_position + ((self.badge_width - self.color_split_position) / 2)
+        return self.color_split_position + (
+            (self.badge_width - self.color_split_position) / 2
+        )
 
     @property
     def label_anchor_shadow(self):
@@ -469,23 +500,25 @@ class Badge:
 
         badge_text = self._get_svg_template()
 
-        return badge_text.replace('{{ badge width }}', str(self.badge_width)) \
-            .replace('{{ font name }}', self.font_name) \
-            .replace('{{ font size }}', str(self.font_size)) \
-            .replace('{{ label }}', self.label) \
-            .replace('{{ value }}', self.value_text) \
-            .replace('{{ label anchor }}', str(self.label_anchor)) \
-            .replace('{{ label anchor shadow }}', str(self.label_anchor_shadow)) \
-            .replace('{{ value anchor }}', str(self.value_anchor)) \
-            .replace('{{ value anchor shadow }}', str(self.value_anchor_shadow)) \
-            .replace('{{ color }}', self.badge_color_code) \
-            .replace('{{ label text color }}', self.label_text_color) \
-            .replace('{{ value text color }}', self.value_text_color) \
-            .replace('{{ color split x }}', str(self.color_split_position)) \
-            .replace('{{ value width }}', str(self.value_width)) \
-            .replace('{{ mask id }}', self.mask_id) \
-            .replace('{{ value box width }}', str(self.value_box_width)) \
-            .replace('{{ arc start }}', str(self.arc_start))
+        return (
+            badge_text.replace("{{ badge width }}", str(self.badge_width))
+            .replace("{{ font name }}", self.font_name)
+            .replace("{{ font size }}", str(self.font_size))
+            .replace("{{ label }}", self.label)
+            .replace("{{ value }}", self.value_text)
+            .replace("{{ label anchor }}", str(self.label_anchor))
+            .replace("{{ label anchor shadow }}", str(self.label_anchor_shadow))
+            .replace("{{ value anchor }}", str(self.value_anchor))
+            .replace("{{ value anchor shadow }}", str(self.value_anchor_shadow))
+            .replace("{{ color }}", self.badge_color_code)
+            .replace("{{ label text color }}", self.label_text_color)
+            .replace("{{ value text color }}", self.value_text_color)
+            .replace("{{ color split x }}", str(self.color_split_position))
+            .replace("{{ value width }}", str(self.value_width))
+            .replace("{{ mask id }}", self.mask_id)
+            .replace("{{ value box width }}", str(self.value_box_width))
+            .replace("{{ arc start }}", str(self.arc_start))
+        )
 
     def __str__(self):
         """Return string representation of badge.
@@ -573,7 +606,7 @@ class Badge:
         if isinstance(color, Color):
             return color.value
 
-        if color[0] == '#':
+        if color[0] == "#":
             return color
 
         color = color.upper()
@@ -589,32 +622,32 @@ class Badge:
         # contain underscores) we will try to get the same color.
 
         for prefix in prefixes:
-            if color.startswith(prefix) and color != prefix and '_' not in color:
+            if color.startswith(prefix) and color != prefix and "_" not in color:
                 try:
-                    return Color[color.replace(prefix, prefix + '_')].value
+                    return Color[color.replace(prefix, prefix + "_")].value
                 except KeyError:
                     pass
 
         raise ValueError(
-            'Invalid color code "%s". '
-            'Valid color codes are: %s', (color, ", ".join(list(Color.__members__.keys())))
+            'Invalid color code "%s". ' "Valid color codes are: %s",
+            (color, ", ".join(list(Color.__members__.keys()))),
         )
 
     def write_badge(self, file_path, overwrite=False):
         """Write badge to file."""
 
         # Validate path (part 1)
-        if file_path.endswith('/'):
-            raise ValueError('File location may not be a directory.')
+        if file_path.endswith("/"):
+            raise ValueError("File location may not be a directory.")
 
         # Get absolute filepath
         path = os.path.abspath(file_path)
-        if not path.lower().endswith('.svg'):
-            path += '.svg'
+        if not path.lower().endswith(".svg"):
+            path += ".svg"
 
         # Validate path (part 2)
         if not overwrite and os.path.exists(path):
             raise RuntimeError('File "{}" already exists.'.format(path))
 
-        with open(path, mode='w') as file_handle:
+        with open(path, mode="w") as file_handle:
             file_handle.write(self.badge_svg_text)

@@ -6,8 +6,8 @@ from enum import Enum
 class Style(Enum):
     """A style that can be used for common badge types."""
 
-    PYLINT = ('default.svg', '2=red 4=orange 8=yellow 10=green', 'pylint')
-    COVERAGE = ('default.svg', '50=red 60=orange 80=yellow 100=green', 'coverage', '%')
+    PYLINT = ("default.svg", "2=red 4=orange 8=yellow 10=green", "pylint")
+    COVERAGE = ("default.svg", "50=red 60=orange 80=yellow 100=green", "coverage", "%")
 
     def __init__(self, template, threshold, label, suffix=None):
         self.template = template
