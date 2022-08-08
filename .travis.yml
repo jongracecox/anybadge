@@ -2,12 +2,6 @@ dist: xenial
 language: python
 jobs:
   include:
-    - python: '3.4'
-      env: RUN_PRE_COMMIT=0
-    - python: '3.5'
-      env: RUN_PRE_COMMIT=0
-    - python: '3.6'
-      env: RUN_PRE_COMMIT=0
     - python: '3.7'
       env: RUN_PRE_COMMIT=0
     - python: '3.8'
