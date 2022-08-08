@@ -1,14 +1,16 @@
 # Set some defaults
-DEFAULT_FONT = "DejaVu Sans,Verdana,Geneva,sans-serif"
-DEFAULT_FONT_SIZE = 11
-NUM_PADDING_CHARS = 0.5
-DEFAULT_COLOR = "#4c1"
-DEFAULT_TEXT_COLOR = "#fff"
-MASK_ID_PREFIX = "anybadge_"
+from typing import Dict
+
+DEFAULT_FONT: str = "DejaVu Sans,Verdana,Geneva,sans-serif"
+DEFAULT_FONT_SIZE: int = 11
+NUM_PADDING_CHARS: float = 0.5
+DEFAULT_COLOR: str = "#4c1"
+DEFAULT_TEXT_COLOR: str = "#fff"
+MASK_ID_PREFIX: str = "anybadge_"
 
 # Dictionary for looking up approx pixel widths of
 # supported fonts and font sizes.
-FONT_WIDTHS = {
+FONT_WIDTHS: Dict[str, Dict[int, int]] = {
     "DejaVu Sans,Verdana,Geneva,sans-serif": {
         10: 9,
         11: 10,

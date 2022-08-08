@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def run(listen_address: str = None, port: int = None):
+    """Run a persistent webserver."""
     if not listen_address:
         listen_address = config.DEFAULT_SERVER_LISTEN_ADDRESS
 
@@ -28,7 +29,8 @@ def run(listen_address: str = None, port: int = None):
     httpd.serve_forever()
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
     logger.debug("Parsing command line arguments.")
     parser = argparse.ArgumentParser(description="Run an anybadge server.")
     parser.add_argument(
@@ -69,7 +71,7 @@ def main():
         DEFAULT_LOGGING_LEVEL = logging.getLevelName(environ["ANYBADGE_LOG_LEVEL"])
 
     # Parse command line args
-    args = parse_args()
+    args: argparse.Namespace = parse_args()
 
     # Set logging level
     logging_level = DEFAULT_LOGGING_LEVEL

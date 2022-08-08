@@ -16,7 +16,7 @@ class Style(Enum):
         self.suffix = suffix
 
     @classmethod
-    def exists(cls, name: str):
+    def exists(cls, name: str) -> bool:
         """Test whether a style exists."""
         try:
             _ = cls[name]

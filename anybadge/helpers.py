@@ -1,5 +1,5 @@
 # Based on the following SO answer: https://stackoverflow.com/a/16008023/6252525
-def _get_approx_string_width(text, font_width, fixed_width=False):
+def _get_approx_string_width(text, font_width, fixed_width=False) -> int:
     """
     Get the approximate width of a string using a specific average font width.
 

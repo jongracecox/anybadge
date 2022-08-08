@@ -1,5 +1,6 @@
 import os
 from collections import OrderedDict
+from typing import Dict, Type
 
 from . import config
 from .colors import Color
@@ -102,21 +103,21 @@ class Badge:
         self,
         label,
         value,
-        font_name=None,
-        font_size=None,
-        num_padding_chars=None,
-        num_label_padding_chars=None,
-        num_value_padding_chars=None,
-        template=None,
-        style=None,
-        value_prefix="",
-        value_suffix="",
-        thresholds=None,
-        default_color=None,
-        use_max_when_value_exceeds=True,
-        value_format=None,
-        text_color=None,
-        semver=False,
+        font_name: str = None,
+        font_size: int = None,
+        num_padding_chars: int = None,
+        num_label_padding_chars: int = None,
+        num_value_padding_chars: int = None,
+        template: str = None,
+        style: str = None,
+        value_prefix: str = "",
+        value_suffix: str = "",
+        thresholds: Dict = None,
+        default_color: str = None,
+        use_max_when_value_exceeds: bool = True,
+        value_format: str = None,
+        text_color: str = None,
+        semver: bool = False,
     ):
         """Constructor for Badge class."""
         # Set defaults if values were not passed
@@ -183,7 +184,7 @@ class Badge:
         self.use_max_when_value_exceeds = use_max_when_value_exceeds
         self.mask_id = self.__class__._get_next_mask_id()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a representation of the Badge object instance.
 
         The output of the __repr__ function could be used to recreate the current object.
@@ -264,7 +265,7 @@ class Badge:
             optional_args,
         )
 
-    def _repr_svg_(self):
+    def _repr_svg_(self) -> str:
         """Return SVG representation when used inside Jupyter notebook cells.
 
         This will render the SVG immediately inside a notebook cell when creating
@@ -273,7 +274,7 @@ class Badge:
         return self.badge_svg_text
 
     @classmethod
-    def _get_next_mask_id(cls):
+    def _get_next_mask_id(cls) -> str:
         """Return a new mask ID from a singleton sequence maintained on the class.
 
         Returns: str
@@ -285,7 +286,7 @@ class Badge:
 
         return config.MASK_ID_PREFIX + str(cls.mask_id)
 
-    def _get_svg_template(self):
+    def _get_svg_template(self) -> str:
         """Return the correct SVG template to render, based on the style and template
         that have been set
 
@@ -308,7 +309,7 @@ class Badge:
             return self.template
 
     @property
-    def semver_version(self):
+    def semver_version(self) -> Version:
         """The semantic version represented by the value string.
 
         Returns: Version
@@ -316,7 +317,7 @@ class Badge:
         return Version(self.value)
 
     @property
-    def semver_thresholds(self):
+    def semver_thresholds(self) -> OrderedDict:
         """Thresholds as a dict using Version as keys."""
         # Version is not a hashable type, so can't be used to create an
         # ordered dict directly. First we need to create an ordered list of keys
@@ -324,12 +325,12 @@ class Badge:
         return OrderedDict((key, self.thresholds[key]) for key in ordered_keys)
 
     @property
-    def float_thresholds(self):
+    def float_thresholds(self) -> Dict[float, str]:
         """Thresholds as a dict using floats as keys."""
         return {float(k): v for k, v in self.thresholds.items()}
 
     @property
-    def value_is_float(self):
+    def value_is_float(self) -> bool:
         """Identify whether the value text is a float.
 
         Returns: bool
@@ -349,7 +350,7 @@ class Badge:
             return True
 
     @property
-    def value_is_int(self):
+    def value_is_int(self) -> bool:
         """Identify whether the value text is an int.
 
         Returns: bool
@@ -363,7 +364,7 @@ class Badge:
             return a == b
 
     @property
-    def value_type(self):
+    def value_type(self) -> Type:
         """The Python type associated with the value.
 
         Returns: type
@@ -378,8 +379,16 @@ class Badge:
             return str
 
     @property
-    def label_width(self):
+    def label_width(self) -> int:
         """The SVG width of the label text.
+
+        ┌───────────────────────────┬────────────────────────────────┐
+        │                           │                                │
+        │        Label text         │             Value              │
+        │                           │                                │
+        └───────────────────────────┴────────────────────────────────┘
+                 ◀────────▶
+                 label_width
 
         Returns: int
         """
@@ -389,8 +398,16 @@ class Badge:
         )
 
     @property
-    def value_width(self):
+    def value_width(self) -> int:
         """The SVG width of the value text.
+
+        ┌───────────────────────────┬────────────────────────────────┐
+        │                           │                                │
+        │        Label text         │           Value text           │
+        │                           │                                │
+        └───────────────────────────┴────────────────────────────────┘
+                                                ◀────────▶
+                                                value_width
 
         Returns: int
         """
@@ -400,15 +417,23 @@ class Badge:
         )
 
     @property
-    def value_box_width(self):
+    def value_box_width(self) -> int:
         """The SVG width of the value text box.
+
+        ┌───────────────────────────┬────────────────────────────────┐
+        │                           │                                │
+        │        Label text         │           Value text           │
+        │                           │                                │
+        └───────────────────────────┴────────────────────────────────┘
+                                    ◀────────────────────────────────▶
+                                             value_box_width
 
         Returns: int
         """
         return self.value_width - 9
 
     @property
-    def font_width(self):
+    def font_width(self) -> int:
         """Return the width multiplier for a font.
 
         Returns:
@@ -422,24 +447,60 @@ class Badge:
         return config.FONT_WIDTHS[self.font_name][self.font_size]
 
     @property
-    def color_split_position(self):
+    def color_split_position(self) -> int:
         """The SVG x position where the color split should occur.
+
+                                     Split
+                                       │
+                                    ┌──┘
+                                    ▼
+        ┌───────────────────────────┬────────────────────────────────┐
+        │                           │                                │
+        │        Label text         │           Value text           │
+        │                           │                                │
+        └───────────────────────────┴────────────────────────────────┘
+        ◀───────────────────────────▶
+               color_split_pos
 
         Returns: int
         """
         return self.badge_width - self.value_width
 
     @property
-    def label_anchor(self):
+    def label_anchor(self) -> float:
         """The SVG x position of the middle anchor for the label text.
+
+                    Middle of
+                      label
+                     ┌──┘
+                     ▼
+        ┌───────────────────────────┬────────────────────────────────┐
+        │                           │                                │
+        │        Label text         │           Value text           │
+        │                           │                                │
+        └───────────────────────────┴────────────────────────────────┘
+        ◀───────────▶
+         label_anchor
 
         Returns: float
         """
         return self.color_split_position / 2
 
     @property
-    def value_anchor(self):
+    def value_anchor(self) -> float:
         """The SVG x position of the middle anchor for the value text.
+
+                                                   Middle of
+                                                     value
+                                                    ┌──┘
+                                                    ▼
+        ┌───────────────────────────┬────────────────────────────────┐
+        │                           │                                │
+        │        Label text         │           Value text           │
+        │                           │                                │
+        └───────────────────────────┴────────────────────────────────┘
+        ◀──────────────────────────────────────────▶
+                                               value_anchor
 
         Returns: float
         """
@@ -448,24 +509,61 @@ class Badge:
         )
 
     @property
-    def label_anchor_shadow(self):
+    def label_anchor_shadow(self) -> float:
         """The SVG x position of the label shadow anchor.
+
+        The shadow for the label will appear behind the label.
+
+              ┌ Text ──────────────────┐
+              │                        │
+              │                        ├────┐
+              │                        │    │
+              └────┬───────────────────┘    │
+                   │                        │
+                   └───────────── Shadow ───┘
+
+        The label_anchor_shadow is the distance from left to center of shadow:
+
+        ┌─────────────────────────────┬─────────────────────────────────┐
+        │     ┌────────────┐          │                                 │
+        │     │            ├─┐        │           Value text            │
+        │     └─┬──────────┘ │        │                                 │
+        │       └────────────┘        │                                 │
+        └─────────────────────────────┴─────────────────────────────────┘
+        ◀─────────────▶
+        label_anchor_shadow
 
         Returns: float
         """
         return self.label_anchor + 1
 
     @property
-    def value_anchor_shadow(self):
+    def value_anchor_shadow(self) -> float:
         """The SVG x position of the value shadow anchor.
 
+        ┌─────────────────────────────┬─────────────────────────────────┐
+        │                             │        ┌────────────┐           │
+        │         Label text          │        │            ├─┐         │
+        │                             │        └─┬──────────┘ │         │
+        │                             │          └────────────┘         │
+        └─────────────────────────────┴─────────────────────────────────┘
+        ◀───────────────────────────────────────────────▶
+                                               value_anchor_shadow
         Returns: float
         """
         return self.value_anchor + 1
 
     @property
-    def badge_width(self):
+    def badge_width(self) -> int:
         """The total width of badge.
+
+        ┌───────────────────────────┬────────────────────────────────┐
+        │                           │                                │
+        │        Label text         │           Value text           │
+        │                           │                                │
+        └───────────────────────────┴────────────────────────────────┘
+        ◀───────────────────────────────────────────────────────────▶
+                                 badge_width
 
         Returns: int
 
@@ -478,8 +576,8 @@ class Badge:
         return self.label_width + self.value_width
 
     @property
-    def arc_start(self):
-        """The position where the arc on the gitlab-scoped should start.
+    def arc_start(self) -> int:
+        """The position where the arc on the arc should start.
 
         Returns: int
 
@@ -492,7 +590,7 @@ class Badge:
         return self.badge_width - 10
 
     @property
-    def badge_svg_text(self):
+    def badge_svg_text(self) -> str:
         """The badge SVG text.
 
         Returns: str
@@ -520,7 +618,7 @@ class Badge:
             .replace("{{ arc start }}", str(self.arc_start))
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return string representation of badge.
 
         This will return the badge SVG text.
@@ -535,7 +633,7 @@ class Badge:
         """
         return self.badge_svg_text
 
-    def get_text_width(self, text):
+    def get_text_width(self, text) -> int:
         """Return the width of text.
 
         Args:
@@ -554,7 +652,7 @@ class Badge:
         return _get_approx_string_width(text, self.font_width)
 
     @property
-    def badge_color(self):
+    def badge_color(self) -> str:
         """Badge color based on the configured thresholds.
 
         Returns: str"""
@@ -633,7 +731,7 @@ class Badge:
             (color, ", ".join(list(Color.__members__.keys()))),
         )
 
-    def write_badge(self, file_path, overwrite=False):
+    def write_badge(self, file_path, overwrite=False) -> None:
         """Write badge to file."""
 
         # Validate path (part 1)
