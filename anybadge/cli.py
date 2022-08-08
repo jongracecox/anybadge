@@ -51,7 +51,7 @@ examples:
     parser.add_argument('-v', '--value', type=str, help='The badge value.', required=True)
     parser.add_argument('-m', '--value-format', type=str, default=None,
                         help='Formatting string for value (e.g. "%%.2f" for 2dp floats)')
-    parser.add_argument('-c', '--color', type=str, help='For fixed color badges use --color'
+    parser.add_argument('-c', '--color', type=str, help='For fixed color badges use --color '
                                                         'to specify the badge color.',
                         default=config.DEFAULT_COLOR)
     parser.add_argument('-p', '--prefix', type=str, help='Optional prefix for value.',
