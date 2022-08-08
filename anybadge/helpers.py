@@ -43,12 +43,12 @@ def _get_approx_string_width(text, font_width, fixed_width=False):
     # These percentages can be calculated using the ``_get_character_percentage_dict`` function.
     char_width_percentages = {
         "lij|' ": 40.0,
-        '![]fI.,:;/\\t': 50.0,
+        "![]fI.,:;/\\t": 50.0,
         '`-(){}r"': 60.0,
-        '*^zcsJkvxy': 70.0,
-        'aebdhnopqug#$L+<>=?_~FZT0123456789': 70.0,
-        'BSPEAKVXY&UwNRCHD': 70.0,
-        'QGOMm%W@': 100.0
+        "*^zcsJkvxy": 70.0,
+        "aebdhnopqug#$L+<>=?_~FZT0123456789": 70.0,
+        "BSPEAKVXY&UwNRCHD": 70.0,
+        "QGOMm%W@": 100.0,
     }
 
     for s in text:
