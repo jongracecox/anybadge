@@ -12,7 +12,7 @@ install:
 - pip install -U setuptools pip -r build-requirements.txt
 script:
 - if [[ $RUN_PRE_COMMIT = 1 ]]; then
-    pip install -U pre-commit==2.12.1 &&
+    pip install -U pre-commit==2.20.0 &&
     pre-commit install &&
     pre-commit run --all;
   fi
