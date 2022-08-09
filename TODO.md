@@ -8,3 +8,5 @@
 * [ ] Add CI to push server to Docker hub
 * [ ] Support common badge server URL structure
 * [ ] Documentation for all docker bits
+* [ ] Update PyPi deployment to use API tokens
+* [ ] Update test code to operate against wheel file instead of package directory
