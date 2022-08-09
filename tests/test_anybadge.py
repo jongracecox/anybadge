@@ -145,13 +145,13 @@ class TestAnybadge(TestCase):
 
         self.assertNotEqual(badges[0].badge_width, badges[1].badge_width)
 
-    def test_multiple_badges_get_different_mask_id(self):
+    def test_multiple_badges_get_different_mask(self):
         badges = [
             Badge("multiple 1", value="100", value_suffix="%", num_padding_chars=0),
             Badge("multiple 2", value="1234567890"),
         ]
 
-        self.assertNotEqual(badges[0].mask_id, badges[1].mask_id)
+        self.assertNotEqual(badges[0].mask_str, badges[1].mask_str)
 
     def test_integer_str_value_is_handled_as_integer(self):
         badge = Badge("integer", value="1234")

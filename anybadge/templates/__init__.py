@@ -14,6 +14,11 @@ def get_template(name: str) -> str:
 
     """
     try:
-        return pkgutil.get_data(__name__, name + ".svg").decode("utf-8")
+        data = pkgutil.get_data(__name__, name + ".svg")
     except FileNotFoundError as e:
         raise UnknownBadgeTemplate from e
+
+    if not data:
+        raise UnknownBadgeTemplate
+
+    return data.decode("utf-8")

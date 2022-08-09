@@ -1,6 +1,6 @@
 import os
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Optional, Union
 
 from . import config
 from .colors import Color
@@ -99,6 +99,9 @@ class Badge:
         '#4c1'
     """
 
+    #: Singleton variable to track current max mask_id. This is used by _get_next_mask_str class method.
+    mask_id: int
+
     def __init__(
         self,
         label,
@@ -106,13 +109,13 @@ class Badge:
         font_name: str = None,
         font_size: int = None,
         num_padding_chars: int = None,
-        num_label_padding_chars: int = None,
-        num_value_padding_chars: int = None,
+        num_label_padding_chars: float = None,
+        num_value_padding_chars: float = None,
         template: str = None,
         style: str = None,
         value_prefix: str = "",
         value_suffix: str = "",
-        thresholds: Dict = None,
+        thresholds: Optional[Dict[float, str]] = None,
         default_color: str = None,
         use_max_when_value_exceeds: bool = True,
         value_format: str = None,
@@ -182,7 +185,7 @@ class Badge:
             self.value_text_color = text_colors[1]
 
         self.use_max_when_value_exceeds = use_max_when_value_exceeds
-        self.mask_id = self.__class__._get_next_mask_id()
+        self.mask_str = self.__class__._get_next_mask_str()
 
     def __repr__(self) -> str:
         """Return a representation of the Badge object instance.
@@ -274,7 +277,7 @@ class Badge:
         return self.badge_svg_text
 
     @classmethod
-    def _get_next_mask_id(cls) -> str:
+    def _get_next_mask_str(cls) -> str:
         """Return a new mask ID from a singleton sequence maintained on the class.
 
         Returns: str
@@ -317,16 +320,21 @@ class Badge:
         return Version(self.value)
 
     @property
-    def semver_thresholds(self) -> OrderedDict:
+    def semver_thresholds(self) -> Optional[OrderedDict]:
         """Thresholds as a dict using Version as keys."""
         # Version is not a hashable type, so can't be used to create an
         # ordered dict directly. First we need to create an ordered list of keys
+        if not self.thresholds:
+            return None
+
         ordered_keys = sorted(self.thresholds.keys(), key=Version)
         return OrderedDict((key, self.thresholds[key]) for key in ordered_keys)
 
     @property
-    def float_thresholds(self) -> Dict[float, str]:
+    def float_thresholds(self) -> Optional[Dict[float, str]]:
         """Thresholds as a dict using floats as keys."""
+        if not self.thresholds:
+            return None
         return {float(k): v for k, v in self.thresholds.items()}
 
     @property
@@ -613,7 +621,7 @@ class Badge:
             .replace("{{ value text color }}", self.value_text_color)
             .replace("{{ color split x }}", str(self.color_split_position))
             .replace("{{ value width }}", str(self.value_width))
-            .replace("{{ mask id }}", self.mask_id)
+            .replace("{{ mask id }}", self.mask_str)
             .replace("{{ value box width }}", str(self.value_box_width))
             .replace("{{ arc start }}", str(self.arc_start))
         )
@@ -666,6 +674,8 @@ class Badge:
             else:
                 return self.default_color
 
+        thresholds: Optional[Union[Dict[float, str], OrderedDict[float, str]]]
+
         # Set value and thresholds based on the value type. This will result in either
         # value and thresholds as floats or value and thresholds as semantic versions.
         if self.value_type == Version:
@@ -675,15 +685,17 @@ class Badge:
             value = float(self.value)
             thresholds = self.float_thresholds
 
-        # Convert the threshold dictionary into a sorted list of lists
-        threshold_list = [[self.value_type(i[0]), i[1]] for i in thresholds.items()]
-        threshold_list.sort(key=lambda x: x[0])
-
         color = None
 
-        for threshold, color in threshold_list:
-            if value < threshold:
-                return color
+        if thresholds:
+
+            # Convert the threshold dictionary into a sorted list of lists
+            threshold_list = [[self.value_type(i[0]), i[1]] for i in thresholds.items()]
+            threshold_list.sort(key=lambda x: x[0])
+
+            for threshold, color in threshold_list:
+                if value < threshold:
+                    return color
 
         # If we drop out the top of the range then return the last max color
         if color and self.use_max_when_value_exceeds:
