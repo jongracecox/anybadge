@@ -18,7 +18,7 @@ script:
   fi
 - pytest --doctest-modules --cov=anybadge --cov-report html:htmlcov anybadge tests
 before_deploy:
-- sed -i "s/^version = .*/version = __version__ = \"$TRAVIS_TAG\"/" anybadge.py
+- sed -i "s/^version = .*/version = __version__ = \"$TRAVIS_TAG\"/" anybadge/__init__.py
 deploy:
 - provider: pypi
   skip_cleanup: true
