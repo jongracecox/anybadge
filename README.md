@@ -137,29 +137,29 @@ badge = anybadge.Badge(label='custom color', value='teal', default_color='#00808
 
 Available named colors are:
 
-| Color Name | Hex Code | Example |
-| ---------- | -------- | ------- |
-| aqua | #00FFFF | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_aqua.svg) |
-| black | #000000 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_black.svg) |
-| blue | #0000FF | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_blue.svg) |
-| bright_red | #FF0000 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_bright_red.svg) |
-| bright_yellow | #FFFF00 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_bright_yellow.svg) |
-| fuchsia | #FF00FF | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_fuchsia.svg) |
-| gray | #808080 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_gray.svg) |
-| green | #4C1 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_green.svg) |
-| light_grey | #9F9F9F | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_light_grey.svg) |
-| lime | #00FF00 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_lime.svg) |
-| maroon | #800000 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_maroon.svg) |
-| navy | #000080 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_navy.svg) |
-| olive | #808000 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_olive.svg) |
-| orange | #FE7D37 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_orange.svg) |
-| purple | #800080 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_purple.svg) |
-| red | #E05D44 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_red.svg) |
-| silver | #C0C0C0 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_silver.svg) |
-| teal | #008080 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_teal.svg) |
-| white | #FFFFFF | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_white.svg) |
-| yellow | #DFB317 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_yellow.svg) |
-| yellow_green | #A4A61D | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_yellow_green.svg) |
+| Color Name    | Hex     | Example |
+| ------------- | ------- | ------- |
+| aqua          | #00FFFF | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_aqua.svg)         |
+| black         | #000000 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_black.svg)        |
+| blue          | #0000FF | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_blue.svg)         |
+| bright_red    | #FF0000 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_bright_red.svg)   |
+| bright_yellow | #FFFF00 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_bright_yellow.svg)|
+| fuchsia       | #FF00FF | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_fuchsia.svg)      |
+| gray          | #808080 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_gray.svg)         |
+| green         | #4C1    | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_green.svg)        |
+| light_grey    | #9F9F9F | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_light_grey.svg)   |
+| lime          | #00FF00 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_lime.svg)         |
+| maroon        | #800000 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_maroon.svg)       |
+| navy          | #000080 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_navy.svg)         |
+| olive         | #808000 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_olive.svg)        |
+| orange        | #FE7D37 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_orange.svg)       |
+| purple        | #800080 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_purple.svg)       |
+| red           | #E05D44 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_red.svg)          |
+| silver        | #C0C0C0 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_silver.svg)       |
+| teal          | #008080 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_teal.svg)         |
+| white         | #FFFFFF | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_white.svg)        |
+| yellow        | #DFB317 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_yellow.svg)       |
+| yellow_green  | #A4A61D | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_yellow_green.svg) |
 
 ### Semantic version support
 
