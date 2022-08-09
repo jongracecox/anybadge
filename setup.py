@@ -27,7 +27,7 @@ setup(
     install_requires=["packaging"],
     package_data={"anybadge": ["templates/*.svg"]},
     options={"bdist_wheel": {"universal": False}},
-    python_requires=">=3.4",
+    python_requires=">=3.7",
     url="https://github.com/jongracecox/anybadge",
     entry_points={
         "console_scripts": [

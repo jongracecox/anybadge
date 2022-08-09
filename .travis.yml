@@ -2,12 +2,6 @@ dist: xenial
 language: python
 jobs:
   include:
-    - python: '3.4'
-      env: RUN_PRE_COMMIT=0
-    - python: '3.5'
-      env: RUN_PRE_COMMIT=0
-    - python: '3.6'
-      env: RUN_PRE_COMMIT=0
     - python: '3.7'
       env: RUN_PRE_COMMIT=0
     - python: '3.8'
@@ -18,13 +12,13 @@ install:
 - pip install -U setuptools pip -r build-requirements.txt
 script:
 - if [[ $RUN_PRE_COMMIT = 1 ]]; then
-    pip install -U pre-commit==2.12.1 &&
+    pip install -U pre-commit==2.20.0 &&
     pre-commit install &&
     pre-commit run --all;
   fi
 - pytest --doctest-modules --cov=anybadge --cov-report html:htmlcov anybadge tests
 before_deploy:
-- sed -i "s/^version = .*/version = __version__ = \"$TRAVIS_TAG\"/" anybadge.py
+- sed -i "s/^version = .*/version = __version__ = \"$TRAVIS_TAG\"/" anybadge/__init__.py
 deploy:
 - provider: pypi
   skip_cleanup: true
