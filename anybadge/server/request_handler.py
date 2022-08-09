@@ -3,7 +3,6 @@ import urllib.parse as urlparse
 from http.server import BaseHTTPRequestHandler
 
 from anybadge import Badge
-from anybadge.server import config
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +54,9 @@ class AnyBadgeHTTPRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"<html><head><title>Anybadge Web Server.</title></head>")
             self.wfile.write(b"<body>")
 
-            help_text = """
+            listen_host, listen_port = self.server.server_address
+
+            help_text = f"""
                         <h1>Welcome to the Anybadge Web Server.</h1>
 
                         You are seeing this message because you haven't passed all the query parameters
@@ -65,11 +66,9 @@ class AnyBadgeHTTPRequestHandler(BaseHTTPRequestHandler):
 
                         Here is an example:
 
-                        <a href="http://localhost:{port}/?label=Project%20Awesomeness&value=110%">\
-                        http://localhost:{port}/?label=Project%20Awesomeness&value=110%</a>
-                        """.format(
-                port=config.SERVER_PORT
-            )
+                        <a href="http://{listen_host}:{listen_port}/?label=Project%20Awesomeness&value=110%">\
+                        http://{listen_host}:{listen_port}/?label=Project%20Awesomeness&value=110%</a>
+                        """
 
             for line in help_text.splitlines():
                 self.wfile.write(str.encode("<p>%s</p>" % line))
