@@ -6,18 +6,14 @@ if __name__ == "__main__":
         """| Color Name | Hex Code | Example |
     | ---------- | -------- | ------- |"""
     )
-    for color, hex in sorted(anybadge.COLORS.items()):
+    for color in sorted(anybadge.colors.Color):
 
-        file = "examples/color_" + color + ".svg"
+        file = "examples/color_" + color.name.lower() + ".svg"
 
         url = "https://cdn.rawgit.com/jongracecox/anybadge/master/" + file
 
-        anybadge.Badge(label="Color", value=color, default_color=color).write_badge(
-            file, overwrite=True
-        )
+        anybadge.Badge(
+            label="Color", value=color.name, default_color=color.value
+        ).write_badge(file, overwrite=True)
 
-        print(
-            "| {color} | {hex} | ![]({url}) |".format(
-                color=color, hex=hex.upper(), url=url
-            )
-        )
+        print(f"| {color.name} | {color.value.upper()} | ![]({url}) |")
