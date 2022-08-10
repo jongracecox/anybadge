@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest import TestCase
 from anybadge import Badge
 from anybadge.cli import main, parse_args
@@ -234,7 +235,7 @@ class TestAnybadge(TestCase):
         self.assertTrue("font_size=10" in badge_repr)
 
     def test_template_from_file(self):
-        file = "tests/template.svg"
+        file = Path(__file__).parent / Path("template.svg")
         badge = Badge("template from file", value=file, template=file)
         _ = badge.badge_svg_text
 
