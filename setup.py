@@ -20,7 +20,7 @@ setup(
     version=version,
     author="Jon Grace-Cox",
     author_email="jongracecox@gmail.com",
-    packages=["anybadge", "anybadge.templates"],
+    packages=["anybadge", "anybadge.templates", "anybadge.server"],
     py_modules=["anybadge_server"],
     setup_requires=["setuptools", "wheel"],
     tests_require=[],
