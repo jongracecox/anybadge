@@ -1,12 +1,15 @@
-FROM python:3-stretch
+FROM python:3-alpine
 
 WORKDIR /app
 
-RUN apt-get update
+RUN apk update
 
-COPY anybadge.py anybadge_server.py ./
+RUN pip install -U pip && pip install packaging
 
-ENTRYPOINT ./anybadge_server.py
+COPY anybadge/ /app/anybadge/
+COPY anybadge_server.py /app/.
+
+ENTRYPOINT ["./anybadge_server.py"]
 
 # Example command to run Docker container
 # docker run -it --rm -p8000:8000 -e ANYBADGE_LISTEN_ADDRESS="" -e ANYBADGE_LOG_LEVEL=DEBUG labmonkey/anybadge:1.0

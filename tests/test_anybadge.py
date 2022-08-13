@@ -1,6 +1,10 @@
+from pathlib import Path
 from unittest import TestCase
 from anybadge import Badge
 from anybadge.cli import main, parse_args
+
+
+TESTS_DIR = Path(__file__).parent
 
 
 class TestAnybadge(TestCase):
@@ -234,7 +238,7 @@ class TestAnybadge(TestCase):
         self.assertTrue("font_size=10" in badge_repr)
 
     def test_template_from_file(self):
-        file = "tests/template.svg"
+        file = Path(__file__).parent / Path("template.svg")
         badge = Badge("template from file", value=file, template=file)
         _ = badge.badge_svg_text
 
@@ -266,8 +270,14 @@ class TestAnybadge(TestCase):
         with self.assertRaisesRegex(
             RuntimeError, r'File ".*tests\/exists\.svg" already exists\.'
         ):
-            badge.write_badge("tests/exists")
-            badge.write_badge("tests/exists")
+            badge.write_badge(TESTS_DIR / Path("exists"))
+            badge.write_badge(TESTS_DIR / Path("exists"))
+
+        with self.assertRaisesRegex(
+            RuntimeError, r'File ".*tests\/exists\.svg" already exists\.'
+        ):
+            badge.write_badge(str(TESTS_DIR / Path("exists")))
+            badge.write_badge(str(TESTS_DIR / Path("exists")))
 
     def test_arg_parsing(self):
         args = parse_args(["-l", "label", "-v", "value"])

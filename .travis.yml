@@ -18,7 +18,9 @@ script:
     pre-commit install &&
     pre-commit run --all;
   fi
-- pytest --doctest-modules --cov=anybadge --cov-report html:htmlcov anybadge tests
+- python setup.py bdist_wheel && pip install dist/anybadge*.whl
+- mkdir tmp && cd tmp
+- pytest --doctest-modules --cov=anybadge --cov-report html:htmlcov ../anybadge ../tests
 before_deploy:
 - sed -i "s/^version = .*/version = __version__ = \"$TRAVIS_TAG\"/" anybadge/__init__.py
 deploy:
