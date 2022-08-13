@@ -1,4 +1,5 @@
 # Contributing to anybadge
+
 I love your input! I want to make contributing to this project as easy and transparent as possible, whether it's:
 
 - Reporting a bug
@@ -8,6 +9,7 @@ I love your input! I want to make contributing to this project as easy and trans
 - Becoming a maintainer
 
 ## I use [Github Flow](https://docs.github.com/en/get-started/quickstart/github-flow), so all code changes happen through pull requests
+
 Pull requests are the best way to propose changes to the codebase (I use
 [Github Flow](https://docs.github.com/en/get-started/quickstart/github-flow)). I actively welcome your pull requests:
 
@@ -19,15 +21,18 @@ Pull requests are the best way to propose changes to the codebase (I use
 6. Issue that pull request!
 
 ## Any contributions you make will be under the MIT Software License
+
 When you submit code changes, your submissions are understood to be under the same
 [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers
 if that's a concern.
 
 ## Report bugs using Github's [issues](https://github.com/jongracecox/anybadge/issues)
+
 I use GitHub issues to track public bugs. Report a bug by
 [opening a new issue](https://github.com/jongracecox/anybadge/issues/new/choose).
 
 ## Write bug reports with detail, background, and sample code
+
 **Great Bug Reports** tend to have:
 
 - A quick summary and/or background
@@ -41,14 +46,41 @@ I use GitHub issues to track public bugs. Report a bug by
 People *love* thorough bug reports.
 
 ## Use a Consistent Coding Style
-Please follow the existing coding style.
+
+Please follow the existing coding style. Your code should be standardised using
+[Python Black](https://github.com/psf/black) using pre-commit when you make commits - please ensure you have
+pre-commit installed (see [here](#install-pre-commit)).
 
 ## License
+
 By contributing, you agree that your contributions will be licensed under its MIT License.
 
-# Technical stuff
+# Development environment
 
-## Pre-commit
+Setup your development environment with the following steps:
+
+- [Check out the project](#check-out-the-project)
+- [Install build requirements](#install-build-requirements)
+- [Install pre-commit](#install-pre-commit)
+
+## Check out the project
+
+Clone the project:
+
+```bash
+git clone https://github.com/jongracecox/anybadge.git
+```
+
+## Install build requirements
+
+Install build requirements with:
+
+```bash
+pip install -r build-requirements.txt
+```
+
+## Install pre-commit
+
 This projects makes use of [pre-commit](https://pre-commit.com) to add some safety checks and create consistency
 in the project code. When committing changes to this project, please first [install pre-commit](https://pre-commit.com/#install),
 then activate it for this project:
@@ -84,17 +116,58 @@ Fixing examples/color_teal.svg
 
 This shows that two files were updated by hooks, and need to be re-added (with `git add`) before trying to commit again.
 
-## Documentation
-The `README.md` file contains a table showing example badges for the different built-in colors. If you modify the
-appearance of badges, or the available colors please update the table using the following code:
+# Development activities
 
-```python
-import anybadge
-print("""| Color Name | Hex Code | Example |
-| ---------- | -------- | ------- |""")
-for color in sorted([c for c in anybadge.colors.Color], key=lambda x: x.name):
-    file = 'examples/color_' + color.name.lower() + '.svg'
-    url = 'https://cdn.rawgit.com/jongracecox/anybadge/master/' + file
-    anybadge.Badge(label='Color', value=color, default_color=color.name.lower()).write_badge(file, overwrite=True)
-    print("| {color} | {hex} | ![]({url}) |".format(color=color.name.lower(), hex=color.value.upper(), url=url))
+## Invoke
+
+The project has some [Python invoke](https://www.pyinvoke.org/) tasks to help automate things. After installing
+build requirements you can run `inv --list` to see a list of available tasks.
+
+For example:
+
+```bash
+> inv --list
+Available tasks:
+
+  build                 Build the package.
+  clean                 Clean up the project area.
+  examples              Generate examples markdown.
+  server.docker-build
+  server.docker-run
+  server.run
+  test.docker           Run dockerised tests.
+  test.local            Run local tests.
+```
+
+You can get help for a command using `inv --help <command>`.
+
+Invoke tasks are defined in the `tasks/` directory in the project. Feel free to add new and useful tasks.
+
+## Running tests
+
+You can run tests locally using:
+
+```bash
+inv test.local
+```
+
+When running locally, you will be running tests against the code in the project. This has some disadvantages,
+specifically running locally may not detect files that are not included in the package build, e.g. sub-modules,
+templates, examples, etc. For this reason we have a containerised test. This can be run using:
+
+```bash
+inv test.docker
+```
+
+This will clean up the project `dist` directory, build the package locally, build the docker image,
+spin up a docker container, install the package and run the tests. The tests should run using the installed
+package and not the project source code, so this method should be used as a final test before pushing.
+
+## Documentation
+
+The `README.md` file contains a table showing example badges for the different built-in colors. If you modify the
+appearance of badges, or the available colors please update the table using the invoke task:
+
+```bash
+inv examples
 ```
