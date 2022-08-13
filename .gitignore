@@ -117,3 +117,4 @@ htmlcov/
 
 **/*.svg
 !anybadge/templates/*.svg
+test_files/
