@@ -1,5 +1,6 @@
 import os
 from collections import OrderedDict
+from pathlib import Path
 from typing import Dict, Type, Optional, Union
 
 from . import config
@@ -111,7 +112,7 @@ class Badge:
         num_padding_chars: int = None,
         num_label_padding_chars: float = None,
         num_value_padding_chars: float = None,
-        template: str = None,
+        template: Union[Path, str] = None,
         style: str = None,
         value_prefix: str = "",
         value_suffix: str = "",
@@ -138,6 +139,8 @@ class Badge:
                 num_value_padding_chars = config.NUM_PADDING_CHARS
             else:
                 num_value_padding_chars = num_padding_chars
+        if isinstance(template, Path):
+            template = str(template)
         if not template:
             template = get_template("default")
         if style not in ["gitlab-scoped"]:
