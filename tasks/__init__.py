@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 
 from invoke import task, Collection
-from tasks import test, server
+from tasks import test, server, housekeeping
 
 PROJECT_DIR = Path(__file__).parent.parent
 
@@ -28,20 +28,6 @@ def examples(c):
     main()
 
 
-def delete_files(files: str):
-    for file in glob.glob(files):
-        print(f"  Deleting {file}")
-        subprocess.run(["rm", "-rf", file])
-
-
-@task()
-def clean(c):
-    """Clean up the project area."""
-    print("Cleaning the project directory...")
-    delete_files("dist/*")
-    delete_files("tests/test_*.svg")
-
-
-namespace = Collection(test, server)
-for fn in [build, examples, clean]:
+namespace = Collection(test, server, housekeeping)
+for fn in [build, examples]:
     namespace.add_task(fn)

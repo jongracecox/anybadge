@@ -145,11 +145,15 @@ Invoke tasks are defined in the `tasks/` directory in the project. Feel free to 
 
 ## Running tests
 
+### Local tests
+
 You can run tests locally using:
 
 ```bash
 inv test.local
 ```
+
+### Containerised tests
 
 When running locally, you will be running tests against the code in the project. This has some disadvantages,
 specifically running locally may not detect files that are not included in the package build, e.g. sub-modules,
@@ -162,6 +166,34 @@ inv test.docker
 This will clean up the project `dist` directory, build the package locally, build the docker image,
 spin up a docker container, install the package and run the tests. The tests should run using the installed
 package and not the project source code, so this method should be used as a final test before pushing.
+
+### PyPi tests
+
+It is useful to validate PyPi releases when a new version is deployed. This should be done after every
+release.
+
+#### Running tests
+
+To test the latest available PyPi package, run:
+
+```bash
+inv test.pypi>
+```
+
+To test a specific version of a PyPi package, run:
+
+```bash
+inv test.pypi --version=\<VERSION>
+```
+
+When the tests run they will output test files into a `\<VERSION>_\<DATETIME>` directory under `test_files/`.
+After running tests, inspect the console output to see if there were any errors then inspect each file in the
+`test_files` directory.
+
+#### Adding tests
+
+The PyPi tests are implemented in `docker/test/run_pypi_tests.sh`. If you find a bug, then adding a test to this script
+could be useful, and quicker than adding a unittest.
 
 ## Documentation
 
