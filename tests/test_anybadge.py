@@ -4,6 +4,9 @@ from anybadge import Badge
 from anybadge.cli import main, parse_args
 
 
+TESTS_DIR = Path(__file__).parent
+
+
 class TestAnybadge(TestCase):
     """Test case class for anybadge package."""
 
@@ -267,8 +270,14 @@ class TestAnybadge(TestCase):
         with self.assertRaisesRegex(
             RuntimeError, r'File ".*tests\/exists\.svg" already exists\.'
         ):
-            badge.write_badge("tests/exists")
-            badge.write_badge("tests/exists")
+            badge.write_badge(TESTS_DIR / Path("exists"))
+            badge.write_badge(TESTS_DIR / Path("exists"))
+
+        with self.assertRaisesRegex(
+            RuntimeError, r'File ".*tests\/exists\.svg" already exists\.'
+        ):
+            badge.write_badge(str(TESTS_DIR / Path("exists")))
+            badge.write_badge(str(TESTS_DIR / Path("exists")))
 
     def test_arg_parsing(self):
         args = parse_args(["-l", "label", "-v", "value"])
