@@ -161,6 +161,35 @@ Available named colors are:
 | yellow        | #DFB317 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_yellow.svg)       |
 | yellow_green  | #A4A61D | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/color_yellow_green.svg) |
 
+### Emojis
+
+It is possible to use emoji characters in badge labels and values. Here are some examples:
+
+![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline_frown.svg)
+![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline_smile.svg)
+![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/documentation_link.svg)
+![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pypi_link.svg)
+
+These files were created by using the **actual** emoji character in the label/value text. For example:
+
+```python
+badge = anybadge.Badge(label="Pipeline status", value="😄")
+```
+
+There are some caveats worth mentioning:
+- The "look" of the emoji is determined by the client (Emoji characters are placed as-is into the SVG file, and are
+  rendered client-side)
+- Rendering may fail in some viewers and developer IDEs (for example, PyCharm does not render emojis in the svg viewer)
+- Emojis can have different widths, so the layout may be affected. You can use `num_label_padding_chars` and
+  `num_value_padding_chars` to fix (see below)
+
+Here are some examples to show how to use padding to fix layout:
+
+| Badge | Code                                                                 |
+| ----- |----------------------------------------------------------------------|
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline_smile.svg) | `anybadge.Badge("Pipeline status", "😄")` |
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline_smile_padding.svg) | `anybadge.Badge("Pipeline status", "😄", num_value_padding_chars=1)` |
+
 ### Semantic version support
 
 Anybadge supports semantic versions for value and threshold keys. This supports color-coded
