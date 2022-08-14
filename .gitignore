@@ -116,5 +116,6 @@ demo.svg
 htmlcov/
 
 **/*.svg
+!examples/*.svg
 !anybadge/templates/*.svg
 test_files/
