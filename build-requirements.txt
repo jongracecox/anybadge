@@ -1,5 +1,7 @@
+beautifulsoup4
 invoke
 pygments
 pytest
 pytest-cov
 requests
+types-all
