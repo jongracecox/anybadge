@@ -203,3 +203,14 @@ appearance of badges, or the available colors please update the table using the 
 ```bash
 inv examples
 ```
+
+## Color enumeration
+
+The `anybadge.colors.Color` enum provides an easy way to specify badge colors. The enum
+can be updated with new definitions from Mozilla by running `inv colors.update`. This will
+download and parse the Mozilla color keywords table, combine it with existing colors in the
+Enum (maintaining all old values and using numbered suffixes for new values), and generate new
+Enum code that can be copied into the `colors.py` module.
+
+After updating the module the example badges must be re-generated, and the table added to the
+`README.md` document (see [here](#documentation)).

@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 
 from invoke import task, Collection
-from tasks import test, server, housekeeping
+from tasks import test, server, housekeeping, colors
 
 PROJECT_DIR = Path(__file__).parent.parent
 
@@ -28,6 +28,6 @@ def examples(c):
     main()
 
 
-namespace = Collection(test, server, housekeeping)
+namespace = Collection(test, server, housekeeping, colors)
 for fn in [build, examples]:
     namespace.add_task(fn)
