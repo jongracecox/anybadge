@@ -1,3 +1,4 @@
+import subprocess
 from pathlib import Path
 from unittest import TestCase
 from anybadge import Badge
@@ -403,3 +404,9 @@ class TestAnybadge(TestCase):
             semver=True,
         )
         self.assertEqual("orange", badge.badge_color)
+
+    def test_module_same_output_as_main_cli(self):
+        """Test that `python -m anybadge` is equivalent to calling `anybadge` directly."""
+        output_module = subprocess.check_output(["python", "-m", "anybadge", "--help"])
+        output_script = subprocess.check_output(["anybadge", "--help"])
+        self.assertEqual(output_module, output_script)

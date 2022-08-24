@@ -43,3 +43,11 @@ class TestAnybadgeServer(TestCase):
         self.assertTrue(
             response.content.startswith(b'<?xml version="1.0" encoding="UTF-8"?>\n<svg')
         )
+
+    def test_server_module_same_output_as_server_cli(self):
+        """Test that `python -m anybadge.server` is equivalent to calling `anybadge-server` directly."""
+        output_module = subprocess.check_output(
+            ["python", "-m", "anybadge.server", "--help"]
+        )
+        output_script = subprocess.check_output(["anybadge-server", "--help"])
+        self.assertEqual(output_module, output_script)
