@@ -192,8 +192,25 @@ After running tests, inspect the console output to see if there were any errors 
 
 #### Adding tests
 
-The PyPi tests are implemented in `docker/test/run_pypi_tests.sh`. If you find a bug, then adding a test to this script
+The PyPi tests are implemented in `docker/test/shell_tests.sh`. If you find a bug, then adding a test to this script
 could be useful, and quicker than adding a unittest.
+
+### CLI tests
+
+To run the CLI tests that execute as part of the `inv test.pypi` against a local install you can use:
+
+```bash
+inv test.cli
+```
+
+If you would like to build, install and run the cli tests against a local install (which can be useful when editing
+CLI code), you can use:
+
+```bash
+inv build && inv install && inv test.cli
+```
+
+Note that this will force install the built wheel from the project `dist/` directory over any existing local install.
 
 ## Documentation
 

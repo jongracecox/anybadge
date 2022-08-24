@@ -52,3 +52,20 @@ def pypi(c, version="latest"):
         f"docker run -e VERSION={version} -v {test_files.absolute()}:/test_files test-anybadge:latest /work/run_pypi_tests.sh",
         shell=True,
     )
+
+
+@task
+def cli(c, version="latest"):
+    """Run CLI tests against currently installed version."""
+    print("Running tests against currently installed version...")
+
+    clean(c)
+    test_files = PROJECT_DIR / Path("test_files")
+    test_files.mkdir(exist_ok=True)
+
+    shell_test = PROJECT_DIR / Path("docker/test/shell_tests.sh")
+
+    subprocess.run(
+        f'SOURCE_DIR="{shell_test.parent}" PROJECT_DIR="{PROJECT_DIR}" {shell_test}',
+        shell=True,
+    )
