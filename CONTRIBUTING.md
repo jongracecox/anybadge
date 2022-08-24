@@ -125,7 +125,7 @@ build requirements you can run `inv --list` to see a list of available tasks.
 
 For example:
 
-```bash
+```
 > inv --list
 Available tasks:
 
@@ -187,10 +187,10 @@ inv test.pypi
 To test a specific version of a PyPi package, run:
 
 ```bash
-inv test.pypi --version=\<VERSION\>
+inv test.pypi --version=<VERSION>
 ```
 
-When the tests run they will output test files into a `\<VERSION>_\<DATETIME>` directory under `test_files/`.
+When the tests run they will output test files into a `<VERSION>_<DATETIME>` directory under `test_files/`.
 After running tests, inspect the console output to see if there were any errors then inspect each file in the
 `test_files` directory.
 
