@@ -5,18 +5,11 @@ import subprocess
 from pathlib import Path
 
 from invoke import task, Collection
-from tasks import test, server, housekeeping, colors
+from tasks import test, server, housekeeping, colors, package
 
 PROJECT_DIR = Path(__file__).parent.parent
 
 os.chdir(PROJECT_DIR)
-
-
-@task
-def build(c):
-    """Build the package."""
-    print("Building package...")
-    subprocess.run(["python", "setup.py", "bdist_wheel"])
 
 
 @task
@@ -28,6 +21,6 @@ def examples(c):
     main()
 
 
-namespace = Collection(test, server, housekeeping, colors)
-for fn in [build, examples]:
+namespace = Collection(test, server, housekeeping, colors, package)
+for fn in [examples]:
     namespace.add_task(fn)

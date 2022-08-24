@@ -129,14 +129,18 @@ For example:
 > inv --list
 Available tasks:
 
-  build                 Build the package.
-  clean                 Clean up the project area.
   examples              Generate examples markdown.
-  server.docker-build
-  server.docker-run
-  server.run
+  colors.update         Generate colors Enum from Mozilla color keywords.
+  housekeeping.clean    Clean up the project area.
+  package.build         Build the package and write wheel to 'dist/' directory.
+  package.install       Install the locally built version from 'dist/'.
+  server.docker-build   Build docker image for anybadge server.
+  server.docker-run     Run containerised anybadge server.
+  server.run            Run local anybadge server.
+  test.cli              Run CLI tests against currently installed version.
   test.docker           Run dockerised tests.
   test.local            Run local tests.
+  test.pypi             Run tests against Pypi version.
 ```
 
 You can get help for a command using `inv --help <command>`.
@@ -150,7 +154,7 @@ Invoke tasks are defined in the `tasks/` directory in the project. Feel free to 
 You can run tests locally using:
 
 ```bash
-inv test.local
+inv package.build && inv package.install && inv test.local
 ```
 
 ### Containerised tests
@@ -177,13 +181,13 @@ release.
 To test the latest available PyPi package, run:
 
 ```bash
-inv test.pypi>
+inv test.pypi
 ```
 
 To test a specific version of a PyPi package, run:
 
 ```bash
-inv test.pypi --version=\<VERSION>
+inv test.pypi --version=\<VERSION\>
 ```
 
 When the tests run they will output test files into a `\<VERSION>_\<DATETIME>` directory under `test_files/`.
@@ -192,8 +196,25 @@ After running tests, inspect the console output to see if there were any errors 
 
 #### Adding tests
 
-The PyPi tests are implemented in `docker/test/run_pypi_tests.sh`. If you find a bug, then adding a test to this script
+The PyPi tests are implemented in `docker/test/shell_tests.sh`. If you find a bug, then adding a test to this script
 could be useful, and quicker than adding a unittest.
+
+### CLI tests
+
+To run the CLI tests that execute as part of the `inv test.pypi` against a local install you can use:
+
+```bash
+inv test.cli
+```
+
+If you would like to build, install and run the cli tests against a local install (which can be useful when editing
+CLI code), you can use:
+
+```bash
+inv package.build && inv package.install && inv test.cli
+```
+
+Note that this will force install the built wheel from the project `dist/` directory over any existing local install.
 
 ## Documentation
 
