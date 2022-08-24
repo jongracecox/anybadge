@@ -154,7 +154,7 @@ Invoke tasks are defined in the `tasks/` directory in the project. Feel free to 
 You can run tests locally using:
 
 ```bash
-inv test.local
+inv package.build && inv package.install && inv test.local
 ```
 
 ### Containerised tests
