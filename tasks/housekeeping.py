@@ -9,7 +9,7 @@ def delete_files(files: str):
         subprocess.run(["rm", "-rf", file])
 
 
-@task()
+@task
 def clean(c):
     """Clean up the project area."""
     print("Cleaning the project directory...")

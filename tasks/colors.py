@@ -9,6 +9,7 @@ from anybadge.colors import Color
 
 @task
 def update(c):
+    """Generate colors Enum from Mozilla color keywords."""
     url = "https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color_keywords"
     response = requests.get(url)
 

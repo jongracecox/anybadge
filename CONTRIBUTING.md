@@ -129,14 +129,18 @@ For example:
 > inv --list
 Available tasks:
 
-  build                 Build the package.
-  clean                 Clean up the project area.
   examples              Generate examples markdown.
-  server.docker-build
-  server.docker-run
-  server.run
+  colors.update         Generate colors Enum from Mozilla color keywords.
+  housekeeping.clean    Clean up the project area.
+  package.build         Build the package and write wheel to 'dist/' directory.
+  package.install       Install the locally built version from 'dist/'.
+  server.docker-build   Build docker image for anybadge server.
+  server.docker-run     Run containerised anybadge server.
+  server.run            Run local anybadge server.
+  test.cli              Run CLI tests against currently installed version.
   test.docker           Run dockerised tests.
   test.local            Run local tests.
+  test.pypi             Run tests against Pypi version.
 ```
 
 You can get help for a command using `inv --help <command>`.
@@ -177,13 +181,13 @@ release.
 To test the latest available PyPi package, run:
 
 ```bash
-inv test.pypi>
+inv test.pypi
 ```
 
 To test a specific version of a PyPi package, run:
 
 ```bash
-inv test.pypi --version=\<VERSION>
+inv test.pypi --version=\<VERSION\>
 ```
 
 When the tests run they will output test files into a `\<VERSION>_\<DATETIME>` directory under `test_files/`.
@@ -207,7 +211,7 @@ If you would like to build, install and run the cli tests against a local instal
 CLI code), you can use:
 
 ```bash
-inv build && inv install && inv test.cli
+inv package.build && inv package.install && inv test.cli
 ```
 
 Note that this will force install the built wheel from the project `dist/` directory over any existing local install.
