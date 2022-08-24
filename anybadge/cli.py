@@ -4,6 +4,7 @@ import textwrap
 
 from anybadge.styles import Style
 from anybadge.templates import get_template
+from anybadge import __version__ as anybadge_version
 from . import config
 from .badge import Badge
 
@@ -172,6 +173,10 @@ def main(args=None):
     # Args may be sent from command line of as args directly.
     if not args:
         args = sys.argv[1:]
+
+    if args == ["--version"]:
+        print(anybadge_version)
+        return
 
     # Parse command line arguments
     args = parse_args(args)
