@@ -10,7 +10,7 @@ jobs:
       env: RUN_PRE_COMMIT=1
     - python: "3.10"
       env: RUN_PRE_COMMIT=0
-    - python: "3.11-dev"
+    - python: "3.11"
       env: RUN_PRE_COMMIT=0
 install:
 - pip install -U setuptools pip -r build-requirements.txt
