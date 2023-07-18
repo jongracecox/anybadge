@@ -34,6 +34,16 @@ anybadge --label="Label" --value="Value" --file "${TEST_FILES}/test_command_line
 check_rc
 echo "OK"
 
+echo -n "Testing with no label..."
+anybadge --value="Value" --file "${TEST_FILES}/test_command_line_no_label.svg"
+check_rc
+echo "OK"
+
+echo -n "Testing with no value..."
+anybadge --label="Label" --file "${TEST_FILES}/test_command_line_no_value.svg"
+check_rc
+echo "OK"
+
 echo -n "Testing python -m call... "
 python -m anybadge --label="Label" --value="Value" --file "${TEST_FILES}/test_m_command_line.svg"
 check_rc

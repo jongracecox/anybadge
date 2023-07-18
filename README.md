@@ -317,6 +317,16 @@ Here are some examples to show how to use padding to fix layout:
 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline_smile.svg) | `anybadge.Badge("Pipeline status", "😄")` |
 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline_smile_padding.svg) | `anybadge.Badge("Pipeline status", "😄", num_value_padding_chars=1)` |
 
+### Value or label only
+
+It is possible to create badges with only a label or only a value. This can be done by passing
+an empty string to the appropriate field. Note that either a label or value must be provided.
+
+| Badge                                                                           | Code                                 |
+|---------------------------------------------------------------------------------|--------------------------------------|
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/label_only.svg) | `anybadge.Badge(label="Label only")` |
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/value_only.svg) | `anybadge.Badge(value="Value only")` |
+
 ### Semantic version support
 
 Anybadge supports semantic versions for value and threshold keys. This supports color-coded
