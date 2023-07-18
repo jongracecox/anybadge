@@ -52,10 +52,8 @@ examples:
 """
         ),
     )
-    parser.add_argument("-l", "--label", type=str, help="The badge label.")
-    parser.add_argument(
-        "-v", "--value", type=str, help="The badge value.", required=True
-    )
+    parser.add_argument("-l", "--label", type=str, help="The badge label.", default="")
+    parser.add_argument("-v", "--value", type=str, help="The badge value.", default="")
     parser.add_argument(
         "-m",
         "--value-format",
@@ -195,9 +193,6 @@ def main(args=None):
             label = style.label
         if not args.suffix and style.suffix:
             suffix = style.suffix
-
-    if not label:
-        raise ValueError("Label has not been set.  Please use --label argument.")
 
     # Create threshold list from args
     threshold_list = [x.split("=") for x in threshold_text]

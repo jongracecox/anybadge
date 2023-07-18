@@ -24,7 +24,7 @@ def color_examples_table():
         )
 
 
-def emoji_examples():
+def other_examples():
     """Generate emoji example badges used in documentation."""
     examples_dir = Path(__file__).parent / Path("examples")
     for label, value, file, kwargs in [
@@ -38,6 +38,8 @@ def emoji_examples():
         ("Pipeline status", "😟", "pipeline_frown.svg", {"default_color": "Red"}),
         ("🔗", "Documentation", "documentation_link.svg", {}),
         ("🔗", "PyPi", "pypi_link.svg", {}),
+        ("", "Value only", "value_only.svg", {}),
+        ("Label only", "", "label_only.svg", {}),
     ]:
         anybadge.Badge(label=label, value=value, **kwargs).write_badge(
             examples_dir / Path(file), overwrite=True
@@ -46,7 +48,7 @@ def emoji_examples():
 
 def main():
     color_examples_table()
-    emoji_examples()
+    other_examples()
 
 
 if __name__ == "__main__":
