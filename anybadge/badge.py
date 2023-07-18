@@ -153,6 +153,14 @@ class Badge:
         self.label = label
         self.value = value
 
+        if self.label is None:
+            self.label = ""
+        if self.value is None:
+            self.value = ""
+
+        if len(str(self.label)) == 0 and len(str(self.value)) == 0:
+            raise ValueError("Either a label or a value must be provided for a badge.")
+
         self.value_is_version = semver
 
         self.value_format = value_format
@@ -414,6 +422,9 @@ class Badge:
 
         Returns: int
         """
+        if len(str(self.label)) == 0:
+            return 0
+
         return int(
             self.get_text_width(str(self.label))
             + (2.0 * self.num_label_padding_chars * self.font_width)
@@ -433,6 +444,9 @@ class Badge:
 
         Returns: int
         """
+        if len(str(self.value_text)) == 0:
+            return 0
+
         return int(
             self.get_text_width(str(self.value_text))
             + (2.0 * self.num_value_padding_chars * self.font_width)

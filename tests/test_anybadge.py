@@ -328,12 +328,6 @@ class TestAnybadge(TestCase):
             ]
         )
 
-    def test_main_missing_value(self):
-        with self.assertRaisesRegex(
-            ValueError, r"Label has not been set\.  Please use --label argument\."
-        ):
-            main(["--value", "123", "--file", "test_badge_main.svg", "--overwrite"])
-
     def test_version_comparison(self):
         # Define thresholds: <3.0.0=red, <3.2.0=orange <999.0.0=green
         badge = Badge(
@@ -410,3 +404,45 @@ class TestAnybadge(TestCase):
         output_module = subprocess.check_output(["python", "-m", "anybadge", "--help"])
         output_script = subprocess.check_output(["anybadge", "--help"])
         self.assertEqual(output_module, output_script)
+
+    def test_badge_with_no_label(self):
+        """Test the dimensions for a badge with no label."""
+        badge = Badge(
+            label="",
+            value="Value",
+        )
+        self.assertEqual(
+            badge.label_width,
+            0,
+            "Expected label width to be 0 for badge with no label.",
+        )
+
+    def test_badge_with_no_value(self):
+        """Test the dimensions for a badge with no value."""
+        badge = Badge(
+            label="Label",
+            value="",
+        )
+        self.assertEqual(
+            badge.value_width,
+            0,
+            "Expected value width to be 0 for badge with no value.",
+        )
+
+    def test_badge_with_no_label_and_no_value(self):
+        """Test that an exception is raised when trying to create a badge with no label or value."""
+        with self.assertRaisesRegex(
+            ValueError, r"Either a label or a value must be provided for a badge\."
+        ):
+            _ = Badge(
+                label="",
+                value="",
+            )
+
+        with self.assertRaisesRegex(
+            ValueError, r"Either a label or a value must be provided for a badge\."
+        ):
+            _ = Badge(
+                label=None,
+                value=None,
+            )
