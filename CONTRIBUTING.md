@@ -216,6 +216,15 @@ inv package.build && inv package.install && inv test.cli
 
 Note that this will force install the built wheel from the project `dist/` directory over any existing local install.
 
+### Tox tests
+
+To run tox tests against all supported Python versions:
+
+```bash
+pip install tox
+tox
+```
+
 ## Documentation
 
 The `README.md` file contains a table showing example badges for the different built-in colors. If you modify the
