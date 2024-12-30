@@ -1,5 +1,12 @@
 #!/bin/bash
 
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+
+echo "Running shell tests..."
+echo "Source directory: ${SOURCE_DIR}"
+echo "Project directory: ${PROJECT_DIR}"
+
 source "${SOURCE_DIR:-.}/helpers.sh" || { echo "Failed to load helpers." ; exit 1 ; }
 
 echo -n "Getting installed version... "

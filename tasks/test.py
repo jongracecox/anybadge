@@ -74,6 +74,6 @@ def cli(c, version="latest"):
     shell_test = PROJECT_DIR / Path("docker/test/shell_tests.sh")
 
     subprocess.run(
-        f'SOURCE_DIR="{shell_test.parent}" PROJECT_DIR="{PROJECT_DIR}" {shell_test}',
+        str(shell_test),
         shell=True,
     )
