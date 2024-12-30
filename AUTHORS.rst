@@ -2,7 +2,7 @@
 AUTHORS
 #######
 
-- Jon Grace-Cox           <jongracecox@gmail.com>
+- Jon Grace-Cox           <30441316+jongracecox@users.noreply.github.com>
 - run  ``git log --format='%aN' | sort -u`` to see all contributors, or::
 
       git log --format='%aN <%aE>' |

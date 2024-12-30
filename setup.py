@@ -19,7 +19,7 @@ setup(
     long_description_content_type="text/markdown",
     version=version,
     author="Jon Grace-Cox",
-    author_email="jongracecox@gmail.com",
+    author_email="30441316+jongracecox@users.noreply.github.com",
     packages=["anybadge", "anybadge.templates", "anybadge.server"],
     py_modules=["anybadge_server"],
     setup_requires=["setuptools", "wheel"],
