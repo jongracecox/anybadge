@@ -4,4 +4,6 @@ pygments
 pytest
 pytest-cov
 requests
-types-all
+setuptools
+types-requests
+wheel
