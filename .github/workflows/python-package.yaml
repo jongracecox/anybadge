@@ -5,7 +5,7 @@ name: Python package
 on:
   push:
     tags:
-      - 'v*'
+      - "v*.*.*"
 
 jobs:
   release:
@@ -31,13 +31,13 @@ jobs:
           python setup.py sdist bdist_wheel
 
       - name: Upload package to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.0.0
+        uses: pypa/gh-action-pypi-publish@v1
         with:
           user: ${{ secrets.PYPI_USERNAME }}
           password: ${{ secrets.PYPI_PASSWORD }}
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             dist/*
