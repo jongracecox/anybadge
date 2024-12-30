@@ -107,21 +107,21 @@ class Badge:
         self,
         label,
         value,
-        font_name: str = None,
-        font_size: int = None,
-        num_padding_chars: int = None,
-        num_label_padding_chars: float = None,
-        num_value_padding_chars: float = None,
-        template: Union[Path, str] = None,
-        style: str = None,
-        value_prefix: str = "",
-        value_suffix: str = "",
+        font_name: Optional[str] = None,
+        font_size: Optional[int] = None,
+        num_padding_chars: Optional[int] = None,
+        num_label_padding_chars: Optional[float] = None,
+        num_value_padding_chars: Optional[float] = None,
+        template: Optional[Union[Path, str]] = None,
+        style: Optional[str] = None,
+        value_prefix: Optional[str] = "",
+        value_suffix: Optional[str] = "",
         thresholds: Optional[Dict[float, str]] = None,
-        default_color: str = None,
-        use_max_when_value_exceeds: bool = True,
-        value_format: str = None,
-        text_color: str = None,
-        semver: bool = False,
+        default_color: Optional[str] = None,
+        use_max_when_value_exceeds: Optional[bool] = True,
+        value_format: Optional[str] = None,
+        text_color: Optional[str] = None,
+        semver: Optional[bool] = False,
     ):
         """Constructor for Badge class."""
         # Set defaults if values were not passed
@@ -162,7 +162,18 @@ class Badge:
             value_text = str(self.value_type(value))
         self.value_prefix = value_prefix
         self.value_suffix = value_suffix
-        self.value_text = value_prefix + value_text + value_suffix
+
+        # Combine prefix, value and suffix into a single value_text string
+
+        if value_prefix:
+            self.value_text = value_prefix
+        else:
+            self.value_text = ""
+
+        self.value_text += value_text
+
+        if value_suffix:
+            self.value_text += value_suffix
 
         if font_name not in config.FONT_WIDTHS:
             raise ValueError(

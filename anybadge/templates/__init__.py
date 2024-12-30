@@ -1,4 +1,5 @@
 """Templates package."""
+
 import pkgutil
 
 from anybadge.exceptions import UnknownBadgeTemplate

@@ -2,6 +2,7 @@ import argparse
 import logging
 from http.server import HTTPServer
 from os import environ
+from typing import Optional, Tuple
 
 from anybadge.server.request_handler import AnyBadgeHTTPRequestHandler
 from anybadge.server import config
@@ -9,7 +10,7 @@ from anybadge.server import config
 logger = logging.getLogger(__name__)
 
 
-def run(listen_address: str = None, port: int = None):
+def run(listen_address: Optional[str] = None, port: Optional[int] = None):
     """Run a persistent webserver."""
     if not listen_address:
         listen_address = config.DEFAULT_SERVER_LISTEN_ADDRESS
@@ -54,12 +55,20 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     """Run server."""
 
     # Check for environment variables
     if "ANYBADGE_PORT" in environ:
-        config.DEFAULT_SERVER_PORT = environ["ANYBADGE_PORT"]
+        port = environ["ANYBADGE_PORT"]
+        try:
+            port_int = int(port)
+        except ValueError:
+            logger.error(
+                "ANYBADGE_PORT environment variable must be an integer. Got %s", port
+            )
+            raise
+        config.DEFAULT_SERVER_PORT = port_int
 
     if "ANYBADGE_LISTEN_ADDRESS" in environ:
         config.DEFAULT_SERVER_LISTEN_ADDRESS = environ["ANYBADGE_LISTEN_ADDRESS"]

@@ -1,4 +1,5 @@
 """Invoke tasks for the project."""
+
 import glob
 import os
 import subprocess
