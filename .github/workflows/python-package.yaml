@@ -31,7 +31,7 @@ jobs:
           python setup.py sdist bdist_wheel
 
       - name: Upload package to PyPI
-        uses: pypa/gh-action-pypi-publish@v1
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: ${{ secrets.PYPI_USERNAME }}
           password: ${{ secrets.PYPI_PASSWORD }}
