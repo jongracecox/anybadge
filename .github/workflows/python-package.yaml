@@ -47,6 +47,13 @@ jobs:
       name: pypi
       url: https://pypi.org/p/anybadge
     steps:
+
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
       - name: Upload package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -74,17 +81,20 @@ jobs:
       id-token: write
 
     steps:
+
     - name: Download all the dists
       uses: actions/download-artifact@v4
       with:
         name: python-package-distributions
         path: dist/
+
     - name: Sign the dists with Sigstore
       uses: sigstore/gh-action-sigstore-python@v3.0.0
       with:
         inputs: >-
           ./dist/*.tar.gz
           ./dist/*.whl
+
     - name: Create GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
@@ -93,6 +103,7 @@ jobs:
         "$GITHUB_REF_NAME"
         --repo "$GITHUB_REPOSITORY"
         --notes ""
+
     - name: Upload artifact signatures to GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
@@ -103,5 +114,6 @@ jobs:
         gh release upload
         "$GITHUB_REF_NAME" dist/**
         --repo "$GITHUB_REPOSITORY"
+
     - name: Cleanup
       run: rm -rf dist/
