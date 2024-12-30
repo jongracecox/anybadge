@@ -4,9 +4,19 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'anybadge/**'
+      - 'tests/**'
+      - '.github/workflows/tox.yaml'
+      - 'tox.ini'
   pull_request:
     branches:
       - master
+    paths:
+      - 'anybadge/**'
+      - 'tests/**'
+      - '.github/workflows/tox.yaml'
+      - 'tox.ini'
 
 jobs:
   test:
