@@ -156,6 +156,18 @@ examples:
         help="Treat value and thresholds as semantic versions.",
     )
     parser.add_argument(
+        "--no-escape-label",
+        action="store_true",
+        default=False,
+        help="Do not escape the label text.",
+    )
+    parser.add_argument(
+        "--no-escape-value",
+        action="store_true",
+        default=False,
+        help="Do not escape the value text.",
+    )
+    parser.add_argument(
         "args",
         nargs=argparse.REMAINDER,
         help="Pairs of <upper>=<color>. "
@@ -217,6 +229,8 @@ def main(args=None):
         value_format=args.value_format,
         text_color=args.text_color,
         semver=args.semver,
+        escape_label=not args.no_escape_label,
+        escape_value=not args.no_escape_value,
     )
 
     if args.file:
