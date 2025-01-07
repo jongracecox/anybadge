@@ -351,6 +351,19 @@ Each threshold entry is used to define the upper bounds of the threshold. If you
 upper bound for your version number threshold you will need to provide an extreme upper bound -
 in this example it is `999.0.0`.
 
+### Escaping
+
+Badges are generated as .svg files, which utilize an XML-based markup language. Consequently,
+any HTML characters present in badge labels or values must be escaped to ensure proper
+representation. If you need to disable escaping, the following options are available:
+
+- Python API
+  - `escape_label=False`
+  - `escape_value=False`
+- CLI
+  - `--no-escape-label`
+  - `--no-escape-value`
+
 ### Examples
 
 #### Pylint using template

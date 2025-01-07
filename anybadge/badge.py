@@ -2,6 +2,7 @@ import os
 from collections import OrderedDict
 from pathlib import Path
 from typing import Dict, Type, Optional, Union
+import html
 
 from . import config
 from .colors import Color
@@ -122,6 +123,8 @@ class Badge:
         value_format: Optional[str] = None,
         text_color: Optional[str] = None,
         semver: Optional[bool] = False,
+        escape_label: Optional[bool] = True,
+        escape_value: Optional[bool] = True,
     ):
         """Constructor for Badge class."""
         # Set defaults if values were not passed
@@ -208,6 +211,9 @@ class Badge:
 
         self.use_max_when_value_exceeds = use_max_when_value_exceeds
         self.mask_str = self.__class__._get_next_mask_str()
+
+        self.escape_label = escape_label
+        self.escape_value = escape_value
 
     def __repr__(self) -> str:
         """Return a representation of the Badge object instance.
@@ -332,6 +338,20 @@ class Badge:
                 return file_handle.read()
         else:
             return self.template
+
+    @property
+    def encoded_label(self) -> str:
+        if self.escape_label:
+            return html.escape(self.label)
+        else:
+            return self.label
+
+    @property
+    def encoded_value(self) -> str:
+        if self.escape_value:
+            return html.escape(self.value_text)
+        else:
+            return self.value_text
 
     @property
     def semver_version(self) -> Version:
@@ -638,8 +658,8 @@ class Badge:
             badge_text.replace("{{ badge width }}", str(self.badge_width))
             .replace("{{ font name }}", self.font_name)
             .replace("{{ font size }}", str(self.font_size))
-            .replace("{{ label }}", self.label)
-            .replace("{{ value }}", self.value_text)
+            .replace("{{ label }}", self.encoded_label)
+            .replace("{{ value }}", self.encoded_value)
             .replace("{{ label anchor }}", str(self.label_anchor))
             .replace("{{ label anchor shadow }}", str(self.label_anchor_shadow))
             .replace("{{ value anchor }}", str(self.value_anchor))
