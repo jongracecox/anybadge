@@ -1,3 +1,34 @@
+import re
+
+
+EMOJI_REGEX = re.compile(
+    "["
+    "\U0001F600-\U0001F64F"  # emoticons
+    "\U0001F300-\U0001F5FF"  # symbols & pictographs
+    "\U0001F680-\U0001F6FF"  # transport & map symbols
+    "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+    "\U00002702-\U000027B0"  # Dingbats
+    "\U000024C2-\U0001F251"
+    "]+",
+    flags=re.UNICODE,
+)
+
+
+def is_emoji(character):
+    """Return True if character is an emoji.
+
+    Examples:
+
+        >>> is_emoji('👍')
+        True
+
+        >>> is_emoji('a')
+        False
+
+    """
+    return bool(EMOJI_REGEX.match(character))
+
+
 # Based on the following SO answer: https://stackoverflow.com/a/16008023/6252525
 def _get_approx_string_width(text, font_width, fixed_width=False) -> int:
     """
@@ -52,11 +83,14 @@ def _get_approx_string_width(text, font_width, fixed_width=False) -> int:
     }
 
     for s in text:
-        percentage = 100.0
-        for k in char_width_percentages.keys():
-            if s in k:
-                percentage = char_width_percentages[k]
-                break
+        percentage = 50.0
+        if is_emoji(s):
+            percentage = 75.0
+        else:
+            for k in char_width_percentages.keys():
+                if s in k:
+                    percentage = char_width_percentages[k]
+                    break
         size += (percentage / 100.0) * float(font_width)
 
     return int(size)
