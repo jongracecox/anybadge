@@ -38,7 +38,8 @@ def local(c):
     retval = 0
     try:
         subprocess.run(
-            f"{sys.executable} -m pytest --doctest-modules --cov=anybadge --cov-report html:htmlcov anybadge tests",
+            f"{sys.executable} -m pytest --doctest-modules "
+            "--cov=anybadge --cov-report term --cov-report html:htmlcov --cov-report xml:coverage.xml anybadge tests",
             shell=True,
         )
     except Exception as e:
