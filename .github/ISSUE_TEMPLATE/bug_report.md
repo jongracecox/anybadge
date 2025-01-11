@@ -7,28 +7,28 @@ assignees: jongracecox
 
 ---
 
-**Describe the bug**
+## Describe the bug
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+## To Reproduce
 Provide the simplest example of code or commands to reproduce the behavior.
 
-**Expected behavior**
+## Expected behavior
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
+## Screenshots
 If applicable, add screenshots to help explain your problem.
 
-** Python version: (please complete the following information)**
+## Python version: (please complete the following information)
 - 2.7
 - 3.6
 - 3.7
 - ...
 
-** Operating system: (please complete the following information)**
+## Operating system: (please complete the following information)
 - Linux
 - Windows
 - Mac OS
 
-**Additional context**
+## Additional context
 Add any other context about the problem here.
