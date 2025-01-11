@@ -3,9 +3,12 @@ from pathlib import Path
 from unittest import TestCase
 from anybadge import Badge
 from anybadge.cli import main, parse_args
+import sys
 
+import sh
 
 TESTS_DIR = Path(__file__).parent
+PROJECT_ROOT = TESTS_DIR.parent
 
 
 class TestAnybadge(TestCase):
@@ -401,8 +404,20 @@ class TestAnybadge(TestCase):
 
     def test_module_same_output_as_main_cli(self):
         """Test that `python -m anybadge` is equivalent to calling `anybadge` directly."""
-        output_module = subprocess.check_output(["python", "-m", "anybadge", "--help"])
-        output_script = subprocess.check_output(["anybadge", "--help"])
+
+        python_executable = sys.executable
+        anybadge_executable = Path(python_executable).parent / "anybadge"
+
+        python_cmd = sh.Command(sys.executable)
+
+        env = {
+            "PYTHONPATH": str(PROJECT_ROOT),
+        }
+        output_module = python_cmd("-m", "anybadge", "--help", _env=env)
+
+        anybadge_executable = Path(python_executable).parent / "anybadge"
+        output_script = sh.Command(anybadge_executable)("--help")
+
         self.assertEqual(output_module, output_script)
 
     def test_badge_with_no_label(self):
