@@ -1,6 +1,7 @@
 import subprocess
 from pathlib import Path
 from time import sleep
+import sys
 
 from invoke import task
 
@@ -12,10 +13,45 @@ DOCKER_TAG = "test-anybadge:latest"
 def local(c):
     """Run local tests."""
     print("Running local tests...")
+
+    print("Ensuring pip is installed")
     subprocess.run(
-        "pytest --doctest-modules --cov=anybadge --cov-report html:htmlcov anybadge tests",
+        f"{sys.executable} -m ensurepip",
         shell=True,
     )
+
+    print("Ensuring anybagde command is not already installed")
+    result = subprocess.run(
+        "which anybadge",
+        shell=True,
+    )
+    if result.returncode == 0:
+        raise RuntimeError("anybadge command is already installed. Uninstall it first.")
+
+    print("Installing local package to current virtual environment")
+    subprocess.run(
+        f"{sys.executable} -m pip install .",
+        cwd=str(PROJECT_DIR),
+        shell=True,
+    )
+
+    retval = 0
+    try:
+        subprocess.run(
+            f"{sys.executable} -m pytest --doctest-modules --cov=anybadge --cov-report html:htmlcov anybadge tests",
+            shell=True,
+        )
+    except Exception as e:
+        print(f"Error running tests: {e}")
+        retval = 1
+
+    print("Uninstalling local package from current virtual environment")
+    subprocess.run(
+        f"{sys.executable} -m pip uninstall anybadge -y",
+        cwd=str(PROJECT_DIR),
+        shell=True,
+    )
+    sys.exit(retval)
 
 
 def build_test_docker_image():

@@ -5,6 +5,7 @@ pytest
 pytest-cov
 requests
 setuptools
+sh
 tox
 types-requests
 wheel
