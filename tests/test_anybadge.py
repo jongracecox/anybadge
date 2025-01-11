@@ -461,3 +461,34 @@ class TestAnybadge(TestCase):
                 label=None,
                 value=None,
             )
+
+    def test_badge_default_escaping(self):
+        """Test explicitly using value and label escaping for the badge."""
+        badge = Badge(
+            label="My > Label",
+            value="My > Value",
+        )
+        self.assertEqual(badge.encoded_label, "My &gt; Label")
+        self.assertEqual(badge.encoded_value, "My &gt; Value")
+
+    def test_badge_explicit_escaping(self):
+        """Test explicitly using value and label escaping for the badge."""
+        badge = Badge(
+            label="My > Label",
+            value="My > Value",
+            escape_label=True,
+            escape_value=True,
+        )
+        self.assertEqual(badge.encoded_label, "My &gt; Label")
+        self.assertEqual(badge.encoded_value, "My &gt; Value")
+
+    def test_badge_without_escaping(self):
+        """Test switching off value and label escaping for the badge."""
+        badge = Badge(
+            label="My > Label",
+            value="My > Value",
+            escape_label=False,
+            escape_value=False,
+        )
+        self.assertEqual(badge.encoded_label, "My > Label")
+        self.assertEqual(badge.encoded_value, "My > Value")
