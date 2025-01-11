@@ -177,8 +177,12 @@ examples:
     return parser.parse_args(args)
 
 
-def main(args=None):
-    """Generate a badge based on command line arguments."""
+def main(args=None) -> int:
+    """Generate a badge based on command line arguments.
+
+    Returns:
+        int: 0 if successful, 1 otherwise.
+    """
 
     # Args may be sent from command line of as args directly.
     if not args:
@@ -186,7 +190,7 @@ def main(args=None):
 
     if args == ["--version"]:
         print(anybadge_version)
-        return
+        return 0
 
     # Parse command line arguments
     args = parse_args(args)
@@ -207,8 +211,13 @@ def main(args=None):
             suffix = style.suffix
 
     # Create threshold list from args
-    threshold_list = [x.split("=") for x in threshold_text]
-    threshold_dict = {x[0]: x[1] for x in threshold_list}
+    try:
+        threshold_list = [x.split("=") for x in threshold_text]
+        threshold_dict = {x[0]: x[1] for x in threshold_list}
+    except Exception as e:
+        print(f"ERROR: Failed to parse threshold values: '{' '.join(threshold_text)}'")
+        print(f"ERROR: Thresholds should be in the form '<value>=color'")
+        return 1
 
     # Create badge object
     badge = Badge(
@@ -239,6 +248,9 @@ def main(args=None):
     else:
         print(badge.badge_svg_text)
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    retval = main()
+    sys.exit(retval)
