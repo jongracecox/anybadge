@@ -61,6 +61,7 @@ Setup your development environment with the following steps:
 
 - [Check out the project](#check-out-the-project)
 - [Install build requirements](#install-build-requirements)
+- [Install test requirements](#install-test-requirements)
 - [Install pre-commit](#install-pre-commit)
 
 ## Check out the project
@@ -78,6 +79,17 @@ Install build requirements with:
 ```bash
 pip install -r build-requirements.txt
 ```
+
+## Install test requirements
+
+Install test requirements with:
+
+```bash
+pip install -r test-requirements.txt
+```
+
+The version is derived automatically from the latest git tag using [setuptools-scm](https://setuptools-scm.readthedocs.io/)
+when the package is built, so no version bumping is needed before a release.
 
 ## Install pre-commit
 

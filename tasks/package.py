@@ -7,7 +7,7 @@ PROJECT_DIR = Path(__file__).parent.parent
 
 
 def run_build():
-    subprocess.run(["python", "setup.py", "bdist_wheel"])
+    subprocess.run(["python", "-m", "build"])
 
 
 @task
