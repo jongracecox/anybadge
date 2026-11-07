@@ -22,4 +22,6 @@ def get_template(name: str) -> str:
     if not data:
         raise UnknownBadgeTemplate
 
-    return data.decode("utf-8")
+    # Normalize newlines so that a Windows checkout (with CRLF files) produces
+    # the same template text as a Linux checkout.
+    return data.decode("utf-8").replace("\r\n", "\n")

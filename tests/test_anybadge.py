@@ -1,11 +1,11 @@
+import os
 import subprocess
+import sys
+import tempfile
 from pathlib import Path
 from unittest import TestCase
 from anybadge import Badge
 from anybadge.cli import main, parse_args
-import sys
-
-import sh
 
 TESTS_DIR = Path(__file__).parent
 PROJECT_ROOT = TESTS_DIR.parent
@@ -17,6 +17,14 @@ class TestAnybadge(TestCase):
     def setUp(self):
         if not hasattr(self, "assertRaisesRegex"):
             self.assertRaisesRegex = self.assertRaisesRegexp
+
+        # Run each test from within a temporary directory, so any files
+        # written by tests do not pollute the project directory.
+        self._tempdir = tempfile.TemporaryDirectory(prefix="anybadge_test_")
+        self.addCleanup(self._tempdir.cleanup)
+        self._orig_cwd = os.getcwd()
+        self.addCleanup(lambda: os.chdir(self._orig_cwd))
+        os.chdir(self._tempdir.name)
 
     def test_badge_equal_label_value_width(self):
         """Test that label and value widths are equal when text is the same."""
@@ -308,23 +316,24 @@ class TestAnybadge(TestCase):
             _ = badge.badge_color_code
 
     def test_invalid_write_path(self):
+        cwd = Path(os.getcwd())
         badge = Badge("label", "value")
         with self.assertRaisesRegex(
             ValueError, r"File location may not be a directory\."
         ):
-            badge.write_badge("tests/")
+            badge.write_badge("somedir/")
 
         with self.assertRaisesRegex(
-            RuntimeError, r'File ".*tests\/exists\.svg" already exists\.'
+            RuntimeError, r'File ".*exists\.svg" already exists\.'
         ):
-            badge.write_badge(TESTS_DIR / Path("exists"))
-            badge.write_badge(TESTS_DIR / Path("exists"))
+            badge.write_badge(cwd / "exists")
+            badge.write_badge(cwd / "exists")
 
         with self.assertRaisesRegex(
-            RuntimeError, r'File ".*tests\/exists\.svg" already exists\.'
+            RuntimeError, r'File ".*exists\.svg" already exists\.'
         ):
-            badge.write_badge(str(TESTS_DIR / Path("exists")))
-            badge.write_badge(str(TESTS_DIR / Path("exists")))
+            badge.write_badge(str(cwd / "exists"))
+            badge.write_badge(str(cwd / "exists"))
 
     def test_arg_parsing(self):
         args = parse_args(["-l", "label", "-v", "value"])
@@ -448,18 +457,17 @@ class TestAnybadge(TestCase):
     def test_module_same_output_as_main_cli(self):
         """Test that `python -m anybadge` is equivalent to calling `anybadge` directly."""
 
-        python_executable = sys.executable
-        anybadge_executable = Path(python_executable).parent / "anybadge"
+        output_module = subprocess.check_output(
+            [sys.executable, "-m", "anybadge", "--help"],
+            cwd=str(PROJECT_ROOT),
+        )
 
-        python_cmd = sh.Command(sys.executable)
+        script_name = "anybadge.exe" if os.name == "nt" else "anybadge"
+        anybadge_executable = Path(sys.executable).parent / script_name
+        if not anybadge_executable.exists():
+            self.skipTest("anybadge console script is not installed")
 
-        env = {
-            "PYTHONPATH": str(PROJECT_ROOT),
-        }
-        output_module = python_cmd("-m", "anybadge", "--help", _env=env)
-
-        anybadge_executable = Path(python_executable).parent / "anybadge"
-        output_script = sh.Command(anybadge_executable)("--help")
+        output_script = subprocess.check_output([str(anybadge_executable), "--help"])
 
         self.assertEqual(output_module, output_script)
 
