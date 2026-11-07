@@ -42,4 +42,4 @@ jobs:
           pip install tox
 
       - name: Run Tox
-        run: tox -e py${{ matrix.python-version }}
+        run: tox -e py$(python -c 'import sys; print(f"{sys.version_info.major}{sys.version_info.minor}")')
