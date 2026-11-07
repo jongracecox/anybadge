@@ -250,6 +250,49 @@ class TestAnybadge(TestCase):
         badge = Badge("label", "value")
         self.assertEqual(badge.badge_svg_text, badge._repr_svg_())
 
+    def test_accessibility_attributes_default_template(self):
+        """Test that the default template exposes an accessible name."""
+        badge = Badge("coverage", "97%")
+        svg = badge.badge_svg_text
+
+        self.assertIn('role="img"', svg)
+        self.assertIn('aria-label="coverage: 97%"', svg)
+        self.assertIn("<title>coverage: 97%</title>", svg)
+        # <title> must be the first child of <svg>
+        self.assertLess(svg.index("<title>"), svg.index("<linearGradient"))
+
+    def test_accessibility_attributes_gitlab_scoped_template(self):
+        """Test that the gitlab_scoped template exposes an accessible name."""
+        badge = Badge("coverage", "97%", style="gitlab-scoped")
+        svg = badge.badge_svg_text
+
+        self.assertIn('role="img"', svg)
+        self.assertIn('aria-label="coverage: 97%"', svg)
+        self.assertIn("<title>coverage: 97%</title>", svg)
+        self.assertLess(svg.index("<title>"), svg.index("<linearGradient"))
+
+    def test_accessibility_attributes_escaped_text(self):
+        """Test that label/value are escaped in the accessibility attributes."""
+        badge = Badge('label <with> "quotes"', "1 < 2")
+        svg = badge.badge_svg_text
+
+        self.assertIn(
+            "<title>label &lt;with&gt; &quot;quotes&quot;: 1 &lt; 2</title>", svg
+        )
+        self.assertIn(
+            'aria-label="label &lt;with&gt; &quot;quotes&quot;: 1 &lt; 2"', svg
+        )
+
+    def test_accessibility_attributes_with_empty_text(self):
+        """Test that aria-label omits empty label or value and their separator."""
+        value_only = Badge("", "Value only").badge_svg_text
+        label_only = Badge("Label only", "").badge_svg_text
+
+        self.assertIn('aria-label="Value only"', value_only)
+        self.assertIn("<title>Value only</title>", value_only)
+        self.assertIn('aria-label="Label only"', label_only)
+        self.assertIn("<title>Label only</title>", label_only)
+
     def test_str_value_with_threshold_and_default(self):
         badge = Badge(
             "label",

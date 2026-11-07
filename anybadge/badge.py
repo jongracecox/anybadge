@@ -354,6 +354,24 @@ class Badge:
             return self.value_text
 
     @property
+    def aria_label(self) -> str:
+        """Return the text alternative for the badge.
+
+        This is used in the default templates as the value of the ``aria-label``
+        attribute and ``<title>`` element, so the badge is announced as a single
+        image with a readable name. The label and value are joined with ``": "``,
+        omitting either when empty.
+
+        Returns: str
+        """
+        parts = []
+        if self.label:
+            parts.append(self.encoded_label)
+        if self.value_text:
+            parts.append(self.encoded_value)
+        return ": ".join(parts)
+
+    @property
     def semver_version(self) -> Version:
         """The semantic version represented by the value string.
 
@@ -660,6 +678,7 @@ class Badge:
             .replace("{{ font size }}", str(self.font_size))
             .replace("{{ label }}", self.encoded_label)
             .replace("{{ value }}", self.encoded_value)
+            .replace("{{ aria label }}", self.aria_label)
             .replace("{{ label anchor }}", str(self.label_anchor))
             .replace("{{ label anchor shadow }}", str(self.label_anchor_shadow))
             .replace("{{ value anchor }}", str(self.value_anchor))
