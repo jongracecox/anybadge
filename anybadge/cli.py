@@ -2,6 +2,7 @@ import argparse
 import sys
 import textwrap
 
+from anybadge.exceptions import UnknownBadgeTemplate
 from anybadge.styles import Style
 from anybadge.templates import get_template
 from anybadge import __version__ as anybadge_version
@@ -184,71 +185,78 @@ def main(args=None) -> int:
         int: 0 if successful, 1 otherwise.
     """
 
-    # Args may be sent from command line of as args directly.
-    if not args:
+    # Args may be sent from command line or as args directly.
+    if args is None:
         args = sys.argv[1:]
 
     if args == ["--version"]:
         print(anybadge_version)
         return 0
 
-    # Parse command line arguments
-    args = parse_args(args)
-
-    label = args.label
-    threshold_text = args.args
-    suffix = args.suffix
-
-    # Check whether thresholds were sent as one word, and is in the
-    # list of available styles.  If so, swap in the style.
-    if len(args.args) == 1 and Style.exists(args.args[0].upper()):
-        style_name = args.args[0].upper()
-        style = Style[style_name]
-        threshold_text = style.threshold.split(" ")
-        if not args.label and style.label:
-            label = style.label
-        if not args.suffix and style.suffix:
-            suffix = style.suffix
-
-    # Create threshold list from args
     try:
-        threshold_list = [x.split("=") for x in threshold_text]
-        threshold_dict = {x[0]: x[1] for x in threshold_list}
-    except Exception as e:
-        print(f"ERROR: Failed to parse threshold values: '{' '.join(threshold_text)}'")
-        print(f"ERROR: Thresholds should be in the form '<value>=color'")
+        # Parse command line arguments
+        parsed_args = parse_args(args)
+
+        label = parsed_args.label
+        threshold_text = parsed_args.args
+        suffix = parsed_args.suffix
+
+        # Check whether thresholds were sent as one word, and is in the
+        # list of available styles.  If so, swap in the style.
+        if len(parsed_args.args) == 1 and Style.exists(parsed_args.args[0].upper()):
+            style_name = parsed_args.args[0].upper()
+            style = Style[style_name]
+            threshold_text = style.threshold.split(" ")
+            if not parsed_args.label and style.label:
+                label = style.label
+            if not parsed_args.suffix and style.suffix:
+                suffix = style.suffix
+
+        # Create threshold list from args
+        threshold_dict = None
+        if threshold_text:
+            try:
+                threshold_list = [x.split("=") for x in threshold_text]
+                threshold_dict = {x[0]: x[1] for x in threshold_list}
+            except Exception:
+                print(f"ERROR: Failed to parse threshold values: '{' '.join(threshold_text)}'")
+                print("ERROR: Thresholds should be in the form '<value>=color'")
+                return 1
+
+        # Create badge object
+        badge = Badge(
+            label,
+            parsed_args.value,
+            value_prefix=parsed_args.prefix,
+            value_suffix=suffix,
+            default_color=parsed_args.color,
+            num_padding_chars=parsed_args.padding,
+            num_label_padding_chars=parsed_args.label_padding,
+            num_value_padding_chars=parsed_args.value_padding,
+            font_name=parsed_args.font,
+            font_size=parsed_args.font_size,
+            template=parsed_args.template,
+            style=parsed_args.style,
+            use_max_when_value_exceeds=parsed_args.use_max,
+            thresholds=threshold_dict,
+            value_format=parsed_args.value_format,
+            text_color=parsed_args.text_color,
+            semver=parsed_args.semver,
+            escape_label=not parsed_args.no_escape_label,
+            escape_value=not parsed_args.no_escape_value,
+        )
+
+        if parsed_args.file:
+            # Write badge SVG to file
+            badge.write_badge(parsed_args.file, overwrite=parsed_args.overwrite)
+        else:
+            print(badge.badge_svg_text)
+
+        return 0
+
+    except (ValueError, RuntimeError, FileNotFoundError, UnknownBadgeTemplate) as e:
+        print(f"ERROR: {e}")
         return 1
-
-    # Create badge object
-    badge = Badge(
-        label,
-        args.value,
-        value_prefix=args.prefix,
-        value_suffix=suffix,
-        default_color=args.color,
-        num_padding_chars=args.padding,
-        num_label_padding_chars=args.label_padding,
-        num_value_padding_chars=args.value_padding,
-        font_name=args.font,
-        font_size=args.font_size,
-        template=args.template,
-        style=args.style,
-        use_max_when_value_exceeds=args.use_max,
-        thresholds=threshold_dict,
-        value_format=args.value_format,
-        text_color=args.text_color,
-        semver=args.semver,
-        escape_label=not args.no_escape_label,
-        escape_value=not args.no_escape_value,
-    )
-
-    if args.file:
-        # Write badge SVG to file
-        badge.write_badge(args.file, overwrite=args.overwrite)
-    else:
-        print(badge.badge_svg_text)
-
-    return 0
 
 
 if __name__ == "__main__":

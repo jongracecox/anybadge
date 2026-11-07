@@ -806,8 +806,8 @@ class Badge:
                     pass
 
         raise ValueError(
-            'Invalid color code "%s". ' "Valid color codes are: %s",
-            (color, ", ".join(list(Color.__members__.keys()))),
+            'Invalid color code "%s". Valid color codes are: %s'
+            % (color, ", ".join(list(Color.__members__.keys())))
         )
 
     def write_badge(self, file_path: Union[str, Path], overwrite=False) -> None:

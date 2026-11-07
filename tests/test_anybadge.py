@@ -1,4 +1,6 @@
+import io
 import os
+from unittest.mock import patch
 import subprocess
 import sys
 import tempfile
@@ -311,9 +313,10 @@ class TestAnybadge(TestCase):
         self.assertEqual("orange", badge.badge_color)
 
     def test_invalid_color(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             badge = Badge("label", value="fred", default_color="floberry")
             _ = badge.badge_color_code
+        self.assertIn('Invalid color code "FLOBERRY". Valid color codes are: ', str(cm.exception))
 
     def test_invalid_write_path(self):
         cwd = Path(os.getcwd())
@@ -355,6 +358,32 @@ class TestAnybadge(TestCase):
                 "--overwrite",
             ]
         )
+
+
+    def test_main_handles_invalid_color(self):
+        with patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            exit_code = main(["--label", "test", "--value", "1", "--color", "floberry"])
+            self.assertEqual(1, exit_code)
+            self.assertIn('ERROR: Invalid color code "FLOBERRY"', mock_stdout.getvalue())
+
+    def test_main_handles_invalid_font(self):
+        with patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            exit_code = main(["--label", "test", "--value", "1", "--font", "nonexistent_font"])
+            self.assertEqual(1, exit_code)
+            self.assertTrue(mock_stdout.getvalue().startswith("ERROR: "))
+
+    def test_main_handles_unknown_template(self):
+        with patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            exit_code = main(["--label", "test", "--value", "1", "--template", "nonexistent_template_xyz"])
+            self.assertEqual(1, exit_code)
+            self.assertTrue(mock_stdout.getvalue().startswith("ERROR: "))
+
+    def test_main_empty_list_does_not_read_sys_argv(self):
+        with patch("sys.argv", ["anybadge", "--invalid-flag-must-not-be-read"]):
+            with patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+                exit_code = main([])
+                self.assertEqual(1, exit_code)
+            self.assertIn("Either a label or a value must be provided", mock_stdout.getvalue())
 
     def test_main_thresholds(self):
         main(
