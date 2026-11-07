@@ -45,6 +45,35 @@ def other_examples():
             examples_dir / Path(file), overwrite=True
         )
 
+    # Badges created with :emoji: shortcodes. These require the emoji package
+    # (``pip install anybadge[emoji]``), and produce SVGs identical to the
+    # equivalent badges created with actual emoji characters above.
+    for label, value, file in [
+        ("Pipeline status", ":smile:", "pipeline_smile_shortcode.svg"),
+        (":rocket: Deploy", ":100:", "rocket_deploy.svg"),
+    ]:
+        anybadge.Badge(label=label, value=value).write_badge(
+            examples_dir / Path(file), overwrite=True
+        )
+
+    # The same shortcode badge again, but with the emoji package made absent,
+    # to show what is rendered without the optional ``emoji`` dependency:
+    # shortcodes are left as-is in the badge text.
+    import sys
+
+    emoji_module = sys.modules.get("emoji")
+    sys.modules["emoji"] = None
+    try:
+        badge = anybadge.Badge(label="Pipeline status", value=":smile:")
+    finally:
+        if emoji_module is None:
+            del sys.modules["emoji"]
+        else:
+            sys.modules["emoji"] = emoji_module
+    badge.write_badge(
+        examples_dir / Path("pipeline_smile_without_emoji_package.svg"), overwrite=True
+    )
+
 
 def main():
     color_examples_table()

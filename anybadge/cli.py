@@ -157,6 +157,16 @@ examples:
         help="Treat value and thresholds as semantic versions.",
     )
     parser.add_argument(
+        "-ef",
+        "--emoji-font-size",
+        type=int,
+        help="Font size used to render emoji characters. Default is the "
+        "font size plus 3. Emoji are rendered at a visually smaller "
+        "size than the surrounding text at the same font size, so "
+        "they are wrapped in tspans at this font size to restore the "
+        "balance. Pass the same value as --font-size to disable.",
+    )
+    parser.add_argument(
         "--no-escape-label",
         action="store_true",
         default=False,
@@ -271,6 +281,7 @@ def _run(args) -> int:
         semver=parsed_args.semver,
         escape_label=not parsed_args.no_escape_label,
         escape_value=not parsed_args.no_escape_value,
+        emoji_font_size=parsed_args.emoji_font_size,
     )
 
     if parsed_args.file:

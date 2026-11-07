@@ -34,6 +34,198 @@ class TestAnybadge(TestCase):
 
         self.assertEqual(badge.label_width, badge.value_width)
 
+    @staticmethod
+    def _has_emoji_package() -> bool:
+        """Test helper indicating whether the optional emoji package is installed."""
+        try:
+            import emoji
+        except ImportError:
+            return False
+        else:
+            return True
+
+    @staticmethod
+    def make_badge_no_emoji_package(*args, **kwargs):
+        """Create a Badge with a mocked ImportError for the emoji package.
+
+        Setting sys.modules["emoji"] to None makes ``import emoji`` fail, the
+        same as would happen when the package is not installed.
+        """
+        with mock.patch.dict(sys.modules, {"emoji": None}):
+            return Badge(*args, **kwargs)
+
+    def test_badge_emoji_shortcode_value(self):
+        """Test that :emoji: shortcodes in the value are converted, or left as text without the emoji package."""
+        badge_with = Badge(label="pipeline", value=":smile:")
+        badge_without = self.make_badge_no_emoji_package(
+            label="pipeline", value=":smile:"
+        )
+
+        if self._has_emoji_package():
+            self.assertEqual(badge_with.value_text, "\U0001F604")
+        else:
+            self.assertEqual(badge_with.value_text, ":smile:")
+        self.assertEqual(badge_without.value_text, ":smile:")
+
+    def test_badge_emoji_shortcode_label(self):
+        """Test that :emoji: shortcodes in the label are converted, or left as text without the emoji package."""
+        badge_with = Badge(label=":rocket: deploy", value="123")
+        badge_without = self.make_badge_no_emoji_package(
+            label=":rocket: deploy", value="123"
+        )
+
+        if self._has_emoji_package():
+            self.assertEqual(badge_with.label, "\U0001F680 deploy")
+        else:
+            self.assertEqual(badge_with.label, ":rocket: deploy")
+        self.assertEqual(badge_without.label, ":rocket: deploy")
+
+    def test_badge_emoji_shortcode_cldr_name(self):
+        """Test that Unicode CLDR shortcode names are supported, or left as text without the emoji package."""
+        badge_with = Badge(label="pipeline", value=":grinning_face:")
+        badge_without = self.make_badge_no_emoji_package(
+            label="pipeline", value=":grinning_face:"
+        )
+
+        if self._has_emoji_package():
+            self.assertEqual(badge_with.value_text, "\U0001F600")
+        else:
+            self.assertEqual(badge_with.value_text, ":grinning_face:")
+        self.assertEqual(badge_without.value_text, ":grinning_face:")
+
+    def test_badge_emoji_shortcode_special_chars(self):
+        """Test that GitHub-style aliases with + and _ characters are supported, or left as text without the emoji package."""
+        badge_with = Badge(label=":+1:", value=":tada:")
+        badge_without = self.make_badge_no_emoji_package(label=":+1:", value=":tada:")
+
+        if self._has_emoji_package():
+            self.assertEqual(badge_with.label, "\U0001F44D")
+            self.assertEqual(badge_with.value_text, "\U0001F389")
+        else:
+            self.assertEqual(badge_with.label, ":+1:")
+            self.assertEqual(badge_with.value_text, ":tada:")
+        self.assertEqual(badge_without.label, ":+1:")
+        self.assertEqual(badge_without.value_text, ":tada:")
+
+    def test_badge_emoji_shortcode_value_prefix_suffix(self):
+        """Test that :emoji: shortcodes in value prefix and suffix are converted, or left as text without the emoji package."""
+        kwargs = {
+            "label": "downloads",
+            "value": "123",
+            "value_prefix": ":+1:",
+            "value_suffix": ":tada:",
+        }
+        badge_with = Badge(**kwargs)
+        badge_without = self.make_badge_no_emoji_package(**kwargs)
+
+        if self._has_emoji_package():
+            self.assertEqual(badge_with.value_text, "\U0001F44D123\U0001F389")
+        else:
+            self.assertEqual(badge_with.value_text, ":+1:123:tada:")
+        self.assertEqual(badge_without.value_text, ":+1:123:tada:")
+
+    def test_badge_emoji_shortcode_width(self):
+        """Test that shortcode text gets the same width as the resulting emoji."""
+        if not self._has_emoji_package():
+            self.skipTest("emoji package is not installed")
+
+        badge_short = Badge(label="pipeline", value=":smile:")
+        badge_emoji = Badge(label="pipeline", value="\U0001F604")
+
+        self.assertEqual(badge_short.value_width, badge_emoji.value_width)
+        self.assertEqual(badge_short.badge_width, badge_emoji.badge_width)
+
+    def test_badge_emoji_shortcode_without_emoji_package(self):
+        """Test that :emoji: shortcodes are left as text without the emoji package."""
+        badge = self.make_badge_no_emoji_package(label="pipeline", value=":smile:")
+
+        self.assertEqual(badge.label, "pipeline")
+        self.assertEqual(badge.value_text, ":smile:")
+
+    def test_badge_emoji_shortcode_value_thresholds_uses_raw_value(self):
+        """Test that thresholds match against the original value text."""
+        badge = Badge(
+            label="pipeline",
+            value=":smile:",
+            thresholds={":smile:": "green", "failing": "red"},
+        )
+
+        self.assertEqual(badge.badge_color, "green")
+
+    def test_badge_write_badge_with_emoji_is_utf8(self):
+        """Test that badges containing emoji characters are written as UTF-8.
+
+        This is a regression test for Windows, where the platform default
+        encoding (cp1252) cannot represent emoji characters.
+        """
+        badge = Badge(label="pipeline", value="\U0001F604")
+
+        badge.write_badge("test_badge_emoji.svg", overwrite=True)
+
+        text = Path("test_badge_emoji.svg").read_text(encoding="utf-8")
+        self.assertIn("\U0001F604", text)
+
+    def test_badge_emoji_font_size_default(self):
+        """Test that the default emoji font size is the font size plus 3."""
+        badge = Badge(label="a", value="\U0001F604", font_size=11)
+
+        self.assertEqual(badge.emoji_font_size, 14)
+
+    def test_badge_emoji_font_size_from_arg(self):
+        """Test that the emoji font size can be passed as an argument."""
+        badge = Badge(label="a", value="\U0001F604", emoji_font_size=12)
+
+        self.assertEqual(badge.emoji_font_size, 12)
+
+    def test_badge_emoji_font_size_markup(self):
+        """Test that emoji characters are wrapped in font-size tspans."""
+        badge = Badge(label="\U0001F680 deploy", value="\U0001F604")
+
+        self.assertEqual(badge.value_markup, '<tspan font-size="14">\U0001F604</tspan>')
+        self.assertEqual(
+            badge.label_markup,
+            '<tspan font-size="14">\U0001F680</tspan> deploy',
+        )
+        # Non-emoji text is left alone
+        self.assertEqual(Badge(label="a", value="123").value_markup, "123")
+
+    def test_badge_emoji_font_size_markup_without_emoji_package(self):
+        """Test that emoji markup is applied without the emoji package too."""
+        badge = self.make_badge_no_emoji_package(
+            label="\U0001F680 deploy", value="\U0001F604"
+        )
+
+        self.assertEqual(badge.value_markup, '<tspan font-size="14">\U0001F604</tspan>')
+
+    def test_badge_emoji_font_size_markup_not_in_aria_label(self):
+        """Test that the aria label contains plain emoji text, without tspans."""
+        badge = Badge(label="pipeline", value="\U0001F604")
+
+        self.assertEqual(badge.aria_label, "pipeline: \U0001F604")
+
+    def test_badge_emoji_font_size_disabled(self):
+        """Test that emoji are not wrapped when the emoji font size equals the font size."""
+        badge = Badge(label="pipeline", value="\U0001F604", emoji_font_size=11)
+
+        self.assertEqual(badge.value_markup, "\U0001F604")
+
+    def test_badge_emoji_font_size_width(self):
+        """Test that larger emoji font sizes are accounted for in badge width."""
+        badge_scaled = Badge(label="a", value="\U0001F604", num_padding_chars=0)
+        badge_unscaled = Badge(
+            label="a", value="\U0001F604", num_padding_chars=0, emoji_font_size=11
+        )
+
+        self.assertGreater(badge_scaled.value_width, badge_unscaled.value_width)
+
+    def test_cli_parse_args_emoji_font_size(self):
+        """Test that --emoji-font-size is parsed and passed to the badge."""
+        from anybadge.cli import parse_args
+
+        parsed = parse_args(["--label", "a", "--value", "1", "--emoji-font-size", "12"])
+
+        self.assertEqual(parsed.emoji_font_size, 12)
+
     def test_badge_equal_split(self):
         """Test that the color split is in the middle when label and value are equal width."""
         badge = Badge(label="a", value="a")

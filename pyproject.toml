@@ -18,6 +18,11 @@ dynamic = ["version"]
 dependencies = ["packaging"]
 classifiers = ["License :: OSI Approved :: MIT License"]
 
+[project.optional-dependencies]
+# Optional extra, so badges with :emoji: shortcodes are converted to emoji
+# characters. Without it shortcodes are rendered as-is.
+emoji = ["emoji"]
+
 [project.urls]
 Homepage = "https://github.com/jongracecox/anybadge"
 
