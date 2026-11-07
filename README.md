@@ -58,7 +58,9 @@ This would result in a badge like this:
 In this example the label is set to "pylint", the value "2.22", and an
 output file called "pylint.svg".  The thresholds are provided in pairs
 of `<value>=color`  Values can be integer or floats for ranges, and
-string values are also supported.
+string values are also supported.  See
+[Thresholds](#thresholds) below for details of how the badge value is
+compared against thresholds.
 
 ### Python
 
@@ -112,18 +114,121 @@ written to stdout, so can be redirected to a file.
 
 ### Thresholds
 
-Some thresholds have been built in to save time.  To use these thresholds you
-can simply specify the template name instead of threshold value/color pairs.
+Thresholds are provided as pairs of `<threshold>=<color>`. Each threshold
+defines the upper bound of a range. The badge value is compared against
+each threshold in turn, and the color used is that of the first threshold
+whose value the badge value is strictly less than. With:
+
+```bash
+anybadge --label=pylint --value=2.22 --file=pylint.svg 2=red 4=orange 8=yellow 10=green
+```
+
+the thresholds can be read as "less than 2 = red, less than 4 = orange,
+less than 8 = yellow, less than 10 = green", or shown as a decision flow:
+
+```mermaid
+flowchart LR
+    A([badge value]) --> B{"value < 2?"}
+    B -- "yes" --> R[red]
+    B -- "no" --> C{"value < 4?"}
+    C -- "yes" --> O[orange]
+    C -- "no" --> D{"value < 8?"}
+    D -- "yes" --> Y[yellow]
+    D -- "no" --> E{"value < 10?"}
+    E -- "yes" --> G[green]
+    E -- "no" --> G
+
+    classDef red fill:#e05d44,color:#fff
+    classDef orange fill:#fe7d37,color:#fff
+    classDef yellow fill:#dfb317,color:#000
+    classDef green fill:#4c1,color:#000
+    class R red
+    class O orange
+    class Y yellow
+    class G green
+```
+
+Note that the comparison is exclusive (`<` rather than `<=`). A value
+exactly equal to a threshold is not less than that threshold, so it
+falls into the next range up. With the thresholds above:
+
+| Badge value   | Badge color | Why                          |
+| ------------- | ----------- | ---------------------------- |
+| 1.99          | red         | 1.99 is < 2                  |
+| 2.0           | orange      | 2.0 is not < 2, but is < 4   |
+| 4.0           | yellow      | 4.0 is not < 4, but is < 8   |
+| 9.0           | green       | 9.0 is not < 8, but is < 10  |
+| 10 or greater | green       | see "Values above the top threshold" below |
+
+**Values above the top threshold** default to the color of the largest
+threshold.  On the command line this behavior is off by default; pass
+`--use-max` to enable it, otherwise the `--color` value is used.
+On the Python API the behavior is on by default; pass
+`use_max_when_value_exceeds=False` to disable it and use `default_color`
+instead.
+
+**Lower is better, higher is worse.** The exclusive comparison matters
+most when a badge shows a metric where lower values are good, such as
+vulnerability or code-quality counts, because a value exactly equal to a
+threshold has not reached the next level of "goodness". For example, with
+0 vulnerabilities being good, and any value of 1 or more being bad:
+
+```bash
+anybadge --label=vulnerabilities --value=4 --file=vulnerabilities.svg --color=red 1=green
+```
+
+```mermaid
+flowchart LR
+    A([badge value]) --> B{"value < 1?"}
+    B -- "yes (0)" --> G2[green]
+    B -- "no (1+)" --> R2[red]
+
+    classDef green fill:#4c1,color:#000
+    classDef red fill:#e05d44,color:#fff
+    class G2 green
+    class R2 red
+```
+
+Here the fixed `--color=red` is used as the default color for values that
+do not fall below the single threshold, so a badge value of 0 is green,
+and any value of 1 or more is red. The same badge can be created in
+Python with:
+
+```python
+badge = Badge(
+    label='vulnerabilities',
+    value=4,
+    default_color='red',
+    thresholds={1: 'green'},
+    use_max_when_value_exceeds=False,
+)
+```
+
+### Built-in templates
+
+Some common badge types have been built in to save you from having to
+specify thresholds, a label, and a value suffix each time. To use one of
+these built-ins, specify the template name in place of threshold
+value/color pairs:
 
 ```bash
 anybadge --value=<VALUE> --file=<FILE> <TEMPLATE-NAME>
 ```
+
+| Template | Label      | Value suffix | Thresholds                           | Colors produced                                                              |
+| -------- | ---------- | ------------ | ------------------------------------ | ---------------------------------------------------------------------------- |
+| pylint   | `pylint`   | (none)       | 2=red 4=orange 8=yellow 10=green     | less than 2 = red, less than 4 = orange, less than 8 = yellow, 10 and above = green |
+| coverage | `coverage` | `%`          | 50=red 60=orange 80=yellow 100=green | less than 50 = red, less than 60 = orange, less than 80 = yellow, 100 and above = green |
 
 For example:
 
 ```bash
 anybadge --value=2.22 --file=pylint.svg pylint
 ```
+
+Any badge can also be customized with a different style using
+`--style=gitlab-scoped`, or with a custom SVG template file using
+`--template <path>`.
 
 ### Colors
 
