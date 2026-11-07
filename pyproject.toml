@@ -1,0 +1,38 @@
+[build-system]
+# setuptools>=61 provides PEP 621 [project] table support; setuptools-scm>=7
+# keeps the build backend resolvable on Python 3.7 (setuptools-scm 8 dropped
+# 3.7), so both source and wheel builds work for the whole support range.
+requires = ["setuptools>=61", "setuptools-scm>=7"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anybadge"
+description = "Simple, flexible badge generator for project badges."
+readme = "README.md"
+authors = [
+    { name = "Jon Grace-Cox", email = "30441316+jongracecox@users.noreply.github.com" },
+]
+license = { text = "MIT" }
+requires-python = ">=3.7"
+dynamic = ["version"]
+dependencies = ["packaging"]
+classifiers = ["License :: OSI Approved :: MIT License"]
+
+[project.urls]
+Homepage = "https://github.com/jongracecox/anybadge"
+
+[project.scripts]
+anybadge = "anybadge.cli:main"
+anybadge-server = "anybadge.server.cli:main"
+
+[tool.setuptools]
+py-modules = ["anybadge_server"]
+packages = ["anybadge", "anybadge.templates", "anybadge.server"]
+
+[tool.setuptools.package-data]
+anybadge = ["templates/*.svg"]
+
+# Derive the version from the latest git tag, with a fallback for builds
+# performed outside a git checkout (e.g. from an extracted sdist).
+[tool.setuptools_scm]
+fallback_version = "0.0.0"

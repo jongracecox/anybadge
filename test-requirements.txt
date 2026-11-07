@@ -1,0 +1,7 @@
+build
+pytest
+pytest-cov
+requests
+sh
+tox
+types-requests
