@@ -786,6 +786,10 @@ class Badge:
         if color[0] == "#":
             return color
 
+        # Remember the original color text so any error message can report
+        # the color exactly as the user passed it in.
+        original_color = color
+
         color = color.upper()
 
         prefixes = ["BRIGHT", "YELLOW", "LIGHT"]
@@ -806,8 +810,8 @@ class Badge:
                     pass
 
         raise ValueError(
-            'Invalid color code "%s". ' "Valid color codes are: %s",
-            (color, ", ".join(list(Color.__members__.keys()))),
+            'Invalid color code "%s". Valid color codes are: %s'
+            % (original_color, ", ".join(list(Color.__members__.keys())))
         )
 
     def write_badge(self, file_path: Union[str, Path], overwrite=False) -> None:

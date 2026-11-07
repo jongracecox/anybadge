@@ -6,4 +6,4 @@ if __name__ == "__main__":
 
     sys.argv[0] = "anybadge"
 
-    main()
+    sys.exit(main())
