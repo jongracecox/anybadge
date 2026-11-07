@@ -96,6 +96,16 @@ pip install anybadge
 This will install the Python package, and also make `anybadge` available
 as a command line utility.
 
+Support for `:emoji:` shortcodes (see
+[Emojis](#emojis) below) is an optional extra since it requires the
+`emoji` package. Install it with:
+
+```bash
+pip install anybadge[emoji]
+```
+
+Without this extra, `:shortcode:` text is rendered exactly as it was passed.
+
 ## Getting help
 
 To get help from the command line utility, just run:
@@ -411,10 +421,52 @@ These files were created by using the **actual** emoji character in the label/va
 badge = anybadge.Badge(label="Pipeline status", value="😄")
 ```
 
+If you install the `emoji` extra (`pip install anybadge[emoji]`), you can
+instead write `:shortcode:` text in labels and values, and it will be
+automatically converted into emoji characters before the badge is rendered.
+This is useful in editors and consoles where typing emoji characters is
+difficult. Both Unicode CLDR shortcodes and GitHub-style aliases are
+supported:
+
+```python
+badge = anybadge.Badge(label="Pipeline status", value=":smile:")
+# :smile: is a GitHub-style alias for 😄
+
+badge = anybadge.Badge(label="Pipeline status", value=":grinning_face:")
+# :grinning_face: is a Unicode CLDR shortcode for 😀
+```
+
+See the [emoji package documentation](https://pypi.org/project/emoji/) for the full list of
+supported shortcodes. Without the `emoji` package, `:shortcode:` text is rendered
+as-is.
+
+Here are the same badges generated with an actual emoji character, with
+shortcodes (using the `emoji` package), and with shortcodes where the `emoji`
+package is not installed. Note that a badge created with a shortcode renders
+exactly the same as one created with the emoji character itself:
+
+| Badge                                                                                                          | Code                                                                                              |
+| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline_smile.svg)                            | `anybadge.Badge(label="Pipeline status", value="😄")` — actual emoji character                     |
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline_smile_shortcode.svg)                  | `anybadge.Badge(label="Pipeline status", value=":smile:")` — shortcode (requires `emoji` package)  |
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline_smile_without_emoji_package.svg)      | `anybadge.Badge(label="Pipeline status", value=":smile:")` — without `emoji` package: rendered as-is |
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/rocket_deploy.svg)                             | `anybadge.Badge(label=":rocket: Deploy", value=":100:")` — shortcodes in label and value           |
+
+Emoji conversion happens before badge dimensions are calculated, so emoji
+shortcodes take up exactly the same space as the emoji characters they
+produce. Note that the original text is used when matching values against
+thresholds, so thresholds should be defined using the text you pass as the
+value.
+
 There are some caveats worth mentioning:
 - The "look" of the emoji is determined by the client (Emoji characters are placed as-is into the SVG file, and are
   rendered client-side)
 - Rendering may fail in some viewers and developer IDEs (for example, PyCharm does not render emojis in the svg viewer)
+- Emoji fallback fonts render emoji at a visually smaller size than Latin text at the same font size, so
+  anybadge wraps emoji characters in `<tspan>` elements that render them slightly larger, at 3pt above the
+  surrounding font size (e.g. 14 when the font size is 11). You can change this with the `emoji_font_size`
+  argument, or `--emoji-font-size` on the command line. To render emoji at the surrounding font size without
+  the tspan wrapper, pass `emoji_font_size` equal to `font_size`.
 - Emojis can have different widths, so the layout may be affected. You can use `num_label_padding_chars` and
   `num_value_padding_chars` to fix (see below)
 

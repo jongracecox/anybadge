@@ -8,7 +8,7 @@ from . import config
 from .colors import Color
 from .exceptions import UnknownBadgeTemplate
 
-from .helpers import _get_approx_string_width
+from .helpers import _get_approx_string_width, emojize_text, wrap_emoji_in_tspan
 
 
 # Try and obtain packaging package to support version comparison.
@@ -46,6 +46,21 @@ class Badge:
         value_format(str, optional) String with formatting to be used to format the value text.
         text_color(str, optional): Text color as a name or as an HTML color code.
         semver(bool, optional): Used to indicate that the value is a semantic version number.
+        escape_label(bool, optional): Escape special characters in the label.
+        escape_value(bool, optional): Escape special characters in the value.
+        emoji_font_size(int, optional): Font size used to render emoji
+            characters in the label and value. Emoji fallback fonts render at
+            a visually smaller size than Latin text at the same font size, so
+            emoji characters are wrapped in ``<tspan>`` elements rendered at
+            this size to restore the balance. Default is the font size plus 3.
+
+    Note:
+        When the optional ``emoji`` package is installed (``pip install
+        anybadge[emoji]``), ``:emoji:`` shortcodes in the label and value
+        (including prefix and suffix) are converted to emoji characters before
+        the badge is rendered. The original value text is retained for
+        thresholds and numeric/semantic version type detection. Without the
+        package, ``:emoji:`` text is rendered as-is.
 
     Examples:
 
@@ -125,6 +140,7 @@ class Badge:
         semver: Optional[bool] = False,
         escape_label: Optional[bool] = True,
         escape_value: Optional[bool] = True,
+        emoji_font_size: Optional[int] = None,
     ):
         """Constructor for Badge class."""
         # Set defaults if values were not passed
@@ -164,6 +180,8 @@ class Badge:
         if len(str(self.label)) == 0 and len(str(self.value)) == 0:
             raise ValueError("Either a label or a value must be provided for a badge.")
 
+        self.label = emojize_text(self.label)
+
         self.value_is_version = semver
 
         self.value_format = value_format
@@ -185,6 +203,10 @@ class Badge:
 
         if value_suffix:
             self.value_text += value_suffix
+
+        # Convert :emoji: shortcodes in the final value text (including prefix
+        # and suffix). This happens before any width calculations are made.
+        self.value_text = emojize_text(self.value_text)
 
         if font_name not in config.FONT_WIDTHS:
             raise ValueError(
@@ -214,6 +236,13 @@ class Badge:
 
         self.escape_label = escape_label
         self.escape_value = escape_value
+
+        # Emoji fallback fonts render emoji at a visually smaller size than
+        # Latin text at the same font size, so they are wrapped in tspans that
+        # render them at emoji_font_size to restore the balance.
+        self.emoji_font_size = (
+            font_size + 3 if emoji_font_size is None else emoji_font_size
+        )
 
     def __repr__(self) -> str:
         """Return a representation of the Badge object instance.
@@ -288,6 +317,8 @@ class Badge:
             optional_args += ", value_format=%s" % repr(self.value_format)
         if self.text_color != config.DEFAULT_TEXT_COLOR:
             optional_args += ", text_color=%s" % repr(self.text_color)
+        if self.emoji_font_size != self.font_size + 3:
+            optional_args += ", emoji_font_size=%s" % repr(self.emoji_font_size)
 
         return "%s(%s, %s%s)" % (
             self.__class__.__name__,
@@ -334,7 +365,7 @@ class Badge:
             except UnknownBadgeTemplate:
                 pass
 
-            with open(self.template, mode="r") as file_handle:
+            with open(self.template, mode="r", encoding="utf-8") as file_handle:
                 return file_handle.read()
         else:
             return self.template
@@ -352,6 +383,36 @@ class Badge:
             return html.escape(self.value_text)
         else:
             return self.value_text
+
+    @property
+    def label_markup(self) -> str:
+        """The label text used for rendering, with emoji characters wrapped in tspans.
+
+        Emoji characters are rendered at ``emoji_font_size``, since emoji
+        fallback fonts generally render at a visually smaller size than
+        Latin text at the same font size. The plain (unwrapped) encoded text
+        remains available via ``encoded_label`` and ``aria_label``.
+
+        Returns: str
+        """
+        return wrap_emoji_in_tspan(
+            self.encoded_label, self.font_size, self.emoji_font_size
+        )
+
+    @property
+    def value_markup(self) -> str:
+        """The value text used for rendering, with emoji characters wrapped in tspans.
+
+        Emoji characters are rendered at ``emoji_font_size``, since emoji
+        fallback fonts generally render at a visually smaller size than
+        Latin text at the same font size. The plain (unwrapped) encoded text
+        remains available via ``encoded_value`` and ``aria_label``.
+
+        Returns: str
+        """
+        return wrap_emoji_in_tspan(
+            self.encoded_value, self.font_size, self.emoji_font_size
+        )
 
     @property
     def aria_label(self) -> str:
@@ -676,8 +737,8 @@ class Badge:
             badge_text.replace("{{ badge width }}", str(self.badge_width))
             .replace("{{ font name }}", self.font_name)
             .replace("{{ font size }}", str(self.font_size))
-            .replace("{{ label }}", self.encoded_label)
-            .replace("{{ value }}", self.encoded_value)
+            .replace("{{ label }}", self.label_markup)
+            .replace("{{ value }}", self.value_markup)
             .replace("{{ aria label }}", self.aria_label)
             .replace("{{ label anchor }}", str(self.label_anchor))
             .replace("{{ label anchor shadow }}", str(self.label_anchor_shadow))
@@ -724,7 +785,14 @@ class Badge:
         >>> badge.get_text_width('pylint')
         34
         """
-        return _get_approx_string_width(text, self.font_width)
+        emoji_font_scale = 1.0
+        if self.emoji_font_size > self.font_size:
+            # Emoji are rendered at a larger font size than the surrounding
+            # text, so they take up proportionally more space.
+            emoji_font_scale = self.emoji_font_size / self.font_size
+        return _get_approx_string_width(
+            text, self.font_width, emoji_font_scale=emoji_font_scale
+        )
 
     @property
     def badge_color(self) -> str:
@@ -837,5 +905,8 @@ class Badge:
         if not overwrite and file.exists():
             raise RuntimeError('File "{}" already exists.'.format(file))
 
-        with open(file, mode="w") as file_handle:
+        # Write using UTF-8 to match the XML declaration in the badge SVG,
+        # otherwise emoji characters cannot be written with platform default
+        # encodings (e.g. cp1252 on Windows).
+        with open(file, mode="w", encoding="utf-8") as file_handle:
             file_handle.write(self.badge_svg_text)

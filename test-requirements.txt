@@ -1,4 +1,5 @@
 build
+emoji
 pytest
 pytest-cov
 requests
