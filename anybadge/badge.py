@@ -75,7 +75,7 @@ class Badge:
         'orange'
 
         8 is not <8
-        8 is <4, so 8 yields orange
+        8 is <10, so 8 yields green
         >>> badge = Badge('pylint', 8, thresholds={2: 'red',
         ...                                        4: 'orange',
         ...                                        8: 'yellow',
