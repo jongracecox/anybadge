@@ -1,9 +1,11 @@
+import io
 import os
 import subprocess
 import sys
 import tempfile
+from contextlib import redirect_stdout
 from pathlib import Path
-from unittest import TestCase
+from unittest import TestCase, mock
 from anybadge import Badge
 from anybadge.cli import main, parse_args
 
@@ -314,6 +316,107 @@ class TestAnybadge(TestCase):
         with self.assertRaises(ValueError):
             badge = Badge("label", value="fred", default_color="floberry")
             _ = badge.badge_color_code
+
+    def test_invalid_color_message(self):
+        """Test that the invalid color error names the bad color and lists valid options."""
+        badge = Badge("label", value="fred", default_color="floberry")
+        with self.assertRaisesRegex(
+            ValueError,
+            r'Invalid color code "floberry". Valid color codes are: .*MEDIUMBLUE',
+        ):
+            _ = badge.badge_color_code
+
+    def test_cli_invalid_color_reports_error_without_traceback(self):
+        """Test that an invalid color produces a single ERROR line and exit code 1."""
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            retval = main(
+                ["--label", "label", "--value", "value", "--color", "floberry"]
+            )
+
+        self.assertEqual(1, retval)
+        lines = stdout.getvalue().strip().splitlines()
+        self.assertEqual(1, len(lines))
+        self.assertTrue(lines[0].startswith("ERROR:"))
+        self.assertIn('Invalid color code "floberry"', lines[0])
+        self.assertIn("Valid color codes", lines[0])
+
+    def test_cli_bad_threshold_reports_error_without_traceback(self):
+        """Test that a malformed threshold produces a single ERROR line and exit code 1."""
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            retval = main(["--label", "label", "--value", "value", "2red"])
+
+        self.assertEqual(1, retval)
+        lines = stdout.getvalue().strip().splitlines()
+        self.assertEqual(1, len(lines))
+        self.assertTrue(lines[0].startswith("ERROR:"))
+        self.assertIn("2red", lines[0])
+
+    def test_cli_missing_font_reports_error(self):
+        """Test that an unknown font produces exit code 1 and an ERROR line."""
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            retval = main(["--label", "label", "--value", "value", "--font", "BadFont"])
+
+        self.assertEqual(1, retval)
+        lines = stdout.getvalue().strip().splitlines()
+        self.assertEqual(1, len(lines))
+        self.assertTrue(lines[0].startswith("ERROR:"))
+        self.assertIn("BadFont", lines[0])
+
+    def test_cli_missing_template_reports_error(self):
+        """Test that a missing template file produces exit code 1 and an ERROR line."""
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            retval = main(
+                [
+                    "--label",
+                    "label",
+                    "--value",
+                    "value",
+                    "--template",
+                    "no_such_template.svg",
+                ]
+            )
+
+        self.assertEqual(1, retval)
+        self.assertTrue(stdout.getvalue().strip().startswith("ERROR:"))
+
+    def test_cli_empty_args_does_not_read_sys_argv(self):
+        """Test that main([]) does not fall back to reading sys.argv."""
+        # Patch sys.argv with a bogus flag; argparse would SystemExit if it
+        # were consumed, so falling through proves [] was honoured.
+        with mock.patch.object(sys, "argv", ["anybadge", "--bogus-flag"]):
+            stdout = io.StringIO()
+            with redirect_stdout(stdout):
+                retval = main([])
+
+        self.assertEqual(1, retval)
+        self.assertTrue(stdout.getvalue().strip().startswith("ERROR:"))
+
+    def test_module_exits_1_on_user_error(self):
+        """Test that `python -m anybadge` exits with code 1 and no traceback."""
+        process = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "anybadge",
+                "--label",
+                "label",
+                "--value",
+                "value",
+                "--color",
+                "floberry",
+            ],
+            cwd=str(PROJECT_ROOT),
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(1, process.returncode)
+        self.assertNotIn("Traceback", process.stderr)
+        self.assertIn("ERROR:", process.stdout)
 
     def test_invalid_write_path(self):
         cwd = Path(os.getcwd())
