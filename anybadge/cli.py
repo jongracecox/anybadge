@@ -5,6 +5,7 @@ import textwrap
 from anybadge.styles import Style
 from anybadge.templates import get_template
 from anybadge import __version__ as anybadge_version
+from anybadge import logos
 from . import config
 from .badge import Badge
 from .exceptions import UnknownBadgeTemplate
@@ -49,6 +50,13 @@ examples:
     CI Pipeline
         anybadge.py --label=pipeline --value=passing --file=pipeline.svg \\
           passing=green failing=red
+
+    Badge with a logo
+        anybadge.py --label=stars --value=123 --logo=python --file=stars.svg
+
+    Download logos to files, so badge generation can work without
+    network access (e.g. on a CI runner or network-gated server):
+        anybadge.py fetch-logos python github docker --dir=logos
 
 """
         ),
@@ -167,6 +175,42 @@ examples:
         "balance. Pass the same value as --font-size to disable.",
     )
     parser.add_argument(
+        "--logo",
+        type=str,
+        default=None,
+        help="Logo to embed in the badge. This may be a path to a local "
+        "image file (.svg, .png, .jpg, .gif), an http(s) URL, a Simple "
+        "Icons slug (e.g. python), or a data URI. Simple Icons slugs are "
+        "looked up in --logos-dir directories first, then in the logos "
+        "bundled with the package (%s), and are otherwise downloaded "
+        "from the Simple Icons CDN." % ", ".join(logos.builtin_logos()),
+    )
+    parser.add_argument(
+        "--logo-color",
+        type=str,
+        default=None,
+        help="Color used to render Simple Icons logos (e.g. #fff). "
+        "Applies only when the logo is downloaded from the Simple Icons "
+        "CDN.",
+    )
+    parser.add_argument(
+        "--logo-position",
+        type=str,
+        default=config.DEFAULT_LOGO_POSITION,
+        choices=config.VALID_LOGO_POSITIONS,
+        help="Position of the logo: left (next to the label) or right "
+        "(after the value). Default is left.",
+    )
+    parser.add_argument(
+        "--logos-dir",
+        type=str,
+        action="append",
+        default=None,
+        help="Directory searched for logo files when --logo is a Simple "
+        "Icons slug. May be passed multiple times. Vendored logos allow "
+        "badge generation without network access.",
+    )
+    parser.add_argument(
         "--no-escape-label",
         action="store_true",
         default=False,
@@ -206,6 +250,12 @@ def main(args=None) -> int:
         return 0
 
     try:
+        # "fetch-logos" is a special first argument that switches the CLI
+        # into logo vending mode, downloading logos to files for use in
+        # network-gated environments.
+        if args and args[0] == "fetch-logos":
+            return _run_fetch_logos(args[1:])
+
         return _run(args)
     except (ValueError, RuntimeError, UnknownBadgeTemplate, OSError) as e:
         # Report expected user errors (e.g. bad colors, unknown fonts, bad
@@ -213,6 +263,64 @@ def main(args=None) -> int:
         # error line instead of a traceback.
         print("ERROR: %s" % e)
         return 1
+
+
+def _run_fetch_logos(args) -> int:
+    """Download logos to files using the fetch-logos argument list.
+
+    Args:
+        args(list): List of arguments, as received from the command line
+            following the "fetch-logos" argument.
+
+    Returns:
+        int: 0 if successful, 1 otherwise.
+
+    Raises:
+        ValueError: When a logo cannot be downloaded.
+    """
+    parser = argparse.ArgumentParser(
+        prog="anybadge fetch-logos",
+        description=textwrap.dedent(
+            """\
+Download logos (icon SVGs and images) to files.
+
+This is a convenience mechanism for environments that are gated from the
+network: logos can be downloaded wherever network access is available,
+committed to source control or passed on as build artifacts, and then
+referenced at badge generation time using --logos-dir, without any
+network access.
+"""
+        ),
+    )
+    parser.add_argument(
+        "names",
+        nargs="+",
+        help="Simple Icons slugs (e.g. python github) or http(s) URLs to " "download.",
+    )
+    parser.add_argument(
+        "-d",
+        "--dir",
+        type=str,
+        default=".",
+        help="Directory to write logo files into (default: current " "directory).",
+    )
+    parser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Overwrite logo files that already exist.",
+    )
+
+    parsed_args = parser.parse_args(args)
+
+    paths = logos.fetch_logos(
+        parsed_args.names, parsed_args.dir, overwrite=parsed_args.force
+    )
+
+    for path in paths:
+        print("Wrote %s" % path)
+
+    return 0
 
 
 def _run(args) -> int:
@@ -282,6 +390,10 @@ def _run(args) -> int:
         escape_label=not parsed_args.no_escape_label,
         escape_value=not parsed_args.no_escape_value,
         emoji_font_size=parsed_args.emoji_font_size,
+        logo=parsed_args.logo,
+        logo_color=parsed_args.logo_color,
+        logo_position=parsed_args.logo_position if parsed_args.logo else None,
+        logo_dirs=parsed_args.logos_dir,
     )
 
     if parsed_args.file:

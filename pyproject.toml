@@ -32,10 +32,10 @@ anybadge-server = "anybadge.server.cli:main"
 
 [tool.setuptools]
 py-modules = ["anybadge_server"]
-packages = ["anybadge", "anybadge.templates", "anybadge.server"]
+packages = ["anybadge", "anybadge.templates", "anybadge.logos", "anybadge.server"]
 
 [tool.setuptools.package-data]
-anybadge = ["templates/*.svg"]
+anybadge = ["templates/*.svg", "logos/*.svg"]
 
 # Derive the version from the latest git tag, with a fallback for builds
 # performed outside a git checkout (e.g. from an extracted sdist).

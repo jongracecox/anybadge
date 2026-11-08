@@ -10,7 +10,24 @@ from anybadge.server import config
 logger = logging.getLogger(__name__)
 
 
-def run(listen_address: Optional[str] = None, port: Optional[int] = None):
+class AnyBadgeHTTPServer(HTTPServer):
+    """HTTP server that carries badge generation options to the handler.
+
+    Attributes:
+        logos_dirs: Directories searched for vendored logo files when a
+            badge request includes a Simple Icons style logo name.
+    """
+
+    def __init__(self, server_address, RequestHandlerClass, logos_dirs=None):
+        super().__init__(server_address, RequestHandlerClass)
+        self.logos_dirs = logos_dirs or []
+
+
+def run(
+    listen_address: Optional[str] = None,
+    port: Optional[int] = None,
+    logos_dirs: Optional[list] = None,
+):
     """Run a persistent webserver."""
     if not listen_address:
         listen_address = config.DEFAULT_SERVER_LISTEN_ADDRESS
@@ -20,7 +37,9 @@ def run(listen_address: Optional[str] = None, port: Optional[int] = None):
 
     server_address: Tuple[str, int] = (listen_address, port)  # type: ignore
 
-    httpd = HTTPServer(server_address, AnyBadgeHTTPRequestHandler)
+    httpd = AnyBadgeHTTPServer(
+        server_address, AnyBadgeHTTPRequestHandler, logos_dirs=logos_dirs
+    )
     logger.info("Serving at: http://%s:%s" % server_address)
 
     try:
@@ -51,6 +70,17 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "-d", "--debug", action="store_true", help="Enable debug logging."
+    )
+    parser.add_argument(
+        "-ld",
+        "--logos-dir",
+        type=str,
+        action="append",
+        default=None,
+        help="Directory searched for vendored logo files when a badge "
+        "request includes a Simple Icons style logo name. May be passed "
+        "multiple times. Vendored logos allow the server to generate "
+        "badges containing logos without network access.",
     )
     return parser.parse_args()
 
@@ -92,7 +122,11 @@ def main() -> None:
     )
     logger.info("Starting up anybadge server.")
 
-    run(listen_address=args.listen_address, port=args.port)
+    run(
+        listen_address=args.listen_address,
+        port=args.port,
+        logos_dirs=args.logos_dir,
+    )
 
 
 if __name__ == "__main__":

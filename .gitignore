@@ -118,4 +118,8 @@ htmlcov/
 **/*.svg
 !examples/*.svg
 !anybadge/templates/*.svg
+!anybadge/logos/*.svg
 test_files/
+
+# Personal Claude instructions (not committed)
+CLAUDE.local.md

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="81" height="20" role="img" aria-label="🚀 Deploy: 💯">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="81" height="20" role="img" aria-label="🚀 Deploy: 💯">
     <title>🚀 Deploy: 💯</title>
     <linearGradient id="b" x2="0" y2="100%">
         <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
@@ -13,6 +13,7 @@
         <path fill="#4c1" d="M62 0h19v20H62z"/>
         <path fill="url(#b)" d="M0 0h81v20H0z"/>
     </g>
+
     <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
         <text x="32.0" y="15" fill="#010101" fill-opacity=".3"><tspan font-size="14">🚀</tspan> Deploy</text>
         <text x="31.0" y="14"><tspan font-size="14">🚀</tspan> Deploy</text>
