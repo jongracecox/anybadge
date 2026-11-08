@@ -13,7 +13,7 @@ Python project for generating badges for your projects
 
 [![buymeacoffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/jongracecox)
 
-Supports: Python 3.7-3.13 (2.7-3.6 support has been dropped)
+Supports: Python 3.7-3.15 (2.7-3.6 support has been dropped)
 
 ## Overview
 
@@ -476,6 +476,77 @@ Here are some examples to show how to use padding to fix layout:
 | ----- |----------------------------------------------------------------------|
 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline_smile.svg) | `anybadge.Badge("Pipeline status", "😄")` |
 | ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/pipeline_smile_padding.svg) | `anybadge.Badge("Pipeline status", "😄", num_value_padding_chars=1)` |
+
+### Logos
+
+Badges can include a logo, positioned next to the label or value. A logo can
+be specified as a Simple Icons slug, a local image file path, an http(s)
+URL, or a `data:` URI. In all cases the image is **embedded into the badge
+as a base64 `data:` URI**, so the generated SVG remains fully
+self-contained and never loads anything at view time.
+
+Common project logos are bundled with the package (rendered in white to
+match the badge text color), and can be used offline:
+
+`docker` `git` `github` `gitlab` `javascript` `jenkins` `kubernetes`
+`linux` `nodejs` `python` `typescript`
+
+Bundled logos are sourced from [Simple Icons](https://simpleicons.org)
+and released under a
+[CC0 1.0](https://github.com/simple-icons/simple-icons/blob/develop/LICENSE.md)
+public domain dedication. All logos remain subject to their respective
+brand owners' trademarks and usage guidelines.
+
+| Badge | Code |
+| ----- | ---- |
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/logo_github_left.svg) | `anybadge.Badge("Stars", "23,414", logo="github")` |
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/logo_github_right.svg) | `anybadge.Badge("Stars", "23,414", logo="github", logo_position="right")` |
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/logo_python.svg) | `anybadge.Badge("Python", "3.13", logo="python")` |
+| ![](https://cdn.rawgit.com/jongracecox/anybadge/master/examples/logo_docker_pipeline.svg) | `anybadge.Badge("Docker", "passing", logo="docker")` |
+
+Logos that are not bundled can be provided as:
+
+```python
+badge = anybadge.Badge(label="Stars", value="23,414", logo="https://cdn.simpleicons.org/github/red")
+
+badge = anybadge.Badge(label="Stars", value="23,414", logo="logos/mysprite.svg")
+
+badge = anybadge.Badge(label="Stars", value="23,414", logo="mysprite",
+                       logo_dirs=["logos"])
+```
+
+When a Simple Icons slug is given, `logo_color` chooses the icon color for
+CDN downloads (e.g. `logo_color="#fff"`); bundled, vendored and local-file
+logos use the colors stored in the image file.
+
+#### Using logos in network-gated environments
+
+If badges are generated on a CI runner or server that is gated from the
+network, logos can be vendored as files wherever network access is
+available, and then used from disk:
+
+```bash
+# Where there is network access, download logos into a directory
+# (e.g. commit this directory, or pass it between CI jobs):
+anybadge fetch-logos python github docker --dir=logos
+
+# Where there is no network access, generate badges using vendored logos:
+anybadge --label=stars --value=23414 --logo=github --logos-dir=logos --file=stars.svg
+```
+
+The same resolution applies in Python, using the `logo_dirs` argument.
+
+The parameters are also accepted by `anybadge-server`, as `logo`,
+`logo_color` and `logo_position` query parameters:
+
+```
+http://localhost:8000/?label=Stars&value=23414&logo=github&logo_position=right
+```
+
+The server additionally takes a `--logos-dir` argument (repeatable),
+which is used to resolve logo names, so a server on a network-gated
+host can generate badges containing vendored logos without network
+access.
 
 ### Value or label only
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="112" height="20" role="img" aria-label="Color: light_grey">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="112" height="20" role="img" aria-label="Color: light_grey">
     <title>Color: light_grey</title>
     <linearGradient id="b" x2="0" y2="100%">
         <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
@@ -13,6 +13,7 @@
         <path fill="#9F9F9F" d="M41 0h71v20H41z"/>
         <path fill="url(#b)" d="M0 0h112v20H0z"/>
     </g>
+
     <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
         <text x="21.5" y="15" fill="#010101" fill-opacity=".3">Color</text>
         <text x="20.5" y="14">Color</text>

@@ -74,6 +74,22 @@ def other_examples():
         examples_dir / Path("pipeline_smile_without_emoji_package.svg"), overwrite=True
     )
 
+    # Logo example badges, using icons bundled with the package.
+    for label, value, file, kwargs in [
+        ("Stars", "23,414", "logo_github_left.svg", {"logo": "github"}),
+        (
+            "Stars",
+            "23,414",
+            "logo_github_right.svg",
+            {"logo": "github", "logo_position": "right"},
+        ),
+        ("Python", "3.13", "logo_python.svg", {"logo": "python"}),
+        ("Docker", "passing", "logo_docker_pipeline.svg", {"logo": "docker"}),
+    ]:
+        anybadge.Badge(label=label, value=value, **kwargs).write_badge(
+            examples_dir / Path(file), overwrite=True
+        )
+
 
 def main():
     color_examples_table()
